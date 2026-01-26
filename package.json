@@ -11,6 +11,7 @@
     "dependencies": {
         "@types/bcryptjs": "^2.4.6",
         "@types/jsonwebtoken": "^9.0.10",
+        "@types/pg": "^8.16.0",
         "@types/sequelize": "^4.28.20",
         "axios": "^1.6.5",
         "bcryptjs": "^3.0.3",
@@ -33,7 +34,6 @@
     },
     "devDependencies": {
         "@types/node": "^20.11.5",
-        "@types/pg": "^8.16.0",
         "@types/react": "^18.2.48",
         "autoprefixer": "^10.4.17",
         "postcss": "^8.4.33",
