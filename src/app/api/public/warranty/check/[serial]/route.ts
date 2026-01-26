@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { models } from '@/lib/db';
+import { Op } from 'sequelize';
 
 export async function GET(
     req: NextRequest,
@@ -13,7 +14,7 @@ export async function GET(
                     model: models.SerialItem,
                     as: 'serialItem',
                     where: {
-                        [models.Sequelize.Op.or]: [
+                        [Op.or]: [
                             { imei: serial },
                             { serial_number: serial }
                         ]
