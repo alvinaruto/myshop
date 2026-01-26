@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { models } from '@/lib/db';
+import { models, sequelize } from '@/lib/db';
 import { Op } from 'sequelize';
 import { verifyAuth, unauthorizedResponse } from '@/lib/auth';
 
@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
         if (low_stock === 'true') {
             where.is_serialized = false;
             where.quantity = {
-                [Op.lte]: models.Sequelize.col('low_stock_threshold')
+                [Op.lte]: sequelize.col('low_stock_threshold')
             };
         }
 
@@ -61,7 +61,7 @@ export async function GET(req: NextRequest) {
         const canViewCostPrice = auth.role === 'admin' || auth.role === 'manager';
 
         // Sanitize for role
-        const sanitizedProducts = products.map(p => {
+        const sanitizedProducts = products.map((p: any) => {
             const product = p.toJSON();
             if (!canViewCostPrice) {
                 delete product.cost_price;
