@@ -8,60 +8,58 @@ export async function GET(req: NextRequest) {
         const auth = await verifyAuth(req);
         if (!auth) return unauthorizedResponse();
 
-        // Find non-serialized products where quantity <= low_stock_threshold
-        const lowStockProducts = await models.Product.findAll({
-            where: {
-                is_active: true,
-                is_serialized: false,
-                quantity: {
-                    [Op.lte]: sequelize.col('low_stock_threshold')
-                }
-            },
-            include: [
-                { model: models.Category, as: 'category' },
-                { model: models.Brand, as: 'brand' }
-            ],
-            order: [['quantity', 'ASC']]
-        });
-
-        // For serialized products, count items in stock
-        const serializedProducts = await models.Product.findAll({
-            where: {
-                is_active: true,
-                is_serialized: true
-            },
+        // Get all products with their categories
+        const products = await models.Product.findAll({
+            where: { is_active: true },
             include: [
                 { model: models.Category, as: 'category' },
                 { model: models.Brand, as: 'brand' }
             ]
         });
 
-        const lowStockSerializedProducts = [];
-        for (const product of serializedProducts) {
-            const inStockCount = await models.SerialItem.count({
-                where: {
-                    product_id: (product as any).id,
-                    status: 'in_stock'
-                }
-            });
+        const accessories: any[] = [];
+        const devices: any[] = [];
 
-            if (inStockCount <= (product as any).low_stock_threshold) {
-                lowStockSerializedProducts.push({
-                    ...(product as any).toJSON(),
-                    in_stock_count: inStockCount
+        for (const product of products) {
+            const p = (product as any).toJSON();
+
+            if (p.is_serialized) {
+                // Serialized products (devices) - count in-stock serial items
+                const inStockCount = await models.SerialItem.count({
+                    where: {
+                        product_id: p.id,
+                        status: 'in_stock'
+                    }
                 });
+
+                if (inStockCount <= p.low_stock_threshold) {
+                    devices.push({
+                        ...p,
+                        available_stock: inStockCount
+                    });
+                }
+            } else {
+                // Non-serialized products (accessories) - check quantity
+                if (p.quantity <= p.low_stock_threshold) {
+                    accessories.push(p);
+                }
             }
         }
+
+        // Sort by stock level ascending (lowest stock first)
+        accessories.sort((a, b) => a.quantity - b.quantity);
+        devices.sort((a, b) => a.available_stock - b.available_stock);
 
         return NextResponse.json({
             success: true,
             data: {
-                regular: lowStockProducts,
-                serialized: lowStockSerializedProducts,
-                total: lowStockProducts.length + lowStockSerializedProducts.length
+                accessories,
+                devices,
+                total: accessories.length + devices.length
             }
         });
     } catch (error: any) {
+        console.error('Low stock error:', error);
         return NextResponse.json({ success: false, message: error.message }, { status: 500 });
     }
 }

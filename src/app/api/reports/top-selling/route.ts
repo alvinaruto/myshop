@@ -10,6 +10,7 @@ export async function GET(req: NextRequest) {
 
         const { searchParams } = new URL(req.url);
         const days = parseInt(searchParams.get('days') || '30');
+        const limit = parseInt(searchParams.get('limit') || '10');
 
         const startDate = new Date();
         startDate.setDate(startDate.getDate() - days);
@@ -18,8 +19,8 @@ export async function GET(req: NextRequest) {
         const topProducts = await models.SaleItem.findAll({
             attributes: [
                 'product_id',
-                [fn('SUM', col('quantity')), 'total_quantity'],
-                [fn('SUM', col('total')), 'total_revenue']
+                [fn('SUM', col('SaleItem.quantity')), 'total_sold'],
+                [fn('SUM', col('SaleItem.total')), 'total_revenue']
             ],
             include: [
                 {
@@ -36,21 +37,29 @@ export async function GET(req: NextRequest) {
                     as: 'product',
                     attributes: ['id', 'name', 'sku', 'selling_price'],
                     include: [
-                        { model: models.Category, as: 'category', attributes: ['name'] },
-                        { model: models.Brand, as: 'brand', attributes: ['name'] }
+                        { model: models.Category, as: 'category', attributes: ['id', 'name'] },
+                        { model: models.Brand, as: 'brand', attributes: ['id', 'name'] }
                     ]
                 }
             ],
-            group: ['product_id', 'product.id', 'product.name', 'product.sku', 'product.selling_price',
+            group: ['SaleItem.product_id', 'product.id', 'product.name', 'product.sku', 'product.selling_price',
                 'product->category.id', 'product->category.name',
                 'product->brand.id', 'product->brand.name'],
-            order: [[literal('total_quantity'), 'DESC']],
-            limit: 10
+            order: [[literal('total_sold'), 'DESC']],
+            limit,
+            raw: false
         });
+
+        // Format the response to match frontend expectations
+        const formattedData = topProducts.map((item: any) => ({
+            product: item.product,
+            total_sold: parseInt(item.getDataValue('total_sold') || '0'),
+            total_revenue: item.getDataValue('total_revenue') || '0'
+        }));
 
         return NextResponse.json({
             success: true,
-            data: topProducts
+            data: formattedData
         });
     } catch (error: any) {
         console.error('Top selling error:', error);
