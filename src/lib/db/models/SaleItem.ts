@@ -42,6 +42,7 @@ export default (sequelize: Sequelize) => {
         }
     }, {
         tableName: 'sale_items',
+        underscored: true,
         indexes: [
             { fields: ['sale_id'] },
             { fields: ['product_id'] },

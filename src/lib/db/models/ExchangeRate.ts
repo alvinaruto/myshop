@@ -25,6 +25,7 @@ export default (sequelize: Sequelize) => {
         }
     }, {
         tableName: 'exchange_rates',
+        underscored: true,
         indexes: [
             { fields: ['rate_date'] }
         ]

@@ -35,6 +35,7 @@ export default (sequelize: Sequelize) => {
         }
     }, {
         tableName: 'users',
+        underscored: true,
         hooks: {
             beforeCreate: async (user: any) => {
                 if (user.password_hash) {

@@ -44,6 +44,7 @@ export default (sequelize: Sequelize) => {
         }
     }, {
         tableName: 'serial_items',
+        underscored: true,
         indexes: [
             { fields: ['imei'], unique: true },
             { fields: ['serial_number'], unique: true },

@@ -21,7 +21,8 @@ export default (sequelize: Sequelize) => {
             defaultValue: true
         }
     }, {
-        tableName: 'brands'
+        tableName: 'brands',
+        underscored: true
     });
 
     (Brand as any).associate = (models: any) => {

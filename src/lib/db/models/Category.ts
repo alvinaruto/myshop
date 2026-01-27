@@ -25,7 +25,8 @@ export default (sequelize: Sequelize) => {
             allowNull: true
         }
     }, {
-        tableName: 'categories'
+        tableName: 'categories',
+        underscored: true
     });
 
     (Category as any).associate = (models: any) => {

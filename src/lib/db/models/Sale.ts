@@ -72,6 +72,7 @@ export default (sequelize: Sequelize) => {
         }
     }, {
         tableName: 'sales',
+        underscored: true,
         indexes: [
             { fields: ['invoice_number'] },
             { fields: ['cashier_id'] },

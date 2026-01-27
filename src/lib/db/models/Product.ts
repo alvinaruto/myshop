@@ -85,6 +85,7 @@ export default (sequelize: Sequelize) => {
         }
     }, {
         tableName: 'products',
+        underscored: true,
         indexes: [
             { fields: ['sku'] },
             { fields: ['barcode'] },

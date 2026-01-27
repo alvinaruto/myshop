@@ -42,6 +42,7 @@ export default (sequelize: Sequelize) => {
         }
     }, {
         tableName: 'warranties',
+        underscored: true,
         indexes: [
             { fields: ['serial_item_id'] },
             { fields: ['sale_id'] },
