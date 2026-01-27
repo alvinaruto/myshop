@@ -38,12 +38,25 @@ function getSequelize(): Sequelize {
                 }
             },
             logging: false,
+            pool: {
+                max: 2,
+                min: 0,
+                acquire: 30000,
+                idle: 10000
+            }
         });
     } else {
-        // Local development often doesn't need SSL
+        // Check if DATABASE_URL contains SSL requirement (e.g., Supabase in dev)
+        const needsSSL = DATABASE_URL.includes('supabase') || DATABASE_URL.includes('sslmode');
         sequelizeInstance = new Sequelize(DATABASE_URL, {
             dialect: 'postgres',
             dialectModule: pg,
+            dialectOptions: needsSSL ? {
+                ssl: {
+                    require: true,
+                    rejectUnauthorized: false
+                }
+            } : undefined,
             logging: false,
         });
     }
