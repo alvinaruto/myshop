@@ -12,55 +12,91 @@ import defineSaleItem from './models/SaleItem';
 import defineWarranty from './models/Warranty';
 import defineExchangeRate from './models/ExchangeRate';
 
-const DATABASE_URL = process.env.DATABASE_URL || process.env.POSTGRES_URL;
+// Lazy-loaded singleton instances
+let sequelizeInstance: Sequelize | null = null;
+let modelsInstance: ReturnType<typeof initializeModels> | null = null;
 
-if (!DATABASE_URL) {
-    console.warn('⚠️ DATABASE_URL is not defined. Database connectivity will fail.');
+function getSequelize(): Sequelize {
+    if (sequelizeInstance) {
+        return sequelizeInstance;
+    }
+
+    const DATABASE_URL = process.env.DATABASE_URL || process.env.POSTGRES_URL;
+
+    if (!DATABASE_URL) {
+        throw new Error('DATABASE_URL or POSTGRES_URL environment variable is required');
+    }
+
+    if (process.env.NODE_ENV === 'production') {
+        sequelizeInstance = new Sequelize(DATABASE_URL, {
+            dialect: 'postgres',
+            dialectModule: pg,
+            dialectOptions: {
+                ssl: {
+                    require: true,
+                    rejectUnauthorized: false
+                }
+            },
+            logging: false,
+        });
+    } else {
+        // Local development often doesn't need SSL
+        sequelizeInstance = new Sequelize(DATABASE_URL, {
+            dialect: 'postgres',
+            dialectModule: pg,
+            logging: false,
+        });
+    }
+
+    return sequelizeInstance;
 }
 
-// Nextjs / Vercel Serverless Connection Singleton
-let sequelize: Sequelize;
+function initializeModels(sequelize: Sequelize) {
+    const models = {
+        User: defineUser(sequelize),
+        Product: defineProduct(sequelize),
+        Category: defineCategory(sequelize),
+        Brand: defineBrand(sequelize),
+        SerialItem: defineSerialItem(sequelize),
+        Sale: defineSale(sequelize),
+        SaleItem: defineSaleItem(sequelize),
+        Warranty: defineWarranty(sequelize),
+        ExchangeRate: defineExchangeRate(sequelize),
+    };
 
-if (process.env.NODE_ENV === 'production') {
-    sequelize = new Sequelize(DATABASE_URL!, {
-        dialect: 'postgres',
-        dialectModule: pg,
-        dialectOptions: {
-            ssl: {
-                require: true,
-                rejectUnauthorized: false
-            }
-        },
-        logging: false,
+    // Define Associations
+    Object.keys(models).forEach((modelName) => {
+        if ((models as any)[modelName].associate) {
+            (models as any)[modelName].associate(models);
+        }
     });
-} else {
-    // Local development often doesn't need SSL
-    sequelize = new Sequelize(DATABASE_URL!, {
-        dialect: 'postgres',
-        dialectModule: pg,
-        logging: false,
-    });
+
+    return models;
 }
 
-// Initialize models
-const models = {
-    User: defineUser(sequelize),
-    Product: defineProduct(sequelize),
-    Category: defineCategory(sequelize),
-    Brand: defineBrand(sequelize),
-    SerialItem: defineSerialItem(sequelize),
-    Sale: defineSale(sequelize),
-    SaleItem: defineSaleItem(sequelize),
-    Warranty: defineWarranty(sequelize),
-    ExchangeRate: defineExchangeRate(sequelize),
-};
+function getModels() {
+    if (modelsInstance) {
+        return modelsInstance;
+    }
 
-// Define Associations
-Object.keys(models).forEach((modelName) => {
-    if ((models as any)[modelName].associate) {
-        (models as any)[modelName].associate(models);
+    const sequelize = getSequelize();
+    modelsInstance = initializeModels(sequelize);
+    return modelsInstance;
+}
+
+// For backwards compatibility, use getters that lazy-load
+// These will throw at build time if accessed, which is the correct behavior
+const sequelize = new Proxy({} as Sequelize, {
+    get(_, prop) {
+        return (getSequelize() as any)[prop];
     }
 });
 
-export { sequelize, models };
+const models = new Proxy({} as ReturnType<typeof initializeModels>, {
+    get(_, prop) {
+        return (getModels() as any)[prop];
+    }
+});
+
+export { sequelize, models, getSequelize, getModels };
 export default sequelize;
