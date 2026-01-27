@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// API Base URL - Consolidated Vercel-Ready endpoint
-const API_URL = 'http://localhost:3000/api';
+// API Base URL - Uses relative path for both local and production
+const API_URL = '/api';
 
 const api = axios.create({
     baseURL: API_URL,
