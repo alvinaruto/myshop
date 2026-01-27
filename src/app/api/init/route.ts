@@ -8,13 +8,17 @@ import bcrypt from 'bcryptjs';
  * In serverless environments, we don't have a persistent server startup to sync the DB.
  * This route allows triggering the sync manually or during build.
  */
-export async function GET() {
+export async function GET(request: Request) {
     try {
-        console.log('🔄 Syncing database...');
+        const { searchParams } = new URL(request.url);
+        const forceSync = searchParams.get('force') === 'true';
 
-        // Sync database (create tables if not exists)
-        // alter: true allows updating tables without dropping data
-        await sequelize.sync({ alter: true });
+        console.log(`🔄 Syncing database... (force: ${forceSync})`);
+
+        // Sync database
+        // force: true will drop and recreate all tables (use with caution!)
+        // alter: true will try to update tables without dropping data
+        await sequelize.sync({ force: forceSync, alter: !forceSync });
 
         console.log('✅ Database synced successfully.');
 
