@@ -97,16 +97,30 @@ export async function POST(req: NextRequest) {
 
         const data = await req.json();
 
+        // Sanitize empty strings to null for UUID fields
+        const sanitizedData = {
+            ...data,
+            category_id: data.category_id || null,
+            brand_id: data.brand_id || null,
+            quantity: data.is_serialized ? 0 : (data.quantity || 0)
+        };
+
+        // Validate required fields
+        if (!sanitizedData.category_id) {
+            return NextResponse.json({ success: false, message: 'Category is required' }, { status: 400 });
+        }
+
+        if (!sanitizedData.name || !sanitizedData.sku) {
+            return NextResponse.json({ success: false, message: 'Product name and SKU are required' }, { status: 400 });
+        }
+
         // Validation check for SKU
         const existingSku = await models.Product.findOne({ where: { sku: data.sku } });
         if (existingSku) {
             return NextResponse.json({ success: false, message: 'SKU already exists' }, { status: 400 });
         }
 
-        const product = await models.Product.create({
-            ...data,
-            quantity: data.is_serialized ? 0 : (data.quantity || 0)
-        });
+        const product = await models.Product.create(sanitizedData);
 
         return NextResponse.json({
             success: true,
@@ -114,6 +128,7 @@ export async function POST(req: NextRequest) {
             data: product
         }, { status: 201 });
     } catch (error: any) {
+        console.error('Product creation error:', error);
         return NextResponse.json({ success: false, message: error.message }, { status: 500 });
     }
 }

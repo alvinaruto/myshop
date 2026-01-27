@@ -22,14 +22,20 @@ export async function POST(req: NextRequest) {
         }
 
         // Check for Cloudinary configuration
-        const isCloudinaryConfigured = process.env.CLOUDINARY_CLOUD_NAME &&
-            process.env.CLOUDINARY_API_KEY &&
-            process.env.CLOUDINARY_API_SECRET;
+        const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+        const apiKey = process.env.CLOUDINARY_API_KEY;
+        const apiSecret = process.env.CLOUDINARY_API_SECRET;
 
-        if (!isCloudinaryConfigured) {
+        if (!cloudName || !apiKey || !apiSecret) {
+            const missing = [];
+            if (!cloudName) missing.push('CLOUDINARY_CLOUD_NAME');
+            if (!apiKey) missing.push('CLOUDINARY_API_KEY');
+            if (!apiSecret) missing.push('CLOUDINARY_API_SECRET');
+
+            console.error('Missing Cloudinary env vars:', missing.join(', '));
             return NextResponse.json({
                 success: false,
-                message: 'Cloudinary is not configured. Cloud deployment requires image hosting.'
+                message: `Image upload requires Cloudinary. Missing env vars: ${missing.join(', ')}. Please add these to your Vercel project settings.`
             }, { status: 501 });
         }
 
