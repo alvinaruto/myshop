@@ -4,7 +4,7 @@ import { useState } from 'react';
 import axios from 'axios';
 import { FiSearch, FiShield, FiCheckCircle, FiXCircle, FiLoader, FiCalendar, FiSmartphone } from 'react-icons/fi';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+const API_URL = '/api';
 
 export const WarrantyCheck = () => {
     const [imei, setImei] = useState('');

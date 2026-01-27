@@ -9,7 +9,7 @@ import { WarrantyCheck } from '@/components/WarrantyCheck';
 import { ProductQuickView } from '@/components/ProductQuickView';
 import { FiSearch, FiFilter, FiLoader, FiArrowRight, FiSmartphone, FiShield, FiZap, FiBox } from 'react-icons/fi';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+const API_URL = '/api';
 
 export default function HomePage() {
     const [products, setProducts] = useState<any[]>([]);
