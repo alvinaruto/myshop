@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { sequelize } from '@/lib/db';
 import { models } from '@/lib/db';
-import bcrypt from 'bcryptjs';
 
 /**
  * Database Initialization Route
@@ -25,22 +24,7 @@ export async function GET(request: Request) {
         // Seed initial admin user if no users exist
         const userCount = await models.User.count();
         if (userCount === 0) {
-            const hashedPassword = await bcrypt.hash('admin123', 12);
-            await models.User.create({
-                username: 'admin',
-                full_name: 'System Admin',
-                role: 'admin',
-                password_hash: hashedPassword, // Helper will hash it again if we used plain 'password', but we hashed manually here, so we must be careful. 
-                // Wait, our model hook hashes it! So we should pass plain password if we simply create.
-                // Let's check User model hook. It hashes if 'password_hash' is set. 
-                // Actually, let's just pass a plain password to be handled by the hook.
-            } as any);
-
-            // Wait, the model expects 'password_hash' field to hold the plain password initially? Use 'password' and then map?
-            // Checking User model: "if (user.password_hash) { user.password_hash = await bcrypt.hash(user.password_hash, 12); }"
-            // So yes, we pass plain text to 'password_hash' and the hook hashes it.
-
-            // Re-doing creation with plain text
+            // The User model hook will hash the password_hash field automatically
             await models.User.create({
                 username: 'admin',
                 full_name: 'System Admin',
