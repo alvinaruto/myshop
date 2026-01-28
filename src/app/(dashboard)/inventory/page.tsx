@@ -4,10 +4,11 @@ import { useState, useEffect } from 'react';
 import { productApi, categoryApi, brandApi, serialApi, resolveImageUrl } from '@/lib/api';
 import { useAuthStore } from '@/stores/authStore';
 import toast from 'react-hot-toast';
-import { FiPlus, FiEdit2, FiTrash2, FiSearch, FiFilter, FiX, FiPackage, FiSmartphone, FiTag } from 'react-icons/fi';
+import { FiPlus, FiEdit2, FiTrash2, FiSearch, FiFilter, FiX, FiPackage, FiSmartphone, FiTag, FiPrinter } from 'react-icons/fi';
 import { useRef } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import { ProductLabel } from '@/components/ProductLabel';
+import { BarcodePrintModal } from '@/components/BarcodePrintModal';
 
 interface Product {
     id: string;
@@ -54,6 +55,8 @@ export default function InventoryPage() {
     const [selectedProductForImei, setSelectedProductForImei] = useState<Product | null>(null);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
+    const [showBarcodeModal, setShowBarcodeModal] = useState(false);
 
     const labelRef = useRef<HTMLDivElement>(null);
     const [printingProduct, setPrintingProduct] = useState<Product | null>(null);
@@ -142,6 +145,15 @@ export default function InventoryPage() {
                     <FiPlus className="w-5 h-5" />
                     Add Product
                 </button>
+                {selectedProducts.length > 0 && (
+                    <button
+                        onClick={() => setShowBarcodeModal(true)}
+                        className="btn btn-outline"
+                    >
+                        <FiPrinter className="w-5 h-5" />
+                        Print Barcodes ({selectedProducts.length})
+                    </button>
+                )}
             </div>
 
             {/* Filters */}
@@ -176,6 +188,20 @@ export default function InventoryPage() {
                     <table className="w-full">
                         <thead className="bg-gray-50 dark:bg-gray-700">
                             <tr>
+                                <th className="px-2 py-3 text-center">
+                                    <input
+                                        type="checkbox"
+                                        checked={products.length > 0 && selectedProducts.length === products.length}
+                                        onChange={(e) => {
+                                            if (e.target.checked) {
+                                                setSelectedProducts(products);
+                                            } else {
+                                                setSelectedProducts([]);
+                                            }
+                                        }}
+                                        className="w-4 h-4 rounded"
+                                    />
+                                </th>
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">SKU</th>
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
@@ -200,6 +226,20 @@ export default function InventoryPage() {
                             ) : (
                                 products.map((product) => (
                                     <tr key={product.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                                        <td className="px-2 py-3 text-center">
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedProducts.some(p => p.id === product.id)}
+                                                onChange={(e) => {
+                                                    if (e.target.checked) {
+                                                        setSelectedProducts([...selectedProducts, product]);
+                                                    } else {
+                                                        setSelectedProducts(selectedProducts.filter(p => p.id !== product.id));
+                                                    }
+                                                }}
+                                                className="w-4 h-4 rounded"
+                                            />
+                                        </td>
                                         <td className="px-4 py-3">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-10 h-10 bg-gray-50 dark:bg-gray-700/50 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden border border-gray-100 dark:border-gray-700">
@@ -315,6 +355,17 @@ export default function InventoryPage() {
                     product={selectedProductForImei}
                     onClose={() => setShowImeiModal(false)}
                     onSave={() => { setShowImeiModal(false); loadData(); }}
+                />
+            )}
+
+            {/* Barcode Print Modal */}
+            {showBarcodeModal && selectedProducts.length > 0 && (
+                <BarcodePrintModal
+                    products={selectedProducts}
+                    onClose={() => {
+                        setShowBarcodeModal(false);
+                        setSelectedProducts([]);
+                    }}
                 />
             )}
         </div>
