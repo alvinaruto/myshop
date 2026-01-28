@@ -94,16 +94,21 @@ export const BarcodeLabel = forwardRef<HTMLDivElement, BarcodeLabelProps>(
 
                                 {/* Barcode */}
                                 <div className="my-1">
-                                    <Barcode
-                                        value={barcodeValue}
-                                        width={1}
-                                        height={style.barcodeHeight}
-                                        fontSize={8}
-                                        margin={0}
-                                        displayValue={showSku}
-                                        format={barcodeValue.length === 13 ? 'EAN13' :
-                                            barcodeValue.length === 8 ? 'EAN8' : 'CODE128'}
-                                    />
+                                    {barcodeValue && barcodeValue.length > 0 ? (
+                                        <Barcode
+                                            value={barcodeValue}
+                                            width={1.2}
+                                            height={style.barcodeHeight}
+                                            fontSize={8}
+                                            margin={2}
+                                            displayValue={showSku}
+                                            format="CODE128"
+                                            background="#ffffff"
+                                            lineColor="#000000"
+                                        />
+                                    ) : (
+                                        <div className="text-xs text-gray-400 italic">No barcode</div>
+                                    )}
                                 </div>
 
                                 {/* Price */}
