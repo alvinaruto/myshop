@@ -4,10 +4,11 @@ import { useState, useEffect, useRef } from 'react';
 import { productApi, serialApi, saleApi, exchangeRateApi } from '@/lib/api';
 import { useCartStore, CartItem } from '@/stores/cartStore';
 import toast from 'react-hot-toast';
-import { FiSearch, FiTrash2, FiMinus, FiPlus, FiDollarSign, FiCheck, FiX, FiLoader, FiPrinter } from 'react-icons/fi';
+import { FiSearch, FiTrash2, FiMinus, FiPlus, FiDollarSign, FiCheck, FiX, FiLoader, FiPrinter, FiCamera } from 'react-icons/fi';
 import { useReactToPrint } from 'react-to-print';
 import { Receipt } from '@/components/Receipt';
 import { KHQR } from '@/components/KHQR';
+import { BarcodeScanner } from '@/components/BarcodeScanner';
 
 interface Product {
     id: string;
@@ -41,6 +42,7 @@ export default function POSPage() {
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [showReceiptModal, setShowReceiptModal] = useState(false);
     const [lastSale, setLastSale] = useState<any>(null);
+    const [showScanner, setShowScanner] = useState(false);
     const receiptRef = useRef<HTMLDivElement>(null);
 
     const handlePrint = useReactToPrint({
@@ -197,20 +199,29 @@ export default function POSPage() {
             <div className="flex-1 flex flex-col card">
                 {/* Search */}
                 <div className="p-4 border-b border-gray-200 dark:border-gray-700 relative">
-                    <div className="relative">
-                        <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                        <input
-                            ref={searchRef}
-                            type="text"
-                            value={searchQuery}
-                            onChange={(e) => handleSearch(e.target.value)}
-                            className="input pl-11 text-lg"
-                            placeholder="Search by name, barcode, or scan IMEI..."
-                            autoFocus
-                        />
-                        {searching && (
-                            <FiLoader className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 animate-spin" />
-                        )}
+                    <div className="flex gap-2">
+                        <div className="relative flex-1">
+                            <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                            <input
+                                ref={searchRef}
+                                type="text"
+                                value={searchQuery}
+                                onChange={(e) => handleSearch(e.target.value)}
+                                className="input pl-11 text-lg"
+                                placeholder="Search by name, barcode, or scan IMEI..."
+                                autoFocus
+                            />
+                            {searching && (
+                                <FiLoader className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 animate-spin" />
+                            )}
+                        </div>
+                        <button
+                            onClick={() => setShowScanner(true)}
+                            className="btn btn-primary px-4"
+                            title="Scan Barcode/QR"
+                        >
+                            <FiCamera className="w-5 h-5" />
+                        </button>
                     </div>
 
                     {/* Search Results - Fixed positioning */}
@@ -413,6 +424,18 @@ export default function POSPage() {
                         </div>
                     </div>
                 </div>
+            )}
+
+            {/* Barcode Scanner Modal */}
+            {showScanner && (
+                <BarcodeScanner
+                    onScan={(code) => {
+                        setShowScanner(false);
+                        handleSearch(code);
+                        toast.success(`Scanned: ${code}`);
+                    }}
+                    onClose={() => setShowScanner(false)}
+                />
             )}
         </div>
     );
