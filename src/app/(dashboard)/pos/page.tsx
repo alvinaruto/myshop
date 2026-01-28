@@ -138,18 +138,21 @@ export default function POSPage() {
     };
 
     const handleSerialSelect = (serial: SerialItem) => {
+        // Use selectedProduct for price/sku/id since serial.product only has partial data
+        if (!selectedProduct) return;
+
         addItem({
-            product_id: serial.product.id,
+            product_id: selectedProduct.id,
             serial_item_id: serial.id,
-            name: serial.product.name,
-            sku: serial.product.sku,
+            name: selectedProduct.name,
+            sku: selectedProduct.sku,
             imei: serial.imei || serial.serial_number,
             quantity: 1,
-            unit_price: serial.product.selling_price,
+            unit_price: selectedProduct.selling_price,
             discount: 0,
             is_serialized: true,
         });
-        toast.success(`Added ${serial.product.name} - ${serial.imei || serial.serial_number}`);
+        toast.success(`Added ${selectedProduct.name} - ${serial.imei || serial.serial_number}`);
         setShowSerialModal(false);
         setSelectedProduct(null);
         setSerialItems([]);
