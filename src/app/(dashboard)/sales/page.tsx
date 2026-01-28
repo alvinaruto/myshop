@@ -1,10 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { saleApi } from '@/lib/api';
 import { useAuthStore } from '@/stores/authStore';
 import toast from 'react-hot-toast';
-import { FiEye, FiSearch, FiCalendar, FiDollarSign, FiXCircle } from 'react-icons/fi';
+import { FiEye, FiSearch, FiPrinter, FiXCircle, FiX } from 'react-icons/fi';
+import { useReactToPrint } from 'react-to-print';
+import { Receipt } from '@/components/Receipt';
 
 interface Sale {
     id: string;
@@ -158,11 +160,11 @@ export default function SalesPage() {
                                         </td>
                                         <td className="px-4 py-3">
                                             <div className="flex justify-end gap-2">
-                                                <button onClick={() => viewSale(sale.id)} className="p-2 hover:bg-gray-100 rounded-lg">
+                                                <button onClick={() => viewSale(sale.id)} className="p-2 hover:bg-gray-100 rounded-lg" title="View Details">
                                                     <FiEye className="w-4 h-4" />
                                                 </button>
                                                 {canDeleteSales() && sale.status === 'completed' && (
-                                                    <button onClick={() => voidSale(sale.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg">
+                                                    <button onClick={() => voidSale(sale.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg" title="Void Sale">
                                                         <FiXCircle className="w-4 h-4" />
                                                     </button>
                                                 )}
@@ -174,23 +176,66 @@ export default function SalesPage() {
                         </tbody>
                     </table>
                 </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                    <div className="p-4 border-t flex justify-center gap-2">
+                        <button
+                            onClick={() => setPage(p => Math.max(1, p - 1))}
+                            disabled={page === 1}
+                            className="btn btn-outline btn-sm disabled:opacity-50"
+                        >
+                            Previous
+                        </button>
+                        <span className="px-4 py-2 text-sm">Page {page} of {totalPages}</span>
+                        <button
+                            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                            disabled={page === totalPages}
+                            className="btn btn-outline btn-sm disabled:opacity-50"
+                        >
+                            Next
+                        </button>
+                    </div>
+                )}
             </div>
 
-            {/* Sale Detail Modal */}
+            {/* Sale Detail Modal with Print */}
             {selectedSale && (
-                <SaleDetailModal sale={selectedSale} onClose={() => setSelectedSale(null)} />
+                <SaleDetailModal
+                    sale={selectedSale}
+                    onClose={() => setSelectedSale(null)}
+                    onVoid={canDeleteSales() && selectedSale.status === 'completed' ? () => voidSale(selectedSale.id) : undefined}
+                />
             )}
         </div>
     );
 }
 
-function SaleDetailModal({ sale, onClose }: { sale: any; onClose: () => void }) {
+function SaleDetailModal({ sale, onClose, onVoid }: { sale: any; onClose: () => void; onVoid?: () => void }) {
+    const receiptRef = useRef<HTMLDivElement>(null);
+
+    const handlePrint = useReactToPrint({
+        content: () => receiptRef.current,
+    });
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
-                <div className="p-4 border-b flex justify-between items-center sticky top-0 bg-white dark:bg-gray-800">
-                    <h3 className="text-lg font-bold">Invoice: {sale.invoice_number}</h3>
-                    <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg">✕</button>
+                <div className="p-4 border-b flex justify-between items-center sticky top-0 bg-white dark:bg-gray-800 z-10">
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">Invoice: {sale.invoice_number}</h3>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => handlePrint()}
+                            className="btn btn-primary btn-sm"
+                            title="Print Invoice"
+                        >
+                            <FiPrinter className="w-4 h-4" />
+                            Print
+                        </button>
+                        <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
+                            <FiX className="w-5 h-5" />
+                        </button>
+                    </div>
                 </div>
 
                 <div className="p-6 space-y-6">
@@ -198,30 +243,30 @@ function SaleDetailModal({ sale, onClose }: { sale: any; onClose: () => void }) 
                     <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
                             <p className="text-gray-500">Date</p>
-                            <p className="font-medium">{new Date(sale.created_at).toLocaleString()}</p>
+                            <p className="font-medium text-gray-900 dark:text-white">{new Date(sale.created_at).toLocaleString()}</p>
                         </div>
                         <div>
                             <p className="text-gray-500">Cashier</p>
-                            <p className="font-medium">{sale.cashier?.full_name}</p>
+                            <p className="font-medium text-gray-900 dark:text-white">{sale.cashier?.full_name}</p>
                         </div>
                         <div>
                             <p className="text-gray-500">Payment Method</p>
-                            <p className="font-medium uppercase">{sale.payment_method}</p>
+                            <p className="font-medium uppercase text-gray-900 dark:text-white">{sale.payment_method}</p>
                         </div>
                         <div>
                             <p className="text-gray-500">Exchange Rate</p>
-                            <p className="font-medium">$1 = ៛{parseFloat(sale.exchange_rate).toLocaleString()}</p>
+                            <p className="font-medium text-gray-900 dark:text-white">$1 = ៛{parseFloat(sale.exchange_rate).toLocaleString()}</p>
                         </div>
                     </div>
 
                     {/* Items */}
                     <div>
-                        <h4 className="font-semibold mb-3">Items</h4>
+                        <h4 className="font-semibold mb-3 text-gray-900 dark:text-white">Items</h4>
                         <div className="space-y-2">
                             {sale.items?.map((item: any) => (
-                                <div key={item.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                <div key={item.id} className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                                     <div>
-                                        <p className="font-medium">{item.product?.name}</p>
+                                        <p className="font-medium text-gray-900 dark:text-white">{item.product?.name}</p>
                                         {item.serialItem && (
                                             <p className="text-sm text-gray-500 font-mono">
                                                 IMEI: {item.serialItem.imei || item.serialItem.serial_number}
@@ -229,7 +274,7 @@ function SaleDetailModal({ sale, onClose }: { sale: any; onClose: () => void }) 
                                         )}
                                     </div>
                                     <div className="text-right">
-                                        <p className="font-medium">${parseFloat(item.total).toFixed(2)}</p>
+                                        <p className="font-medium text-gray-900 dark:text-white">${parseFloat(item.total).toFixed(2)}</p>
                                         <p className="text-sm text-gray-500">
                                             {item.quantity} × ${parseFloat(item.unit_price).toFixed(2)}
                                         </p>
@@ -242,14 +287,14 @@ function SaleDetailModal({ sale, onClose }: { sale: any; onClose: () => void }) 
                     {/* Payment Summary */}
                     <div className="border-t pt-4 space-y-2">
                         <div className="flex justify-between text-lg font-bold">
-                            <span>Total</span>
+                            <span className="text-gray-900 dark:text-white">Total</span>
                             <span className="text-primary-600">${parseFloat(sale.total_usd).toFixed(2)}</span>
                         </div>
-                        <div className="flex justify-between text-sm text-gray-600">
+                        <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
                             <span>Paid (USD)</span>
                             <span>${parseFloat(sale.paid_usd).toFixed(2)}</span>
                         </div>
-                        <div className="flex justify-between text-sm text-gray-600">
+                        <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
                             <span>Paid (KHR)</span>
                             <span>៛{parseFloat(sale.paid_khr).toLocaleString()}</span>
                         </div>
@@ -260,6 +305,32 @@ function SaleDetailModal({ sale, onClose }: { sale: any; onClose: () => void }) 
                             </div>
                         )}
                     </div>
+
+                    {/* Void Button */}
+                    {onVoid && (
+                        <div className="border-t pt-4">
+                            <button
+                                onClick={onVoid}
+                                className="w-full btn btn-outline text-red-600 border-red-600 hover:bg-red-50"
+                            >
+                                <FiXCircle className="w-4 h-4" />
+                                Void This Sale
+                            </button>
+                        </div>
+                    )}
+                </div>
+
+                {/* Hidden Receipt for Printing */}
+                <div className="hidden">
+                    <Receipt
+                        ref={receiptRef}
+                        sale={sale}
+                        businessInfo={{
+                            name: 'MyShop Phone Store',
+                            address: 'Phnom Penh, Cambodia',
+                            phone: '012 345 678'
+                        }}
+                    />
                 </div>
             </div>
         </div>

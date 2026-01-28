@@ -196,7 +196,7 @@ export default function POSPage() {
             {/* Products Panel */}
             <div className="flex-1 flex flex-col card">
                 {/* Search */}
-                <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+                <div className="p-4 border-b border-gray-200 dark:border-gray-700 relative">
                     <div className="relative">
                         <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                         <input
@@ -213,9 +213,9 @@ export default function POSPage() {
                         )}
                     </div>
 
-                    {/* Search Results */}
+                    {/* Search Results - Fixed positioning */}
                     {searchResults.length > 0 && (
-                        <div className="absolute z-20 left-4 right-4 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 max-h-80 overflow-y-auto">
+                        <div className="absolute z-50 left-4 right-4 top-full mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 max-h-80 overflow-y-auto">
                             {searchResults.map((product) => (
                                 <button
                                     key={product.id}
