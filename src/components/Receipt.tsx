@@ -18,6 +18,18 @@ export const Receipt = forwardRef<HTMLDivElement, ReceiptProps>(({ sale, busines
 
     const totalKhr = Math.round(sale.total_usd * parseFloat(sale.exchange_rate) / 100) * 100;
 
+    // Safe date formatting
+    const formatDate = (dateValue: any): string => {
+        if (!dateValue) return 'N/A';
+        try {
+            const date = new Date(dateValue);
+            if (isNaN(date.getTime())) return 'N/A';
+            return format(date, 'dd/MM/yyyy HH:mm');
+        } catch {
+            return 'N/A';
+        }
+    };
+
     return (
         <div ref={ref} className="p-4 bg-white text-black font-mono text-sm w-[80mm] mx-auto">
             {/* Header */}
@@ -34,7 +46,7 @@ export const Receipt = forwardRef<HTMLDivElement, ReceiptProps>(({ sale, busines
                 </div>
                 <div className="flex justify-between">
                     <span>Date:</span>
-                    <span>{format(new Date(sale.created_at || new Date()), 'dd/MM/yyyy HH:mm')}</span>
+                    <span>{formatDate(sale.created_at)}</span>
                 </div>
                 <div className="flex justify-between">
                     <span>Cashier:</span>
