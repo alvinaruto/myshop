@@ -114,9 +114,11 @@ export default function POSPage() {
             setShowSerialModal(true);
             try {
                 const res = await serialApi.getAll({ product_id: product.id, status: 'in_stock' });
-                setSerialItems(res.data.data.serialItems);
+                // API returns data as array directly
+                setSerialItems(res.data.data || []);
             } catch (error) {
                 toast.error('Failed to load serial items');
+                setSerialItems([]);
             }
         } else {
             addItem({
