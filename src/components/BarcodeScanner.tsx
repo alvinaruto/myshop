@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 import { FiCamera, FiX, FiRefreshCw } from 'react-icons/fi';
 
@@ -11,18 +11,48 @@ interface BarcodeScannerProps {
 
 export const BarcodeScanner = ({ onScan, onClose }: BarcodeScannerProps) => {
     const scannerRef = useRef<Html5Qrcode | null>(null);
+    const hasScannedRef = useRef(false);
     const [isScanning, setIsScanning] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [facingMode, setFacingMode] = useState<'environment' | 'user'>('environment');
 
+    const stopScanner = useCallback(async () => {
+        if (scannerRef.current) {
+            try {
+                const state = scannerRef.current.getState();
+                if (state === 2) { // SCANNING state
+                    await scannerRef.current.stop();
+                }
+            } catch (e) {
+                // Ignore stop errors
+            }
+        }
+        setIsScanning(false);
+    }, []);
+
+    const handleScanSuccess = useCallback(async (decodedText: string) => {
+        // Prevent multiple scans
+        if (hasScannedRef.current) return;
+        hasScannedRef.current = true;
+
+        // Stop scanner first
+        await stopScanner();
+
+        // Then call the callback
+        onScan(decodedText);
+        onClose();
+    }, [onScan, onClose, stopScanner]);
+
     const startScanner = async (facing: 'environment' | 'user') => {
         try {
             setError(null);
+            hasScannedRef.current = false;
 
             // Stop existing scanner if running
-            if (scannerRef.current && isScanning) {
-                await scannerRef.current.stop();
-            }
+            await stopScanner();
+
+            // Small delay to ensure cleanup
+            await new Promise(resolve => setTimeout(resolve, 100));
 
             if (!scannerRef.current) {
                 scannerRef.current = new Html5Qrcode('barcode-scanner', {
@@ -42,15 +72,11 @@ export const BarcodeScanner = ({ onScan, onClose }: BarcodeScannerProps) => {
             await scannerRef.current.start(
                 { facingMode: facing },
                 {
-                    fps: 10,
+                    fps: 5, // Reduced FPS to prevent rapid scanning
                     qrbox: { width: 250, height: 250 },
                     aspectRatio: 1
                 },
-                (decodedText) => {
-                    // Success callback
-                    onScan(decodedText);
-                    stopScanner();
-                },
+                handleScanSuccess,
                 () => {
                     // Error callback - ignore continuous errors during scanning
                 }
@@ -65,32 +91,28 @@ export const BarcodeScanner = ({ onScan, onClose }: BarcodeScannerProps) => {
         }
     };
 
-    const stopScanner = async () => {
-        if (scannerRef.current && isScanning) {
-            try {
-                await scannerRef.current.stop();
-            } catch (e) {
-                // Ignore stop errors
-            }
-        }
-        setIsScanning(false);
-    };
-
     const toggleCamera = () => {
         const newFacing = facingMode === 'environment' ? 'user' : 'environment';
         startScanner(newFacing);
     };
 
     useEffect(() => {
-        startScanner('environment');
+        // Delay start to ensure DOM is ready
+        const timer = setTimeout(() => {
+            startScanner('environment');
+        }, 200);
 
         return () => {
+            clearTimeout(timer);
             stopScanner();
+            if (scannerRef.current) {
+                scannerRef.current = null;
+            }
         };
     }, []);
 
-    const handleClose = () => {
-        stopScanner();
+    const handleClose = async () => {
+        await stopScanner();
         onClose();
     };
 
