@@ -509,7 +509,6 @@ function PaymentModal({
                             <KHQR
                                 amount={grandTotal}
                                 currency="USD"
-                                merchantName="MyShop Phone Store"
                             />
                         </div>
                     )}
