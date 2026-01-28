@@ -2,13 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { verifyAuth, unauthorizedResponse } from '@/lib/auth';
 import { v2 as cloudinary } from 'cloudinary';
 
-// Configure Cloudinary
-cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET
-});
-
 export async function POST(req: NextRequest) {
     try {
         const auth = await verifyAuth(req);
@@ -35,24 +28,44 @@ export async function POST(req: NextRequest) {
             console.error('Missing Cloudinary env vars:', missing.join(', '));
             return NextResponse.json({
                 success: false,
-                message: `Image upload requires Cloudinary. Missing env vars: ${missing.join(', ')}. Please add these to your Vercel project settings.`
+                message: `Image upload requires Cloudinary. Missing: ${missing.join(', ')}`
             }, { status: 501 });
         }
+
+        // Configure Cloudinary at request time (important for serverless)
+        cloudinary.config({
+            cloud_name: cloudName,
+            api_key: apiKey,
+            api_secret: apiSecret,
+            secure: true
+        });
 
         // Convert File to Buffer for Cloudinary
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
 
-        // Upload to Cloudinary streamingly
-        const uploadResult = await new Promise((resolve, reject) => {
-            cloudinary.uploader.upload_stream({
-                folder: 'myshop-products',
-                format: 'webp',
-            }, (error, result) => {
-                if (error) reject(error);
-                else resolve(result);
-            }).end(buffer);
-        }) as any;
+        // Check file size (max 10MB)
+        if (buffer.length > 10 * 1024 * 1024) {
+            return NextResponse.json({
+                success: false,
+                message: 'File too large. Maximum size is 10MB.'
+            }, { status: 400 });
+        }
+
+        // Convert buffer to base64 data URI for upload
+        const base64 = buffer.toString('base64');
+        const mimeType = file.type || 'image/jpeg';
+        const dataUri = `data:${mimeType};base64,${base64}`;
+
+        // Upload to Cloudinary using base64
+        const uploadResult = await cloudinary.uploader.upload(dataUri, {
+            folder: 'myshop-products',
+            format: 'webp',
+            transformation: [
+                { width: 800, height: 800, crop: 'limit' },
+                { quality: 'auto' }
+            ]
+        });
 
         return NextResponse.json({
             success: true,
@@ -65,9 +78,20 @@ export async function POST(req: NextRequest) {
         });
     } catch (error: any) {
         console.error('Upload error:', error);
+
+        // Provide more specific error messages
+        let message = 'Upload failed';
+        if (error.message?.includes('Invalid')) {
+            message = 'Invalid Cloudinary credentials. Please check your API keys.';
+        } else if (error.message?.includes('network')) {
+            message = 'Network error connecting to Cloudinary.';
+        } else if (error.message) {
+            message = error.message;
+        }
+
         return NextResponse.json({
             success: false,
-            message: error.message || 'Upload failed',
+            message,
             details: error.http_code ? `Cloudinary error ${error.http_code}` : undefined
         }, { status: 500 });
     }
