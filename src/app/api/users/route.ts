@@ -27,10 +27,17 @@ export async function POST(req: NextRequest) {
 
         // Basic validation
         if (!data.username || data.username.length < 3) {
-            return NextResponse.json({ success: false, message: 'Username too short' }, { status: 400 });
+            return NextResponse.json({ success: false, message: 'Username must be at least 3 characters' }, { status: 400 });
         }
-        if (!data.password_hash || data.password_hash.length < 6) {
-            return NextResponse.json({ success: false, message: 'Password too short' }, { status: 400 });
+
+        // Accept both 'password' and 'password_hash' for flexibility
+        const password = data.password || data.password_hash;
+        if (!password || password.length < 6) {
+            return NextResponse.json({ success: false, message: 'Password must be at least 6 characters' }, { status: 400 });
+        }
+
+        if (!data.full_name) {
+            return NextResponse.json({ success: false, message: 'Full name is required' }, { status: 400 });
         }
 
         const existing = await models.User.findOne({ where: { username: data.username } });
@@ -38,9 +45,17 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ success: false, message: 'Username already exists' }, { status: 400 });
         }
 
-        const user = await models.User.create(data);
+        // Map password to password_hash for the model (hook will hash it)
+        const userData = {
+            ...data,
+            password_hash: password
+        };
+        delete userData.password; // Remove password field if present
+
+        const user = await models.User.create(userData);
         return NextResponse.json({ success: true, data: user.toJSON() }, { status: 201 });
     } catch (error: any) {
+        console.error('User creation error:', error);
         return NextResponse.json({ success: false, message: error.message }, { status: 500 });
     }
 }

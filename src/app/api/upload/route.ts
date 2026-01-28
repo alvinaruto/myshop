@@ -64,6 +64,11 @@ export async function POST(req: NextRequest) {
             }
         });
     } catch (error: any) {
-        return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+        console.error('Upload error:', error);
+        return NextResponse.json({
+            success: false,
+            message: error.message || 'Upload failed',
+            details: error.http_code ? `Cloudinary error ${error.http_code}` : undefined
+        }, { status: 500 });
     }
 }
