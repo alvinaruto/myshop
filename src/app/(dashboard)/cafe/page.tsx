@@ -61,6 +61,19 @@ const ICE_OPTIONS = [
     { value: 'extra', label: 'Extra Ice', label_kh: 'ទឹកកកច្រើន' }
 ];
 
+// Helper to safely format prices (handles strings, Decimals, null, undefined)
+const formatPrice = (value: any): string => {
+    if (value === null || value === undefined) return '0.00';
+    const num = typeof value === 'number' ? value : parseFloat(String(value));
+    return isNaN(num) ? '0.00' : num.toFixed(2);
+};
+
+const toNumber = (value: any): number => {
+    if (value === null || value === undefined) return 0;
+    const num = typeof value === 'number' ? value : parseFloat(String(value));
+    return isNaN(num) ? 0 : num;
+};
+
 export default function CafePOSPage() {
     const [categories, setCategories] = useState<MenuCategory[]>([]);
     const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
@@ -142,13 +155,14 @@ export default function CafePOSPage() {
     };
 
     const getItemPrice = (item: MenuItem, size: 'regular' | 'medium' | 'large'): number => {
+        const basePrice = toNumber(item.base_price);
         switch (size) {
             case 'medium':
-                return item.price_medium || (parseFloat(String(item.base_price)) + 0.50);
+                return item.price_medium ? toNumber(item.price_medium) : (basePrice + 0.50);
             case 'large':
-                return item.price_large || (parseFloat(String(item.base_price)) + 1.00);
+                return item.price_large ? toNumber(item.price_large) : (basePrice + 1.00);
             default:
-                return parseFloat(String(item.base_price));
+                return basePrice;
         }
     };
 
@@ -214,7 +228,7 @@ export default function CafePOSPage() {
 
     const handlePayment = async () => {
         if (remaining > 0.01) {
-            toast.error(`Payment insufficient. Remaining: $${remaining.toFixed(2)}`);
+            toast.error(`Payment insufficient. Remaining: $${formatPrice(remaining)}`);
             return;
         }
 
@@ -302,8 +316,8 @@ export default function CafePOSPage() {
                     <button
                         onClick={() => setActiveCategory('all')}
                         className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition ${activeCategory === 'all'
-                                ? 'bg-amber-500 text-white shadow-lg'
-                                : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-amber-100'
+                            ? 'bg-amber-500 text-white shadow-lg'
+                            : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-amber-100'
                             }`}
                     >
                         🍽️ All
@@ -313,8 +327,8 @@ export default function CafePOSPage() {
                             key={cat.id}
                             onClick={() => setActiveCategory(cat.id)}
                             className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition ${activeCategory === cat.id
-                                    ? 'bg-amber-500 text-white shadow-lg'
-                                    : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-amber-100'
+                                ? 'bg-amber-500 text-white shadow-lg'
+                                : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-amber-100'
                                 }`}
                         >
                             {cat.icon} {cat.name}
@@ -343,7 +357,7 @@ export default function CafePOSPage() {
                                     <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{item.name_kh}</p>
                                 )}
                                 <div className="mt-2 flex items-center justify-between">
-                                    <span className="text-lg font-bold text-amber-600">${parseFloat(String(item.base_price)).toFixed(2)}</span>
+                                    <span className="text-lg font-bold text-amber-600">${formatPrice(item.base_price)}</span>
                                     {item.has_sizes && (
                                         <span className="text-xs text-gray-400">S/M/L</span>
                                     )}
@@ -389,7 +403,7 @@ export default function CafePOSPage() {
                                     <div className="flex-1 min-w-0">
                                         <p className="font-medium text-gray-800 dark:text-white truncate">{item.name}</p>
                                         <p className="text-sm text-gray-500">
-                                            {SIZE_LABELS[item.size].en} • ${item.unit_price.toFixed(2)}
+                                            {SIZE_LABELS[item.size].en} • ${formatPrice(item.unit_price)}
                                         </p>
                                         {(item.customizations.sugar || item.customizations.ice) && (
                                             <p className="text-xs text-amber-600">
@@ -415,7 +429,7 @@ export default function CafePOSPage() {
                                         </button>
                                     </div>
                                     <p className="font-bold text-gray-800 dark:text-white w-16 text-right">
-                                        ${item.total.toFixed(2)}
+                                        ${formatPrice(item.total)}
                                     </p>
                                     <button
                                         onClick={() => removeFromCart(item.id)}
@@ -434,7 +448,7 @@ export default function CafePOSPage() {
                     <div className="space-y-2">
                         <div className="flex justify-between text-2xl font-bold text-gray-800 dark:text-white">
                             <span>Total</span>
-                            <span className="text-amber-600">${cartTotal.toFixed(2)}</span>
+                            <span className="text-amber-600">${formatPrice(cartTotal)}</span>
                         </div>
                         <div className="text-right text-gray-500">
                             ≈ ៛{(cartTotal * exchangeRate).toLocaleString()}
@@ -446,7 +460,7 @@ export default function CafePOSPage() {
                         className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-2 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
                     >
                         <FiDollarSign className="w-5 h-5" />
-                        Checkout ${cartTotal.toFixed(2)}
+                        Checkout ${formatPrice(cartTotal)}
                     </button>
                 </div>
             </div>
@@ -470,14 +484,14 @@ export default function CafePOSPage() {
                                             key={size}
                                             onClick={() => setSelectedSize(size)}
                                             className={`p-4 rounded-xl border-2 transition ${selectedSize === size
-                                                    ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/30'
-                                                    : 'border-gray-200 dark:border-gray-600 hover:border-amber-300'
+                                                ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/30'
+                                                : 'border-gray-200 dark:border-gray-600 hover:border-amber-300'
                                                 }`}
                                         >
                                             <p className="font-bold text-gray-800 dark:text-white">{SIZE_LABELS[size].en}</p>
                                             <p className="text-xs text-gray-500">{SIZE_LABELS[size].kh}</p>
                                             <p className="text-amber-600 font-semibold mt-1">
-                                                ${getItemPrice(selectedItem, size).toFixed(2)}
+                                                ${formatPrice(getItemPrice(selectedItem, size))}
                                             </p>
                                         </button>
                                     ))}
@@ -494,8 +508,8 @@ export default function CafePOSPage() {
                                                 key={opt.value}
                                                 onClick={() => setSelectedSugar(opt.value)}
                                                 className={`p-3 rounded-lg border-2 text-left transition ${selectedSugar === opt.value
-                                                        ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/30'
-                                                        : 'border-gray-200 dark:border-gray-600 hover:border-amber-300'
+                                                    ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/30'
+                                                    : 'border-gray-200 dark:border-gray-600 hover:border-amber-300'
                                                     }`}
                                             >
                                                 <p className="font-medium text-gray-800 dark:text-white">{opt.label}</p>
@@ -516,8 +530,8 @@ export default function CafePOSPage() {
                                                 key={opt.value}
                                                 onClick={() => setSelectedIce(opt.value)}
                                                 className={`p-3 rounded-lg border-2 text-left transition ${selectedIce === opt.value
-                                                        ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/30'
-                                                        : 'border-gray-200 dark:border-gray-600 hover:border-amber-300'
+                                                    ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/30'
+                                                    : 'border-gray-200 dark:border-gray-600 hover:border-amber-300'
                                                     }`}
                                             >
                                                 <p className="font-medium text-gray-800 dark:text-white">{opt.label}</p>
@@ -541,7 +555,7 @@ export default function CafePOSPage() {
                                 className="flex-1 bg-amber-500 hover:bg-amber-600 text-white py-3 rounded-lg font-bold flex items-center justify-center gap-2"
                             >
                                 <FiPlus className="w-5 h-5" />
-                                Add ${getItemPrice(selectedItem, selectedSize).toFixed(2)}
+                                Add ${formatPrice(getItemPrice(selectedItem, selectedSize))}
                             </button>
                         </div>
                     </div>
@@ -563,7 +577,7 @@ export default function CafePOSPage() {
                             {/* Total */}
                             <div className="text-center">
                                 <p className="text-sm text-gray-500">Amount Due</p>
-                                <p className="text-4xl font-bold text-amber-600">${cartTotal.toFixed(2)}</p>
+                                <p className="text-4xl font-bold text-amber-600">${formatPrice(cartTotal)}</p>
                                 <p className="text-gray-500">≈ ៛{(cartTotal * exchangeRate).toLocaleString()}</p>
                             </div>
 
@@ -574,8 +588,8 @@ export default function CafePOSPage() {
                                         key={method}
                                         onClick={() => setPaymentMethod(method)}
                                         className={`py-2 px-3 rounded-lg text-sm font-medium capitalize transition ${paymentMethod === method
-                                                ? 'bg-amber-500 text-white'
-                                                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200'
+                                            ? 'bg-amber-500 text-white'
+                                            : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200'
                                             }`}
                                     >
                                         {method}
@@ -614,12 +628,12 @@ export default function CafePOSPage() {
                             <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 space-y-2">
                                 <div className="flex justify-between text-sm">
                                     <span>Total Paid</span>
-                                    <span className="font-medium">${totalPaid.toFixed(2)}</span>
+                                    <span className="font-medium">${formatPrice(totalPaid)}</span>
                                 </div>
                                 {remaining > 0.01 && (
                                     <div className="flex justify-between text-red-600 font-medium">
                                         <span>Remaining</span>
-                                        <span>${remaining.toFixed(2)}</span>
+                                        <span>${formatPrice(remaining)}</span>
                                     </div>
                                 )}
                                 {remaining <= 0.01 && (changeUsd > 0 || changeKhr > 0) && (
