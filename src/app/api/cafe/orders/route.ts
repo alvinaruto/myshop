@@ -71,10 +71,10 @@ export async function POST(request: NextRequest) {
             paid_usd, paid_khr, payment_method, notes
         } = body;
 
-        if (!cashier_id || !items || items.length === 0 || !exchange_rate) {
+        if (!items || items.length === 0 || !exchange_rate) {
             await transaction.rollback();
             return NextResponse.json(
-                { success: false, message: 'Cashier, items, and exchange rate are required' },
+                { success: false, message: 'Items and exchange rate are required' },
                 { status: 400 }
             );
         }
@@ -173,7 +173,7 @@ export async function POST(request: NextRequest) {
 
         // Create order
         const order = await models.CafeOrder.create({
-            cashier_id,
+            cashier_id: cashier_id || null,
             subtotal_usd: subtotal,
             total_usd: totalUsd,
             paid_usd: paidUsdAmount,
