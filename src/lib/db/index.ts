@@ -17,6 +17,14 @@ import defineSale from './models/Sale';
 import defineSaleItem from './models/SaleItem';
 import defineWarranty from './models/Warranty';
 import defineExchangeRate from './models/ExchangeRate';
+// Café models
+import defineMenuCategory from './models/MenuCategory';
+import defineMenuItem from './models/MenuItem';
+import defineIngredient from './models/Ingredient';
+import defineRecipe from './models/Recipe';
+import defineStockTransaction from './models/StockTransaction';
+import defineCafeOrder from './models/CafeOrder';
+import defineCafeOrderItem from './models/CafeOrderItem';
 
 // Lazy-loaded singleton instances
 let sequelizeInstance: Sequelize | null = null;
@@ -80,6 +88,14 @@ function initializeModels(sequelize: Sequelize) {
         SaleItem: defineSaleItem(sequelize),
         Warranty: defineWarranty(sequelize),
         ExchangeRate: defineExchangeRate(sequelize),
+        // Café models
+        MenuCategory: defineMenuCategory(sequelize),
+        MenuItem: defineMenuItem(sequelize),
+        Ingredient: defineIngredient(sequelize),
+        Recipe: defineRecipe(sequelize),
+        StockTransaction: defineStockTransaction(sequelize),
+        CafeOrder: defineCafeOrder(sequelize),
+        CafeOrderItem: defineCafeOrderItem(sequelize),
     };
 
     // Define Associations

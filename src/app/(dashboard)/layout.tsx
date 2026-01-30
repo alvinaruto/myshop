@@ -4,7 +4,7 @@ import { ReactNode, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/stores/authStore';
-import { FiHome, FiShoppingCart, FiPackage, FiUsers, FiBarChart2, FiSettings, FiLogOut, FiMenu, FiX, FiSmartphone, FiDollarSign, FiShield, FiBell, FiAlertCircle } from 'react-icons/fi';
+import { FiHome, FiShoppingCart, FiPackage, FiUsers, FiBarChart2, FiSettings, FiLogOut, FiMenu, FiX, FiSmartphone, FiDollarSign, FiShield, FiBell, FiAlertCircle, FiCoffee } from 'react-icons/fi';
 import { productApi } from '@/lib/api';
 import { useState } from 'react';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -15,7 +15,10 @@ interface DashboardLayoutProps {
 
 const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: FiHome, roles: ['admin', 'manager'] },
-    { name: 'Point of Sale', href: '/pos', icon: FiShoppingCart, roles: ['admin', 'manager', 'cashier'] },
+    { name: 'Phone Shop POS', href: '/pos', icon: FiShoppingCart, roles: ['admin', 'manager', 'cashier'] },
+    { name: 'Café POS', href: '/cafe', icon: FiCoffee, roles: ['admin', 'manager', 'cashier'] },
+    { name: 'Café Menu', href: '/cafe/menu', icon: FiCoffee, roles: ['admin', 'manager'] },
+    { name: 'Ingredients', href: '/cafe/ingredients', icon: FiPackage, roles: ['admin', 'manager'] },
     { name: 'Inventory', href: '/inventory', icon: FiPackage, roles: ['admin', 'manager'] },
     { name: 'Sales History', href: '/sales', icon: FiDollarSign, roles: ['admin', 'manager', 'cashier'] },
     { name: 'Reports', href: '/reports', icon: FiBarChart2, roles: ['admin', 'manager'] },
