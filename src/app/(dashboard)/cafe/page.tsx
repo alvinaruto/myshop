@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { FiSearch, FiTrash2, FiMinus, FiPlus, FiDollarSign, FiCheck, FiX, FiLoader, FiPrinter, FiCoffee, FiShoppingCart } from 'react-icons/fi';
 import { useReactToPrint } from 'react-to-print';
+import { KHQR } from '@/components/KHQR';
 
 interface MenuCategory {
     id: string;
@@ -227,8 +228,20 @@ export default function CafePOSPage() {
     };
 
     const handlePayment = async () => {
-        if (remaining > 0.01) {
-            toast.error(`Payment insufficient. Remaining: $${formatPrice(remaining)}`);
+        // For KHQR and card, set the paid amount to total
+        let finalPaidUsd = paidUsd;
+        let finalPaidKhr = paidKhr;
+
+        if (paymentMethod === 'khqr' || paymentMethod === 'card') {
+            finalPaidUsd = cartTotal;
+            finalPaidKhr = 0;
+        }
+
+        const finalTotalPaid = finalPaidUsd + (finalPaidKhr / exchangeRate);
+        const finalRemaining = cartTotal - finalTotalPaid;
+
+        if (finalRemaining > 0.01) {
+            toast.error(`Payment insufficient. Remaining: $${formatPrice(finalRemaining)}`);
             return;
         }
 
@@ -250,8 +263,8 @@ export default function CafePOSPage() {
                         customizations: item.customizations
                     })),
                     exchange_rate: exchangeRate,
-                    paid_usd: paidUsd,
-                    paid_khr: paidKhr,
+                    paid_usd: finalPaidUsd,
+                    paid_khr: finalPaidKhr,
                     payment_method: paymentMethod
                 })
             });
@@ -624,6 +637,31 @@ export default function CafePOSPage() {
                                 </div>
                             )}
 
+                            {/* KHQR Payment */}
+                            {paymentMethod === 'khqr' && (
+                                <div className="flex flex-col items-center">
+                                    <KHQR
+                                        amount={cartTotal}
+                                        currency="USD"
+                                        billNumber={`CAFE${Date.now().toString().slice(-8)}`}
+                                    />
+                                    <p className="mt-3 text-sm text-gray-500 dark:text-gray-400 text-center">
+                                        After payment, click confirm to complete the order
+                                    </p>
+                                </div>
+                            )}
+
+                            {/* Card Payment */}
+                            {paymentMethod === 'card' && (
+                                <div className="text-center py-6">
+                                    <div className="w-16 h-16 mx-auto mb-4 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+                                        <span className="text-3xl">💳</span>
+                                    </div>
+                                    <p className="text-gray-600 dark:text-gray-400">Process card payment on terminal</p>
+                                    <p className="text-sm text-gray-500 mt-2">Amount: ${formatPrice(cartTotal)}</p>
+                                </div>
+                            )}
+
                             {/* Summary */}
                             <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 space-y-2">
                                 <div className="flex justify-between text-sm">
@@ -654,7 +692,7 @@ export default function CafePOSPage() {
                             </button>
                             <button
                                 onClick={handlePayment}
-                                disabled={remaining > 0.01 || processing}
+                                disabled={(paymentMethod === 'cash' || paymentMethod === 'split') && remaining > 0.01 || processing}
                                 className="flex-1 bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg font-bold flex items-center justify-center gap-2 disabled:opacity-50"
                             >
                                 {processing ? (
