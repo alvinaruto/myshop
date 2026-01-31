@@ -32,6 +32,7 @@ const navigation = [
     { name: 'Warranty Tracker', href: '/warranty', icon: FiShield, roles: ['admin', 'manager', 'cashier'] },
     { name: 'Users', href: '/users', icon: FiUsers, roles: ['admin'] },
     { name: 'Settings', href: '/settings', icon: FiSettings, roles: ['admin', 'manager'] },
+    { name: 'Customer Menu', href: '/menu', icon: FiCoffee, roles: ['admin', 'manager', 'cashier'] },
 ];
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
