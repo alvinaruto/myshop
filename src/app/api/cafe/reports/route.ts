@@ -24,10 +24,10 @@ export async function GET(request: NextRequest) {
                 startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         }
 
-        // Get orders in the period
+        // Get orders in the period (include all statuses except voided)
         const orders = await models.CafeOrder.findAll({
             where: {
-                status: 'completed',
+                status: { [Op.notIn]: ['voided'] },
                 created_at: { [Op.gte]: startDate }
             },
             include: [{
