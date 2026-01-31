@@ -16,10 +16,12 @@ export default function CafeQueuePage() {
 
     const fetchOrders = async () => {
         try {
-            const res = await fetch('/api/cafe/orders?status=preparing,ready&limit=20');
+            const res = await fetch('/api/cafe/orders?status=pending,preparing,ready&limit=20');
             const data = await res.json();
             if (data.success) {
-                setOrders(data.data.orders || []);
+                // Handle both array and object response formats
+                const ordersData = Array.isArray(data.data) ? data.data : (data.data?.orders || data.data || []);
+                setOrders(ordersData);
             }
         } catch (error) {
             console.error('Failed to fetch orders');
@@ -39,7 +41,8 @@ export default function CafeQueuePage() {
         };
     }, []);
 
-    const preparingOrders = orders.filter(o => o.status === 'preparing');
+    // Pending and preparing orders go to "Preparing" column
+    const preparingOrders = orders.filter(o => o.status === 'preparing' || o.status === 'pending');
     const readyOrders = orders.filter(o => o.status === 'ready');
 
     const getShortOrderNumber = (orderNumber: string) => {

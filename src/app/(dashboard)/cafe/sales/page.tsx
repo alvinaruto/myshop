@@ -61,9 +61,11 @@ export default function CafeSalesPage() {
             const res = await fetch(`/api/cafe/orders?${params}`);
             const data = await res.json();
             if (data.success) {
-                setOrders(data.data.orders || []);
-                setTotalPages(data.data.totalPages || 1);
-                setTotalOrders(data.data.total || 0);
+                // Handle both array and object response formats
+                const ordersData = Array.isArray(data.data) ? data.data : (data.data?.orders || data.data || []);
+                setOrders(ordersData);
+                setTotalPages(data.data?.totalPages || Math.ceil(ordersData.length / 20) || 1);
+                setTotalOrders(data.data?.total || ordersData.length || 0);
             }
         } catch (error) {
             toast.error('Failed to load orders');

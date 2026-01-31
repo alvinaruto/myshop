@@ -13,7 +13,13 @@ export async function GET(request: NextRequest) {
         const where: any = {};
 
         if (status) {
-            where.status = status;
+            // Support comma-separated status values
+            const statuses = status.split(',').map(s => s.trim());
+            if (statuses.length > 1) {
+                where.status = { [Op.in]: statuses };
+            } else {
+                where.status = status;
+            }
         }
 
         if (date) {
@@ -182,7 +188,7 @@ export async function POST(request: NextRequest) {
             change_khr: changeKhr,
             exchange_rate,
             payment_method: payment_method || 'cash',
-            status: 'completed',
+            status: 'pending',  // Start as pending for kitchen queue
             notes
         }, { transaction });
 

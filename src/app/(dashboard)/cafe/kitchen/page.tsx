@@ -34,14 +34,15 @@ export default function KitchenDisplayPage() {
             const res = await fetch('/api/cafe/orders?status=pending,preparing,ready&limit=50');
             const data = await res.json();
             if (data.success) {
-                const newOrders = data.data.orders || [];
+                // Handle both array and object response formats
+                const ordersData = Array.isArray(data.data) ? data.data : (data.data?.orders || data.data || []);
 
                 // Play sound for new orders
-                if (soundEnabled && newOrders.length > lastOrderCount && lastOrderCount > 0) {
+                if (soundEnabled && ordersData.length > lastOrderCount && lastOrderCount > 0) {
                     playNotification();
                 }
-                setLastOrderCount(newOrders.length);
-                setOrders(newOrders);
+                setLastOrderCount(ordersData.length);
+                setOrders(ordersData);
             }
         } catch (error) {
             console.error('Failed to fetch orders');
@@ -208,8 +209,8 @@ export default function KitchenDisplayPage() {
 
                                 {/* Status Badge */}
                                 <div className={`inline-block px-3 py-1 rounded-full text-xs font-bold uppercase mb-3 ${order.status === 'pending' ? 'bg-yellow-500 text-yellow-900' :
-                                        order.status === 'preparing' ? 'bg-blue-500 text-white' :
-                                            'bg-green-500 text-white'
+                                    order.status === 'preparing' ? 'bg-blue-500 text-white' :
+                                        'bg-green-500 text-white'
                                     }`}>
                                     {order.status}
                                 </div>
