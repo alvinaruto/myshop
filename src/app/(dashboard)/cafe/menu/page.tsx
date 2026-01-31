@@ -31,6 +31,38 @@ interface MenuItem {
 
 const ICONS = ['☕', '🧊', '🍵', '🥤', '🧃', '🍹', '🥛', '🍩', '🍰', '🥐', '🥪', '🍔'];
 
+// Default coffee images based on drink type
+const COFFEE_IMAGES: Record<string, string> = {
+    // Hot drinks
+    'espresso': 'https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?w=300&h=300&fit=crop',
+    'americano': 'https://images.unsplash.com/photo-1521302080334-4bebac2763a6?w=300&h=300&fit=crop',
+    'cappuccino': 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=300&h=300&fit=crop',
+    'latte': 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=300&h=300&fit=crop',
+    'mocha': 'https://images.unsplash.com/photo-1578314675249-a6910f80cc4e?w=300&h=300&fit=crop',
+    'chocolate': 'https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?w=300&h=300&fit=crop',
+    // Iced drinks
+    'cold brew': 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=300&h=300&fit=crop',
+    'frappuccino': 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=300&h=300&fit=crop',
+    'iced': 'https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?w=300&h=300&fit=crop',
+    // Tea
+    'matcha': 'https://images.unsplash.com/photo-1515823064-d6e0c04616a7?w=300&h=300&fit=crop',
+    'tea': 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=300&h=300&fit=crop',
+    'green tea': 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=300&h=300&fit=crop',
+    // Food
+    'croissant': 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=300&h=300&fit=crop',
+    'muffin': 'https://images.unsplash.com/photo-1607958996333-41aef7caefaa?w=300&h=300&fit=crop',
+    'default': 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=300&h=300&fit=crop'
+};
+
+const getItemImage = (item: MenuItem): string => {
+    if (item.image_url) return item.image_url;
+    const name = item.name.toLowerCase();
+    for (const [key, url] of Object.entries(COFFEE_IMAGES)) {
+        if (name.includes(key)) return url;
+    }
+    return COFFEE_IMAGES.default;
+};
+
 export default function CafeMenuPage() {
     const [categories, setCategories] = useState<Category[]>([]);
     const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
@@ -263,18 +295,18 @@ export default function CafeMenuPage() {
                 <div className="flex gap-2">
                     <button
                         onClick={() => setActiveTab('items')}
-                        className={`px-4 py-2 rounded-lg font-medium transition ${activeTab === 'items'
-                                ? 'bg-amber-500 text-white'
-                                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+                        className={`px-4 py-2 rounded-lg font-medium transition border ${activeTab === 'items'
+                            ? 'bg-amber-500 text-white border-amber-500 shadow-md'
+                            : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'
                             }`}
                     >
                         Menu Items ({menuItems.length})
                     </button>
                     <button
                         onClick={() => setActiveTab('categories')}
-                        className={`px-4 py-2 rounded-lg font-medium transition ${activeTab === 'categories'
-                                ? 'bg-amber-500 text-white'
-                                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+                        className={`px-4 py-2 rounded-lg font-medium transition border ${activeTab === 'categories'
+                            ? 'bg-amber-500 text-white border-amber-500 shadow-md'
+                            : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'
                             }`}
                     >
                         Categories ({categories.length})
@@ -335,10 +367,13 @@ export default function CafeMenuPage() {
                         <div key={item.id} className={`card overflow-hidden ${!item.is_available ? 'opacity-60' : ''}`}>
                             {viewMode === 'grid' ? (
                                 <>
-                                    <div className="aspect-video bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 flex items-center justify-center text-5xl">
-                                        {item.image_url ? (
-                                            <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
-                                        ) : '☕'}
+                                    <div className="aspect-video bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 flex items-center justify-center overflow-hidden">
+                                        <img
+                                            src={getItemImage(item)}
+                                            alt={item.name}
+                                            className="w-full h-full object-cover"
+                                            onError={(e) => { (e.target as HTMLImageElement).src = COFFEE_IMAGES.default }}
+                                        />
                                     </div>
                                     <div className="p-4">
                                         <div className="flex justify-between items-start mb-2">
@@ -353,8 +388,8 @@ export default function CafeMenuPage() {
                                             <button
                                                 onClick={() => toggleAvailability(item)}
                                                 className={`px-2 py-1 text-xs rounded-full ${item.is_available
-                                                        ? 'bg-green-100 text-green-700'
-                                                        : 'bg-red-100 text-red-700'
+                                                    ? 'bg-green-100 text-green-700'
+                                                    : 'bg-red-100 text-red-700'
                                                     }`}
                                             >
                                                 {item.is_available ? 'Available' : 'Unavailable'}
@@ -372,8 +407,13 @@ export default function CafeMenuPage() {
                                 </>
                             ) : (
                                 <div className="p-4 flex items-center gap-4">
-                                    <div className="w-16 h-16 bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 rounded-lg flex items-center justify-center text-2xl flex-shrink-0">
-                                        ☕
+                                    <div className="w-16 h-16 bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
+                                        <img
+                                            src={getItemImage(item)}
+                                            alt={item.name}
+                                            className="w-full h-full object-cover"
+                                            onError={(e) => { (e.target as HTMLImageElement).src = COFFEE_IMAGES.default }}
+                                        />
                                     </div>
                                     <div className="flex-1">
                                         <h3 className="font-bold text-gray-900 dark:text-white">{item.name}</h3>
@@ -383,8 +423,8 @@ export default function CafeMenuPage() {
                                     <button
                                         onClick={() => toggleAvailability(item)}
                                         className={`px-2 py-1 text-xs rounded-full ${item.is_available
-                                                ? 'bg-green-100 text-green-700'
-                                                : 'bg-red-100 text-red-700'
+                                            ? 'bg-green-100 text-green-700'
+                                            : 'bg-red-100 text-red-700'
                                             }`}
                                     >
                                         {item.is_available ? 'Available' : 'Unavailable'}
@@ -445,8 +485,8 @@ export default function CafeMenuPage() {
                                             key={icon}
                                             onClick={() => setCategoryForm({ ...categoryForm, icon })}
                                             className={`w-10 h-10 rounded-lg text-xl flex items-center justify-center border-2 transition ${categoryForm.icon === icon
-                                                    ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/30'
-                                                    : 'border-gray-200 dark:border-gray-600'
+                                                ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/30'
+                                                : 'border-gray-200 dark:border-gray-600'
                                                 }`}
                                         >
                                             {icon}

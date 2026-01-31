@@ -75,6 +75,33 @@ const toNumber = (value: any): number => {
     return isNaN(num) ? 0 : num;
 };
 
+// Default coffee images based on drink type
+const COFFEE_IMAGES: Record<string, string> = {
+    'espresso': 'https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?w=300&h=300&fit=crop',
+    'americano': 'https://images.unsplash.com/photo-1521302080334-4bebac2763a6?w=300&h=300&fit=crop',
+    'cappuccino': 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=300&h=300&fit=crop',
+    'latte': 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=300&h=300&fit=crop',
+    'mocha': 'https://images.unsplash.com/photo-1578314675249-a6910f80cc4e?w=300&h=300&fit=crop',
+    'chocolate': 'https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?w=300&h=300&fit=crop',
+    'cold brew': 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=300&h=300&fit=crop',
+    'frappuccino': 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=300&h=300&fit=crop',
+    'iced': 'https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?w=300&h=300&fit=crop',
+    'matcha': 'https://images.unsplash.com/photo-1515823064-d6e0c04616a7?w=300&h=300&fit=crop',
+    'tea': 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=300&h=300&fit=crop',
+    'croissant': 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=300&h=300&fit=crop',
+    'muffin': 'https://images.unsplash.com/photo-1607958996333-41aef7caefaa?w=300&h=300&fit=crop',
+    'default': 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=300&h=300&fit=crop'
+};
+
+const getItemImage = (item: MenuItem): string => {
+    if (item.image_url) return item.image_url;
+    const name = item.name.toLowerCase();
+    for (const [key, url] of Object.entries(COFFEE_IMAGES)) {
+        if (name.includes(key)) return url;
+    }
+    return COFFEE_IMAGES.default;
+};
+
 export default function CafePOSPage() {
     const [categories, setCategories] = useState<MenuCategory[]>([]);
     const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
@@ -358,12 +385,13 @@ export default function CafePOSPage() {
                                 onClick={() => handleItemClick(item)}
                                 className="group bg-white dark:bg-gray-800 rounded-xl p-4 shadow-md hover:shadow-xl transition-all hover:scale-105 border border-gray-100 dark:border-gray-700 text-left"
                             >
-                                <div className="aspect-square bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 rounded-lg mb-3 flex items-center justify-center text-4xl">
-                                    {item.image_url ? (
-                                        <img src={item.image_url} alt={item.name} className="w-full h-full object-cover rounded-lg" />
-                                    ) : (
-                                        '☕'
-                                    )}
+                                <div className="aspect-square bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 rounded-lg mb-3 flex items-center justify-center overflow-hidden">
+                                    <img
+                                        src={getItemImage(item)}
+                                        alt={item.name}
+                                        className="w-full h-full object-cover rounded-lg"
+                                        onError={(e) => { (e.target as HTMLImageElement).src = COFFEE_IMAGES.default }}
+                                    />
                                 </div>
                                 <h3 className="font-semibold text-gray-800 dark:text-white truncate">{item.name}</h3>
                                 {item.name_kh && (
