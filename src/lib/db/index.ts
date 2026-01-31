@@ -25,6 +25,12 @@ import defineRecipe from './models/Recipe';
 import defineStockTransaction from './models/StockTransaction';
 import defineCafeOrder from './models/CafeOrder';
 import defineCafeOrderItem from './models/CafeOrderItem';
+import defineCafeCustomer from './models/CafeCustomer';
+import defineMenuModifier from './models/MenuModifier';
+import defineMenuCombo from './models/MenuCombo';
+import defineHappyHour from './models/HappyHour';
+import defineCafeShift from './models/CafeShift';
+import defineCafeTable from './models/CafeTable';
 
 // Lazy-loaded singleton instances
 let sequelizeInstance: Sequelize | null = null;
@@ -96,6 +102,12 @@ function initializeModels(sequelize: Sequelize) {
         StockTransaction: defineStockTransaction(sequelize),
         CafeOrder: defineCafeOrder(sequelize),
         CafeOrderItem: defineCafeOrderItem(sequelize),
+        CafeCustomer: defineCafeCustomer(sequelize),
+        MenuModifier: defineMenuModifier(sequelize),
+        MenuCombo: defineMenuCombo(sequelize),
+        HappyHour: defineHappyHour(sequelize),
+        CafeShift: defineCafeShift(sequelize),
+        CafeTable: defineCafeTable(sequelize),
     };
 
     // Define Associations

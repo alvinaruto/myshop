@@ -16,6 +16,18 @@ export default (sequelize: Sequelize) => {
             type: DataTypes.UUID,
             allowNull: true,
         },
+        customer_id: {
+            type: DataTypes.UUID,
+            allowNull: true,
+        },
+        table_number: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+        },
+        order_type: {
+            type: DataTypes.ENUM('dine_in', 'takeaway'),
+            defaultValue: 'takeaway'
+        },
         // Totals in USD
         subtotal_usd: {
             type: DataTypes.DECIMAL(12, 2),
@@ -81,6 +93,7 @@ export default (sequelize: Sequelize) => {
 
     (CafeOrder as any).associate = (models: any) => {
         CafeOrder.belongsTo(models.User, { foreignKey: 'cashier_id', as: 'cashier' });
+        CafeOrder.belongsTo(models.CafeCustomer, { foreignKey: 'customer_id', as: 'customer' });
         CafeOrder.hasMany(models.CafeOrderItem, { foreignKey: 'order_id', as: 'items' });
     };
 
