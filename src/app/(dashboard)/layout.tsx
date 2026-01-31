@@ -113,7 +113,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 {/* Navigation */}
                 <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
                     {filteredNavigation.map((item) => {
-                        const isActive = pathname === item.href || pathname?.startsWith(item.href + '/');
+                        // For /cafe, only match exactly (not /cafe/menu, /cafe/ingredients)
+                        const isExactMatch = pathname === item.href;
+                        const isChildMatch = item.href !== '/cafe' && pathname?.startsWith(item.href + '/');
+                        const isActive = isExactMatch || isChildMatch;
                         return (
                             <Link
                                 key={item.name}

@@ -14,7 +14,7 @@ export default (sequelize: Sequelize) => {
         },
         cashier_id: {
             type: DataTypes.UUID,
-            allowNull: false,
+            allowNull: true,
         },
         // Totals in USD
         subtotal_usd: {
