@@ -96,13 +96,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 />
             )}
 
-            {/* Sidebar */}
+            {/* Sidebar - Fixed with flex column for proper scrolling */}
             <aside
-                className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-xl transform transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+                className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-xl transform transition-transform duration-300 lg:translate-x-0 flex flex-col ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
                     }`}
             >
-                {/* Logo */}
-                <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200 dark:border-gray-700">
+                {/* Logo - Fixed height header */}
+                <div className="flex-shrink-0 flex items-center justify-between h-16 px-4 border-b border-gray-200 dark:border-gray-700">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center">
                             <FiSmartphone className="w-5 h-5 text-white" />
@@ -117,8 +117,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     </button>
                 </div>
 
-                {/* Navigation */}
-                <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+                {/* Navigation - Scrollable area */}
+                <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
                     {filteredNavigation.map((item) => {
                         // For /cafe, only match exactly (not /cafe/menu, /cafe/ingredients)
                         const isExactMatch = pathname === item.href;
@@ -129,22 +129,22 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                 key={item.name}
                                 href={item.href}
                                 onClick={() => setSidebarOpen(false)}
-                                className={`flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors ${isActive
+                                className={`flex items-center gap-3 px-4 py-2.5 rounded-lg font-medium transition-colors text-sm ${isActive
                                     ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400'
                                     : 'text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-700/50'
                                     }`}
                             >
-                                <item.icon className="w-5 h-5" />
-                                {item.name}
+                                <item.icon className="w-5 h-5 flex-shrink-0" />
+                                <span className="truncate">{item.name}</span>
                             </Link>
                         );
                     })}
                 </nav>
 
-                {/* User info */}
-                <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+                {/* User info - Fixed height footer */}
+                <div className="flex-shrink-0 p-4 border-t border-gray-200 dark:border-gray-700">
                     <div className="flex items-center gap-3 mb-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-full flex items-center justify-center text-white font-semibold">
+                        <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0">
                             {user.full_name.charAt(0)}
                         </div>
                         <div className="flex-1 min-w-0">
@@ -169,17 +169,17 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             {/* Main content */}
             <div className="lg:pl-64">
                 {/* Top bar */}
-                <header className="sticky top-0 z-30 h-16 bg-white dark:bg-gray-800 shadow-sm flex items-center justify-between px-4 lg:px-6">
+                <header className="sticky top-0 z-30 h-14 sm:h-16 bg-white dark:bg-gray-800 shadow-sm flex items-center justify-between px-3 sm:px-4 lg:px-6">
                     <button
                         onClick={() => setSidebarOpen(true)}
-                        className="lg:hidden p-2 text-gray-500 hover:text-gray-700"
+                        className="lg:hidden p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
                     >
                         <FiMenu className="w-6 h-6" />
                     </button>
 
                     <div className="flex-1" />
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 sm:gap-2">
                         <ThemeToggle />
 
                         {/* Notifications */}
@@ -188,10 +188,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                 onClick={() => setShowNotifications(!showNotifications)}
                                 className="p-2 text-gray-500 hover:text-primary-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg relative transition-colors"
                             >
-                                <FiBell className="w-6 h-6" />
+                                <FiBell className="w-5 h-5 sm:w-6 sm:h-6" />
                                 {lowStockCount > 0 && (
-                                    <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-red-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-white dark:border-gray-800">
-                                        {lowStockCount}
+                                    <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-white dark:border-gray-800">
+                                        {lowStockCount > 9 ? '9+' : lowStockCount}
                                     </span>
                                 )}
                             </button>
@@ -199,13 +199,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                             {showNotifications && (
                                 <>
                                     <div className="fixed inset-0 z-40" onClick={() => setShowNotifications(false)} />
-                                    <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 z-50 overflow-hidden">
-                                        <div className="p-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-                                            <h4 className="font-bold text-gray-900 dark:text-white">Inventory Alerts</h4>
+                                    <div className="absolute right-0 mt-2 w-72 sm:w-80 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 z-50 overflow-hidden">
+                                        <div className="p-3 sm:p-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+                                            <h4 className="font-bold text-gray-900 dark:text-white text-sm sm:text-base">Inventory Alerts</h4>
                                         </div>
-                                        <div className="max-h-96 overflow-y-auto">
+                                        <div className="max-h-72 sm:max-h-96 overflow-y-auto">
                                             {lowStockItems.length === 0 ? (
-                                                <div className="p-8 text-center text-gray-500">
+                                                <div className="p-6 sm:p-8 text-center text-gray-500">
                                                     <FiBell className="w-8 h-8 mx-auto mb-2 opacity-20" />
                                                     <p className="text-sm italic">No new alerts</p>
                                                 </div>
@@ -215,17 +215,17 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                                         key={item.id}
                                                         href="/inventory"
                                                         onClick={() => setShowNotifications(false)}
-                                                        className="flex items-start gap-3 p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 border-b border-gray-50 dark:border-gray-700 last:border-0 transition-colors"
+                                                        className="flex items-start gap-3 p-3 sm:p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 border-b border-gray-50 dark:border-gray-700 last:border-0 transition-colors"
                                                     >
                                                         <div className="w-8 h-8 rounded-full bg-red-100 dark:bg-red-900/30 flex-shrink-0 flex items-center justify-center text-red-600">
                                                             <FiAlertCircle className="w-4 h-4" />
                                                         </div>
-                                                        <div>
-                                                            <p className="text-sm font-medium text-gray-900 dark:text-white">{item.name}</p>
+                                                        <div className="flex-1 min-w-0">
+                                                            <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{item.name}</p>
                                                             <p className="text-xs text-red-600 font-bold mt-0.5">
                                                                 Low stock: {item.quantity || item.available_stock} left
                                                             </p>
-                                                            <p className="text-[10px] text-gray-400 mt-1 uppercase tracking-wider">{item.sku}</p>
+                                                            <p className="text-[10px] text-gray-400 mt-1 uppercase tracking-wider truncate">{item.sku}</p>
                                                         </div>
                                                     </Link>
                                                 ))
@@ -246,8 +246,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                         </div>
                     </div>
 
-                    {/* Quick info */}
-                    <div className="flex items-center gap-4">
+                    {/* Quick info - Hide on very small screens */}
+                    <div className="hidden sm:flex items-center gap-4 ml-2">
                         <div className="text-right">
                             <p className="text-xs text-gray-500 dark:text-gray-400">Today&apos;s Date</p>
                             <p className="text-sm font-medium text-gray-800 dark:text-white">
@@ -263,7 +263,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 </header>
 
                 {/* Page content */}
-                <main className="p-4 lg:p-6">{children}</main>
+                <main className="p-3 sm:p-4 lg:p-6">{children}</main>
             </div>
         </div>
     );
