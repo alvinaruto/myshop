@@ -31,7 +31,10 @@ interface MenuCategory {
     items: MenuItem[];
 }
 
-const formatPrice = (price: number) => `$${price.toFixed(2)}`;
+const formatPrice = (price: number | string) => {
+    const numPrice = typeof price === 'string' ? parseFloat(price) : price;
+    return `$${(numPrice || 0).toFixed(2)}`;
+};
 
 export default function CustomerMenuPage() {
     const [categories, setCategories] = useState<MenuCategory[]>([]);
