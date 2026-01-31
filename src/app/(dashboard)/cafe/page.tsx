@@ -751,27 +751,140 @@ export default function CafePOSPage() {
                                 <p className="text-sm">Transaction completed successfully.</p>
                             </div>
 
-                            {/* Simple Receipt */}
-                            <div ref={receiptRef} className="bg-white p-4 text-black text-sm border rounded-lg mb-6">
-                                <div className="text-center mb-4">
-                                    <h2 className="font-bold text-lg">☕ CAFÉ</h2>
-                                    <p className="text-xs text-gray-500">Order #{lastOrder.order_number}</p>
-                                    <p className="text-xs text-gray-500">{new Date(lastOrder.created_at).toLocaleString()}</p>
+                            {/* Cambodia-Style Café Receipt */}
+                            <div ref={receiptRef} className="bg-white p-6 text-black font-mono" style={{ width: '80mm', margin: '0 auto' }}>
+                                {/* Header */}
+                                <div className="text-center mb-3">
+                                    <div className="text-2xl mb-1">☕</div>
+                                    <h2 className="font-bold text-lg tracking-wide">MARA LAVIN CAFÉ</h2>
+                                    <p className="text-xs">មារ៉ា ឡាវីន កាហ្វេ</p>
+                                    <p className="text-[10px] text-gray-600 mt-1">Phnom Penh, Cambodia</p>
+                                    <p className="text-[10px] text-gray-600">Tel: 012 345 678</p>
                                 </div>
-                                <div className="border-t border-dashed pt-2 space-y-1">
+
+                                {/* Dashed separator */}
+                                <div className="border-t-2 border-dashed border-black my-2"></div>
+
+                                {/* Order Info */}
+                                <div className="text-xs mb-2">
+                                    <div className="flex justify-between">
+                                        <span>Order / បញ្ជា:</span>
+                                        <span className="font-bold">{lastOrder.order_number}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span>Date / កាលបរិច្ឆេទ:</span>
+                                        <span>{lastOrder.createdAt || lastOrder.created_at
+                                            ? new Date(lastOrder.createdAt || lastOrder.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                                            : new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                                        }</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span>Time / ម៉ោង:</span>
+                                        <span>{lastOrder.createdAt || lastOrder.created_at
+                                            ? new Date(lastOrder.createdAt || lastOrder.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+                                            : new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+                                        }</span>
+                                    </div>
+                                    {lastOrder.cashier && (
+                                        <div className="flex justify-between">
+                                            <span>Cashier:</span>
+                                            <span>{lastOrder.cashier.full_name || lastOrder.cashier.username}</span>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Dashed separator */}
+                                <div className="border-t-2 border-dashed border-black my-2"></div>
+
+                                {/* Items Header */}
+                                <div className="flex justify-between text-xs font-bold mb-1">
+                                    <span>Item / មុខទំនិញ</span>
+                                    <span>Amount</span>
+                                </div>
+
+                                {/* Items */}
+                                <div className="space-y-1 text-xs">
                                     {lastOrder.items?.map((item: any, i: number) => (
                                         <div key={i} className="flex justify-between">
-                                            <span>{item.quantity}x {item.name} ({item.size})</span>
-                                            <span>${parseFloat(item.total).toFixed(2)}</span>
+                                            <span className="flex-1">
+                                                {item.quantity}x {item.name}
+                                                <span className="text-gray-500 text-[10px]"> ({item.size})</span>
+                                            </span>
+                                            <span className="font-medium">${formatPrice(item.total)}</span>
                                         </div>
                                     ))}
                                 </div>
-                                <div className="border-t border-dashed mt-2 pt-2 font-bold flex justify-between">
-                                    <span>Total</span>
-                                    <span>${parseFloat(lastOrder.total_usd).toFixed(2)}</span>
+
+                                {/* Dashed separator */}
+                                <div className="border-t-2 border-dashed border-black my-2"></div>
+
+                                {/* Totals */}
+                                <div className="space-y-1 text-xs">
+                                    <div className="flex justify-between">
+                                        <span>Subtotal / សរុបរង:</span>
+                                        <span>${formatPrice(lastOrder.subtotal_usd || lastOrder.total_usd)}</span>
+                                    </div>
+                                    {parseFloat(lastOrder.discount_usd || 0) > 0 && (
+                                        <div className="flex justify-between text-red-600">
+                                            <span>Discount / បញ្ចុះតម្លៃ:</span>
+                                            <span>-${formatPrice(lastOrder.discount_usd)}</span>
+                                        </div>
+                                    )}
                                 </div>
-                                <div className="text-center mt-4 text-xs text-gray-500">
-                                    Thank you! / អរគុណ!
+
+                                {/* Total Box */}
+                                <div className="bg-black text-white p-2 my-2 flex justify-between font-bold">
+                                    <span>TOTAL / សរុប</span>
+                                    <span>${formatPrice(lastOrder.total_usd)}</span>
+                                </div>
+
+                                {/* Payment Info */}
+                                <div className="space-y-1 text-xs mb-2">
+                                    <div className="flex justify-between">
+                                        <span>Payment / បង់ប្រាក់:</span>
+                                        <span className="capitalize">{lastOrder.payment_method}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span>Paid USD:</span>
+                                        <span>${formatPrice(lastOrder.paid_usd)}</span>
+                                    </div>
+                                    {parseFloat(lastOrder.paid_khr || 0) > 0 && (
+                                        <div className="flex justify-between">
+                                            <span>Paid KHR:</span>
+                                            <span>៛{parseInt(lastOrder.paid_khr).toLocaleString()}</span>
+                                        </div>
+                                    )}
+                                    {(parseFloat(lastOrder.change_usd || 0) > 0 || parseFloat(lastOrder.change_khr || 0) > 0) && (
+                                        <div className="flex justify-between font-bold text-green-700">
+                                            <span>Change / ប្រាក់អាប់:</span>
+                                            <span>
+                                                {parseFloat(lastOrder.change_usd || 0) > 0 && `$${formatPrice(lastOrder.change_usd)} `}
+                                                {parseFloat(lastOrder.change_khr || 0) > 0 && `៛${parseInt(lastOrder.change_khr).toLocaleString()}`}
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Dashed separator */}
+                                <div className="border-t-2 border-dashed border-black my-2"></div>
+
+                                {/* Footer */}
+                                <div className="text-center text-xs">
+                                    <p className="font-bold mb-1">Thank you for your purchase!</p>
+                                    <p className="text-[10px]">អរគុណសម្រាប់ការទិញរបស់អ្នក!</p>
+                                    <p className="text-[10px] text-gray-500 mt-2">Please come again / សូមអញ្ជើញមកម្តងទៀត</p>
+                                </div>
+
+                                {/* Barcode-like decoration */}
+                                <div className="mt-3 text-center">
+                                    <div className="inline-block">
+                                        <div className="flex justify-center gap-[2px]">
+                                            {[...Array(30)].map((_, i) => (
+                                                <div key={i} className="bg-black" style={{ width: i % 3 === 0 ? '2px' : '1px', height: '20px' }}></div>
+                                            ))}
+                                        </div>
+                                        <p className="text-[8px] text-gray-400 mt-1">{lastOrder.order_number}</p>
+                                    </div>
                                 </div>
                             </div>
 
