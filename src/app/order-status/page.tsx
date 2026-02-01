@@ -2,18 +2,28 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { FiCoffee, FiClock, FiCheckCircle, FiChevronLeft } from 'react-icons/fi';
+import { FiCoffee, FiClock, FiCheckCircle, FiChevronLeft, FiSearch, FiSend, FiUser } from 'react-icons/fi';
 
 interface QueueOrder {
     id: string;
     order_number: string;
     status: string;
+    total_usd?: number;
     createdAt: string;
+    items?: Array<{
+        name: string;
+        quantity: number;
+        size: string;
+    }>;
 }
 
 export default function PublicOrderStatusPage() {
     const [orders, setOrders] = useState<QueueOrder[]>([]);
+    const [customerOrders, setCustomerOrders] = useState<QueueOrder[]>([]);
     const [currentTime, setCurrentTime] = useState(new Date());
+    const [phoneNumber, setPhoneNumber] = useState('');
+    const [searchedPhone, setSearchedPhone] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const fetchOrders = async () => {
         try {
@@ -28,6 +38,23 @@ export default function PublicOrderStatusPage() {
         }
     };
 
+    const fetchCustomerOrders = async (phone: string) => {
+        if (!phone) return;
+        setLoading(true);
+        try {
+            const res = await fetch(`/api/customer/orders?phone=${encodeURIComponent(phone)}`);
+            const data = await res.json();
+            if (data.success) {
+                setCustomerOrders(data.data || []);
+                setSearchedPhone(phone);
+            }
+        } catch (error) {
+            console.error('Failed to fetch customer orders');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
         fetchOrders();
         const orderInterval = setInterval(fetchOrders, 3000);
@@ -38,11 +65,34 @@ export default function PublicOrderStatusPage() {
         };
     }, []);
 
+    // Also refresh customer orders periodically if searched
+    useEffect(() => {
+        if (searchedPhone) {
+            const interval = setInterval(() => fetchCustomerOrders(searchedPhone), 5000);
+            return () => clearInterval(interval);
+        }
+    }, [searchedPhone]);
+
     const preparingOrders = orders.filter(o => o.status === 'preparing' || o.status === 'pending');
     const readyOrders = orders.filter(o => o.status === 'ready');
 
     const getShortOrderNumber = (orderNumber: string) => {
         return orderNumber.split('-').pop() || orderNumber;
+    };
+
+    const getStatusBadge = (status: string) => {
+        switch (status) {
+            case 'pending':
+                return <span className="px-3 py-1 bg-yellow-500 text-yellow-900 rounded-full text-xs font-bold">Queued</span>;
+            case 'preparing':
+                return <span className="px-3 py-1 bg-blue-500 text-white rounded-full text-xs font-bold">Preparing</span>;
+            case 'ready':
+                return <span className="px-3 py-1 bg-green-500 text-white rounded-full text-xs font-bold">Ready!</span>;
+            case 'completed':
+                return <span className="px-3 py-1 bg-gray-500 text-white rounded-full text-xs font-bold">Completed</span>;
+            default:
+                return <span className="px-3 py-1 bg-gray-300 text-gray-700 rounded-full text-xs font-bold">{status}</span>;
+        }
     };
 
     return (
@@ -76,6 +126,95 @@ export default function PublicOrderStatusPage() {
 
             {/* Main Content */}
             <main className="container mx-auto px-4 py-8">
+                {/* Phone Search Section */}
+                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 mb-8">
+                    <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                        <FiUser className="w-5 h-5 text-amber-400" />
+                        Track Your Order
+                    </h2>
+                    <div className="flex gap-3">
+                        <input
+                            type="tel"
+                            value={phoneNumber}
+                            onChange={(e) => setPhoneNumber(e.target.value)}
+                            placeholder="Enter your phone number"
+                            className="flex-1 px-4 py-3 bg-white/10 border border-amber-500/30 rounded-xl text-white placeholder-amber-200/50 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                            onKeyDown={(e) => e.key === 'Enter' && fetchCustomerOrders(phoneNumber)}
+                        />
+                        <button
+                            onClick={() => fetchCustomerOrders(phoneNumber)}
+                            disabled={!phoneNumber || loading}
+                            className="px-6 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl transition disabled:opacity-50 flex items-center gap-2"
+                        >
+                            {loading ? (
+                                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            ) : (
+                                <FiSearch className="w-5 h-5" />
+                            )}
+                            Search
+                        </button>
+                    </div>
+
+                    {/* Customer Orders */}
+                    {searchedPhone && (
+                        <div className="mt-6">
+                            <h3 className="text-amber-300 font-medium mb-3">
+                                Orders for {searchedPhone}
+                            </h3>
+                            {customerOrders.length === 0 ? (
+                                <p className="text-amber-200/60">No orders found for this phone number.</p>
+                            ) : (
+                                <div className="space-y-3">
+                                    {customerOrders.map((order) => (
+                                        <div
+                                            key={order.id}
+                                            className={`bg-white/10 rounded-xl p-4 border-2 ${order.status === 'ready' ? 'border-green-500 animate-pulse' :
+                                                    order.status === 'preparing' ? 'border-blue-500' :
+                                                        order.status === 'pending' ? 'border-yellow-500' :
+                                                            'border-transparent'
+                                                }`}
+                                        >
+                                            <div className="flex items-center justify-between mb-2">
+                                                <span className="text-2xl font-black text-white">
+                                                    #{getShortOrderNumber(order.order_number)}
+                                                </span>
+                                                {getStatusBadge(order.status)}
+                                            </div>
+                                            {order.items && order.items.length > 0 && (
+                                                <div className="text-sm text-amber-200/80 mb-2">
+                                                    {order.items.map((item, i) => (
+                                                        <span key={i}>
+                                                            {item.quantity}x {item.name}
+                                                            {i < order.items!.length - 1 ? ', ' : ''}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            )}
+                                            {order.total_usd && (
+                                                <p className="text-amber-400 font-bold">${parseFloat(String(order.total_usd)).toFixed(2)}</p>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Telegram tip */}
+                    <div className="mt-6 bg-blue-500/20 rounded-xl p-4 border border-blue-400/30">
+                        <div className="flex items-start gap-3">
+                            <FiSend className="w-5 h-5 text-blue-400 mt-0.5" />
+                            <div>
+                                <p className="text-white font-medium">Get notifications on Telegram!</p>
+                                <p className="text-blue-200 text-sm mt-1">
+                                    Message our bot with your phone number to receive alerts when your order is ready.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Queue Display */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     {/* Preparing Column */}
                     <div className="bg-gradient-to-br from-orange-600 to-orange-700 rounded-3xl p-6 shadow-2xl">

@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { FiCoffee, FiMapPin, FiClock, FiPhone, FiInstagram, FiFacebook, FiWifi, FiHeart } from 'react-icons/fi';
+import { FiCoffee, FiMapPin, FiClock, FiPhone, FiInstagram, FiFacebook, FiWifi, FiHeart, FiShoppingCart, FiPlus, FiMinus, FiX, FiCheck, FiSend } from 'react-icons/fi';
+import toast, { Toaster } from 'react-hot-toast';
 
 interface MenuItem {
     id: string;
@@ -29,6 +30,17 @@ interface MenuCategory {
     name_kh?: string;
     icon?: string;
     items: MenuItem[];
+}
+
+interface CartItem {
+    id: string;
+    menuItem: MenuItem;
+    size: 'small' | 'medium' | 'large';
+    quantity: number;
+    customizations?: {
+        sugar?: string;
+        ice?: string;
+    };
 }
 
 const formatPrice = (price: number | string) => {
@@ -79,12 +91,42 @@ const getImageForItem = (item: MenuItem, categoryIcon?: string): string => {
     return coffeeImages.default;
 };
 
+const getItemPrice = (item: MenuItem, size: 'small' | 'medium' | 'large'): number => {
+    if (size === 'medium' && item.price_medium) {
+        return typeof item.price_medium === 'string' ? parseFloat(item.price_medium) : item.price_medium;
+    } else if (size === 'medium') {
+        return (typeof item.base_price === 'string' ? parseFloat(item.base_price) : item.base_price) + 0.5;
+    } else if (size === 'large' && item.price_large) {
+        return typeof item.price_large === 'string' ? parseFloat(item.price_large) : item.price_large;
+    } else if (size === 'large') {
+        return (typeof item.base_price === 'string' ? parseFloat(item.base_price) : item.base_price) + 1;
+    }
+    return typeof item.base_price === 'string' ? parseFloat(item.base_price) : item.base_price;
+};
+
 export default function CustomerMenuPage() {
     const [categories, setCategories] = useState<MenuCategory[]>([]);
     const [loading, setLoading] = useState(true);
     const [activeCategory, setActiveCategory] = useState<string | null>(null);
     const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
+    const [selectedSize, setSelectedSize] = useState<'small' | 'medium' | 'large'>('small');
     const [error, setError] = useState<string | null>(null);
+
+    // Cart state
+    const [cart, setCart] = useState<CartItem[]>([]);
+    const [cartOpen, setCartOpen] = useState(false);
+    const [checkoutOpen, setCheckoutOpen] = useState(false);
+
+    // Checkout form
+    const [customerPhone, setCustomerPhone] = useState('');
+    const [customerName, setCustomerName] = useState('');
+    const [orderType, setOrderType] = useState<'dine_in' | 'takeaway'>('takeaway');
+    const [tableNumber, setTableNumber] = useState('');
+    const [orderNotes, setOrderNotes] = useState('');
+    const [submitting, setSubmitting] = useState(false);
+
+    // Order success
+    const [orderSuccess, setOrderSuccess] = useState<{ orderNumber: string } | null>(null);
 
     useEffect(() => {
         fetchMenu();
@@ -136,6 +178,108 @@ export default function CustomerMenuPage() {
         return icons[icon || ''] || '☕';
     };
 
+    // Cart functions
+    const addToCart = (item: MenuItem, size: 'small' | 'medium' | 'large') => {
+        const existingIndex = cart.findIndex(
+            c => c.menuItem.id === item.id && c.size === size
+        );
+
+        if (existingIndex >= 0) {
+            const newCart = [...cart];
+            newCart[existingIndex].quantity += 1;
+            setCart(newCart);
+        } else {
+            setCart([...cart, {
+                id: `${item.id}-${size}-${Date.now()}`,
+                menuItem: item,
+                size,
+                quantity: 1
+            }]);
+        }
+        toast.success(`Added ${item.name} to cart!`);
+        setSelectedItem(null);
+    };
+
+    const updateCartQuantity = (cartItemId: string, delta: number) => {
+        setCart(cart.map(item => {
+            if (item.id === cartItemId) {
+                const newQty = item.quantity + delta;
+                if (newQty <= 0) return null as any;
+                return { ...item, quantity: newQty };
+            }
+            return item;
+        }).filter(Boolean));
+    };
+
+    const removeFromCart = (cartItemId: string) => {
+        setCart(cart.filter(item => item.id !== cartItemId));
+    };
+
+    const clearCart = () => {
+        setCart([]);
+    };
+
+    const cartTotal = cart.reduce((sum, item) => {
+        return sum + getItemPrice(item.menuItem, item.size) * item.quantity;
+    }, 0);
+
+    const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+    // Submit order
+    const submitOrder = async () => {
+        if (!customerPhone) {
+            toast.error('Please enter your phone number');
+            return;
+        }
+
+        if (orderType === 'dine_in' && !tableNumber) {
+            toast.error('Please enter your table number');
+            return;
+        }
+
+        setSubmitting(true);
+
+        try {
+            const orderItems = cart.map(item => ({
+                menu_item_id: item.menuItem.id,
+                size: item.size === 'small' ? 'regular' : item.size,
+                quantity: item.quantity,
+                customizations: item.customizations || {}
+            }));
+
+            const res = await fetch('/api/customer/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    customer_phone: customerPhone,
+                    customer_name: customerName || undefined,
+                    items: orderItems,
+                    order_type: orderType,
+                    table_number: orderType === 'dine_in' ? parseInt(tableNumber) : undefined,
+                    notes: orderNotes || undefined
+                })
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                setOrderSuccess({
+                    orderNumber: data.data.order.order_number
+                });
+                clearCart();
+                setCheckoutOpen(false);
+                setCartOpen(false);
+                toast.success('Order placed successfully!');
+            } else {
+                throw new Error(data.message || 'Failed to place order');
+            }
+        } catch (error: any) {
+            toast.error(error.message || 'Failed to place order');
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
     if (loading) {
         return (
             <div className="min-h-screen bg-gradient-to-br from-amber-950 via-orange-950 to-amber-900 flex items-center justify-center">
@@ -164,8 +308,55 @@ export default function CustomerMenuPage() {
         );
     }
 
+    // Order success view
+    if (orderSuccess) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-green-900 via-emerald-900 to-green-800 flex items-center justify-center p-4">
+                <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 text-center">
+                    <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <FiCheck className="w-10 h-10 text-green-600" />
+                    </div>
+                    <h1 className="text-3xl font-black text-gray-900 mb-2">Order Placed!</h1>
+                    <p className="text-gray-500 mb-6">Your order has been sent to the kitchen</p>
+
+                    <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-2xl p-6 mb-6">
+                        <p className="text-sm opacity-80 mb-1">Order Number</p>
+                        <p className="text-4xl font-black">#{orderSuccess.orderNumber.split('-').pop()}</p>
+                    </div>
+
+                    <p className="text-gray-600 mb-6">
+                        Please proceed to the counter for payment. We'll start preparing your order right away!
+                    </p>
+
+                    <div className="bg-blue-50 rounded-xl p-4 mb-6">
+                        <p className="text-blue-800 text-sm">
+                            <strong>💡 Tip:</strong> Message our Telegram bot with your phone number to get order status updates!
+                        </p>
+                    </div>
+
+                    <div className="flex gap-3">
+                        <Link
+                            href="/order-status"
+                            className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 rounded-xl transition"
+                        >
+                            Track Order
+                        </Link>
+                        <button
+                            onClick={() => setOrderSuccess(null)}
+                            className="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 rounded-xl transition"
+                        >
+                            Order More
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-stone-100 via-amber-50 to-orange-50">
+            <Toaster position="top-center" />
+
             {/* Hero Header */}
             <header className="relative bg-gradient-to-br from-amber-950 via-stone-900 to-amber-900 text-white overflow-hidden">
                 {/* Decorative coffee beans pattern */}
@@ -258,7 +449,7 @@ export default function CustomerMenuPage() {
             )}
 
             {/* Menu Content */}
-            <main className="container mx-auto px-4 py-12">
+            <main className="container mx-auto px-4 py-12 pb-32">
                 {categories.length === 0 ? (
                     <div className="text-center py-20">
                         <FiCoffee className="w-20 h-20 mx-auto text-amber-300 mb-4" />
@@ -286,7 +477,7 @@ export default function CustomerMenuPage() {
                                 {category.items.map((item) => (
                                     <div
                                         key={item.id}
-                                        onClick={() => setSelectedItem(item)}
+                                        onClick={() => { setSelectedItem(item); setSelectedSize('small'); }}
                                         className="group bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all cursor-pointer overflow-hidden border border-stone-100 hover:border-amber-200"
                                     >
                                         {/* Image */}
@@ -303,6 +494,18 @@ export default function CustomerMenuPage() {
                                                         Sold Out
                                                     </span>
                                                 </div>
+                                            )}
+                                            {/* Quick add button */}
+                                            {item.is_available && (
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        addToCart(item, 'small');
+                                                    }}
+                                                    className="absolute bottom-3 right-3 w-10 h-10 bg-amber-500 hover:bg-amber-600 text-white rounded-full flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0"
+                                                >
+                                                    <FiPlus className="w-5 h-5" />
+                                                </button>
                                             )}
                                         </div>
 
@@ -365,7 +568,7 @@ export default function CustomerMenuPage() {
                                 onClick={() => setSelectedItem(null)}
                                 className="absolute top-4 right-4 w-10 h-10 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center transition"
                             >
-                                ✕
+                                <FiX className="w-5 h-5" />
                             </button>
                         </div>
 
@@ -382,20 +585,29 @@ export default function CustomerMenuPage() {
                             {/* Sizes */}
                             {selectedItem.has_sizes && (
                                 <div className="space-y-3 mb-6">
-                                    <p className="text-sm font-bold text-stone-700 uppercase tracking-wider">Available Sizes</p>
+                                    <p className="text-sm font-bold text-stone-700 uppercase tracking-wider">Select Size</p>
                                     <div className="grid grid-cols-3 gap-4">
-                                        <div className="text-center p-4 bg-stone-50 rounded-2xl border-2 border-transparent hover:border-amber-400 transition cursor-pointer">
+                                        <button
+                                            onClick={() => setSelectedSize('small')}
+                                            className={`text-center p-4 rounded-2xl border-2 transition ${selectedSize === 'small' ? 'border-amber-500 bg-amber-50' : 'border-transparent bg-stone-50 hover:border-amber-300'}`}
+                                        >
                                             <p className="text-2xl font-black text-amber-600">S</p>
                                             <p className="text-sm text-stone-600 font-medium mt-1">{formatPrice(selectedItem.base_price)}</p>
-                                        </div>
-                                        <div className="text-center p-4 bg-stone-50 rounded-2xl border-2 border-transparent hover:border-amber-400 transition cursor-pointer">
+                                        </button>
+                                        <button
+                                            onClick={() => setSelectedSize('medium')}
+                                            className={`text-center p-4 rounded-2xl border-2 transition ${selectedSize === 'medium' ? 'border-amber-500 bg-amber-50' : 'border-transparent bg-stone-50 hover:border-amber-300'}`}
+                                        >
                                             <p className="text-2xl font-black text-amber-600">M</p>
-                                            <p className="text-sm text-stone-600 font-medium mt-1">{formatPrice(selectedItem.price_medium || selectedItem.base_price + 0.5)}</p>
-                                        </div>
-                                        <div className="text-center p-4 bg-stone-50 rounded-2xl border-2 border-transparent hover:border-amber-400 transition cursor-pointer">
+                                            <p className="text-sm text-stone-600 font-medium mt-1">{formatPrice(selectedItem.price_medium || parseFloat(String(selectedItem.base_price)) + 0.5)}</p>
+                                        </button>
+                                        <button
+                                            onClick={() => setSelectedSize('large')}
+                                            className={`text-center p-4 rounded-2xl border-2 transition ${selectedSize === 'large' ? 'border-amber-500 bg-amber-50' : 'border-transparent bg-stone-50 hover:border-amber-300'}`}
+                                        >
                                             <p className="text-2xl font-black text-amber-600">L</p>
-                                            <p className="text-sm text-stone-600 font-medium mt-1">{formatPrice(selectedItem.price_large || selectedItem.base_price + 1)}</p>
-                                        </div>
+                                            <p className="text-sm text-stone-600 font-medium mt-1">{formatPrice(selectedItem.price_large || parseFloat(String(selectedItem.base_price)) + 1)}</p>
+                                        </button>
                                     </div>
                                 </div>
                             )}
@@ -406,9 +618,243 @@ export default function CustomerMenuPage() {
                                 </div>
                             )}
 
-                            <p className="text-center text-stone-400 text-sm">
-                                Order at the counter • Customizations available
-                            </p>
+                            <button
+                                onClick={() => addToCart(selectedItem, selectedSize)}
+                                disabled={!selectedItem.is_available}
+                                className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold py-4 rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            >
+                                <FiShoppingCart className="w-5 h-5" />
+                                Add to Cart - {formatPrice(getItemPrice(selectedItem, selectedSize))}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Floating Cart Button */}
+            {cart.length > 0 && (
+                <button
+                    onClick={() => setCartOpen(true)}
+                    className="fixed bottom-6 right-6 z-40 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-6 py-4 rounded-full shadow-2xl hover:from-amber-600 hover:to-orange-600 transition-all flex items-center gap-3"
+                >
+                    <FiShoppingCart className="w-6 h-6" />
+                    <span className="font-bold">{formatPrice(cartTotal)}</span>
+                    <span className="bg-white text-amber-600 w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm">
+                        {cartItemCount}
+                    </span>
+                </button>
+            )}
+
+            {/* Cart Sidebar */}
+            {cartOpen && (
+                <div className="fixed inset-0 z-50 flex justify-end" onClick={() => setCartOpen(false)}>
+                    <div className="absolute inset-0 bg-black/50" />
+                    <div
+                        className="relative w-full max-w-md bg-white h-full overflow-auto animate-slide-in-right"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Cart Header */}
+                        <div className="sticky top-0 bg-white border-b border-stone-200 px-6 py-4 flex items-center justify-between">
+                            <h2 className="text-xl font-bold text-stone-900">Your Cart</h2>
+                            <button onClick={() => setCartOpen(false)} className="p-2 hover:bg-stone-100 rounded-full">
+                                <FiX className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        {/* Cart Items */}
+                        <div className="p-6 space-y-4">
+                            {cart.map((item) => (
+                                <div key={item.id} className="flex gap-4 bg-stone-50 rounded-xl p-4">
+                                    <img
+                                        src={getImageForItem(item.menuItem)}
+                                        alt={item.menuItem.name}
+                                        className="w-20 h-20 rounded-lg object-cover"
+                                    />
+                                    <div className="flex-1">
+                                        <h3 className="font-bold text-stone-900">{item.menuItem.name}</h3>
+                                        <p className="text-sm text-stone-500">Size: {item.size.toUpperCase()}</p>
+                                        <p className="text-amber-600 font-bold">{formatPrice(getItemPrice(item.menuItem, item.size))}</p>
+                                    </div>
+                                    <div className="flex flex-col items-end gap-2">
+                                        <button onClick={() => removeFromCart(item.id)} className="text-red-500 hover:text-red-600">
+                                            <FiX className="w-4 h-4" />
+                                        </button>
+                                        <div className="flex items-center gap-2">
+                                            <button
+                                                onClick={() => updateCartQuantity(item.id, -1)}
+                                                className="w-8 h-8 bg-stone-200 hover:bg-stone-300 rounded-full flex items-center justify-center"
+                                            >
+                                                <FiMinus className="w-4 h-4" />
+                                            </button>
+                                            <span className="font-bold w-6 text-center">{item.quantity}</span>
+                                            <button
+                                                onClick={() => updateCartQuantity(item.id, 1)}
+                                                className="w-8 h-8 bg-amber-500 hover:bg-amber-600 text-white rounded-full flex items-center justify-center"
+                                            >
+                                                <FiPlus className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Cart Footer */}
+                        <div className="sticky bottom-0 bg-white border-t border-stone-200 p-6 space-y-4">
+                            <div className="flex justify-between text-lg">
+                                <span className="font-medium text-stone-600">Total</span>
+                                <span className="font-black text-2xl text-amber-600">{formatPrice(cartTotal)}</span>
+                            </div>
+                            <button
+                                onClick={() => { setCartOpen(false); setCheckoutOpen(true); }}
+                                className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold py-4 rounded-xl transition flex items-center justify-center gap-2"
+                            >
+                                <FiSend className="w-5 h-5" />
+                                Proceed to Checkout
+                            </button>
+                            <button
+                                onClick={clearCart}
+                                className="w-full text-stone-500 hover:text-stone-700 font-medium py-2"
+                            >
+                                Clear Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Checkout Modal */}
+            {checkoutOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70" onClick={() => setCheckoutOpen(false)}>
+                    <div
+                        className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden max-h-[90vh] overflow-y-auto"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Header */}
+                        <div className="sticky top-0 bg-white border-b border-stone-200 px-6 py-4 flex items-center justify-between">
+                            <h2 className="text-xl font-bold text-stone-900">Checkout</h2>
+                            <button onClick={() => setCheckoutOpen(false)} className="p-2 hover:bg-stone-100 rounded-full">
+                                <FiX className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        <div className="p-6 space-y-6">
+                            {/* Order Summary */}
+                            <div className="bg-stone-50 rounded-xl p-4">
+                                <h3 className="font-bold text-stone-700 mb-3">Order Summary</h3>
+                                <div className="space-y-2">
+                                    {cart.map((item) => (
+                                        <div key={item.id} className="flex justify-between text-sm">
+                                            <span>{item.quantity}x {item.menuItem.name} ({item.size.toUpperCase()})</span>
+                                            <span className="font-medium">{formatPrice(getItemPrice(item.menuItem, item.size) * item.quantity)}</span>
+                                        </div>
+                                    ))}
+                                    <div className="border-t border-stone-200 pt-2 mt-2 flex justify-between font-bold">
+                                        <span>Total</span>
+                                        <span className="text-amber-600">{formatPrice(cartTotal)}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Order Type */}
+                            <div>
+                                <label className="block text-sm font-bold text-stone-700 mb-2">Order Type</label>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={() => setOrderType('takeaway')}
+                                        className={`p-4 rounded-xl border-2 transition ${orderType === 'takeaway' ? 'border-amber-500 bg-amber-50' : 'border-stone-200 hover:border-amber-300'}`}
+                                    >
+                                        <span className="text-2xl mb-1 block">📦</span>
+                                        <span className="font-medium">Takeaway</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setOrderType('dine_in')}
+                                        className={`p-4 rounded-xl border-2 transition ${orderType === 'dine_in' ? 'border-amber-500 bg-amber-50' : 'border-stone-200 hover:border-amber-300'}`}
+                                    >
+                                        <span className="text-2xl mb-1 block">🍽️</span>
+                                        <span className="font-medium">Dine-In</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Table Number (for dine-in) */}
+                            {orderType === 'dine_in' && (
+                                <div>
+                                    <label className="block text-sm font-bold text-stone-700 mb-2">Table Number *</label>
+                                    <input
+                                        type="number"
+                                        value={tableNumber}
+                                        onChange={(e) => setTableNumber(e.target.value)}
+                                        placeholder="Enter your table number"
+                                        className="w-full px-4 py-3 border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                                    />
+                                </div>
+                            )}
+
+                            {/* Phone Number */}
+                            <div>
+                                <label className="block text-sm font-bold text-stone-700 mb-2">Phone Number *</label>
+                                <input
+                                    type="tel"
+                                    value={customerPhone}
+                                    onChange={(e) => setCustomerPhone(e.target.value)}
+                                    placeholder="012 345 678"
+                                    className="w-full px-4 py-3 border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                                />
+                                <p className="text-xs text-stone-400 mt-1">We'll use this to track your order</p>
+                            </div>
+
+                            {/* Name */}
+                            <div>
+                                <label className="block text-sm font-bold text-stone-700 mb-2">Your Name (Optional)</label>
+                                <input
+                                    type="text"
+                                    value={customerName}
+                                    onChange={(e) => setCustomerName(e.target.value)}
+                                    placeholder="Enter your name"
+                                    className="w-full px-4 py-3 border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                                />
+                            </div>
+
+                            {/* Notes */}
+                            <div>
+                                <label className="block text-sm font-bold text-stone-700 mb-2">Special Instructions (Optional)</label>
+                                <textarea
+                                    value={orderNotes}
+                                    onChange={(e) => setOrderNotes(e.target.value)}
+                                    placeholder="Any special requests?"
+                                    rows={2}
+                                    className="w-full px-4 py-3 border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
+                                />
+                            </div>
+
+                            {/* Payment Notice */}
+                            <div className="bg-blue-50 rounded-xl p-4">
+                                <p className="text-blue-800 text-sm">
+                                    <strong>💳 Payment:</strong> Please pay at the counter after placing your order.
+                                </p>
+                            </div>
+
+                            {/* Submit Button */}
+                            <button
+                                onClick={submitOrder}
+                                disabled={submitting || !customerPhone || (orderType === 'dine_in' && !tableNumber)}
+                                className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold py-4 rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            >
+                                {submitting ? (
+                                    <>
+                                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                        Placing Order...
+                                    </>
+                                ) : (
+                                    <>
+                                        <FiSend className="w-5 h-5" />
+                                        Place Order - {formatPrice(cartTotal)}
+                                    </>
+                                )}
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -474,6 +920,20 @@ export default function CustomerMenuPage() {
                     </div>
                 </div>
             </footer>
+
+            <style jsx>{`
+                @keyframes slide-in-right {
+                    from {
+                        transform: translateX(100%);
+                    }
+                    to {
+                        transform: translateX(0);
+                    }
+                }
+                .animate-slide-in-right {
+                    animation: slide-in-right 0.3s ease-out;
+                }
+            `}</style>
         </div>
     );
 }

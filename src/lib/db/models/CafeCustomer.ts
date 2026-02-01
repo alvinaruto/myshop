@@ -44,6 +44,10 @@ export default (sequelize: Sequelize) => {
             type: DataTypes.TEXT,
             allowNull: true
         },
+        telegram_chat_id: {
+            type: DataTypes.STRING(50),
+            allowNull: true
+        },
         is_active: {
             type: DataTypes.BOOLEAN,
             defaultValue: true
