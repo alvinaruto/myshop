@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { models } from '@/lib/db';
 import jwt from 'jsonwebtoken';
 
+export async function GET() {
+    return NextResponse.json({ message: "OTP Verify endpoint is active. Use POST to verify a code." });
+}
+
 export async function POST(request: NextRequest) {
     try {
         const { phone, otp_code } = await request.json();

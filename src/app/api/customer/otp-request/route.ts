@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { models } from '@/lib/db';
 
+export async function GET() {
+    return NextResponse.json({ message: "OTP Request endpoint is active. Use POST to request a code." });
+}
+
 export async function POST(request: NextRequest) {
     try {
         const { phone } = await request.json();
