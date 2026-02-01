@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { models, getSequelize } from '@/lib/db';
-import { sendCustomerAlert, isTelegramConfigured } from '@/lib/telegram';
+import { sendCustomerAlert, sendOrderStatusToGroup, isTelegramConfigured } from '@/lib/telegram';
 
 // GET /api/cafe/orders/[id]
 export async function GET(
@@ -67,26 +67,38 @@ export async function PATCH(
         }
 
         const oldStatus = (order as any).status;
+        const newStatus = body.status;
 
         // Only allow status updates
-        if (body.status) {
-            await order.update({ status: body.status });
+        if (newStatus && oldStatus !== newStatus) {
+            await order.update({ status: newStatus });
 
-            // TODO: Re-enable after running migration to add telegram_chat_id column
-            // Send Telegram notification to customer if they have a telegram_chat_id
-            // const customer = (order as any).customer;
-            // if (
-            //     isTelegramConfigured() &&
-            //     customer?.telegram_chat_id &&
-            //     ['preparing', 'ready', 'completed'].includes(body.status) &&
-            //     oldStatus !== body.status
-            // ) {
-            //     sendCustomerAlert(
-            //         customer.telegram_chat_id,
-            //         (order as any).order_number,
-            //         body.status
-            //     ).catch(err => console.error('Customer alert failed:', err));
-            // }
+            const customer = (order as any).customer;
+            const orderNumber = (order as any).order_number;
+
+            // Send notifications if Telegram is configured
+            if (isTelegramConfigured()) {
+                // Notify shop group of status change (for ready status especially)
+                if (['preparing', 'ready', 'completed', 'voided'].includes(newStatus)) {
+                    sendOrderStatusToGroup(
+                        orderNumber,
+                        newStatus,
+                        customer?.name || customer?.phone
+                    ).catch(err => console.error('Group status notification failed:', err));
+                }
+
+                // Notify customer if they have Telegram linked
+                if (
+                    customer?.telegram_chat_id &&
+                    ['preparing', 'ready', 'completed'].includes(newStatus)
+                ) {
+                    sendCustomerAlert(
+                        customer.telegram_chat_id,
+                        orderNumber,
+                        newStatus
+                    ).catch(err => console.error('Customer alert failed:', err));
+                }
+            }
         }
 
         return NextResponse.json({

@@ -39,6 +39,10 @@ export default (sequelize: Sequelize) => {
         tier: {
             type: DataTypes.ENUM('bronze', 'silver', 'gold', 'platinum'),
             defaultValue: 'bronze'
+        },
+        telegram_chat_id: {
+            type: DataTypes.STRING(50),
+            allowNull: true
         }
     }, {
         tableName: 'cafe_customers',

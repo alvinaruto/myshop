@@ -166,6 +166,45 @@ export async function sendOrderNotification(order: OrderData): Promise<boolean> 
 }
 
 /**
+ * Send order status update to shop group
+ */
+export async function sendOrderStatusToGroup(
+    orderNumber: string,
+    status: 'preparing' | 'ready' | 'completed' | 'voided',
+    customerName?: string
+): Promise<boolean> {
+    try {
+        const config = getConfig();
+        const shortOrderNum = orderNumber.split('-').pop();
+        let message = '';
+
+        switch (status) {
+            case 'preparing':
+                message = `☕ <b>Order #${shortOrderNum}</b> is now being prepared`;
+                break;
+            case 'ready':
+                message = `🔔 <b>Order #${shortOrderNum}</b> is <b>READY FOR PICKUP!</b>`;
+                break;
+            case 'completed':
+                message = `✅ <b>Order #${shortOrderNum}</b> has been picked up`;
+                break;
+            case 'voided':
+                message = `❌ <b>Order #${shortOrderNum}</b> has been voided`;
+                break;
+        }
+
+        if (customerName) {
+            message += `\n👤 ${customerName}`;
+        }
+
+        return await sendTelegramMessage(config.shopChatId, message);
+    } catch (error) {
+        console.error('Failed to send order status to group:', error);
+        return false;
+    }
+}
+
+/**
  * Send order status update to customer
  */
 export async function sendCustomerAlert(
