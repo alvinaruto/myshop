@@ -788,7 +788,7 @@ export default function CustomerMenuPage() {
                                         value={tableNumber}
                                         onChange={(e) => setTableNumber(e.target.value)}
                                         placeholder="Enter your table number"
-                                        className="w-full px-4 py-3 border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                                        className="w-full px-4 py-3 border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-stone-900 placeholder-stone-400"
                                     />
                                 </div>
                             )}
@@ -801,7 +801,7 @@ export default function CustomerMenuPage() {
                                     value={customerPhone}
                                     onChange={(e) => setCustomerPhone(e.target.value)}
                                     placeholder="012 345 678"
-                                    className="w-full px-4 py-3 border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                                    className="w-full px-4 py-3 border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-stone-900 placeholder-stone-400"
                                 />
                                 <p className="text-xs text-stone-400 mt-1">We'll use this to track your order</p>
                             </div>
@@ -814,7 +814,7 @@ export default function CustomerMenuPage() {
                                     value={customerName}
                                     onChange={(e) => setCustomerName(e.target.value)}
                                     placeholder="Enter your name"
-                                    className="w-full px-4 py-3 border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                                    className="w-full px-4 py-3 border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-stone-900 placeholder-stone-400"
                                 />
                             </div>
 
@@ -826,7 +826,7 @@ export default function CustomerMenuPage() {
                                     onChange={(e) => setOrderNotes(e.target.value)}
                                     placeholder="Any special requests?"
                                     rows={2}
-                                    className="w-full px-4 py-3 border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
+                                    className="w-full px-4 py-3 border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none bg-white text-stone-900 placeholder-stone-400"
                                 />
                             </div>
 
