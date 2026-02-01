@@ -13,12 +13,20 @@ interface DashboardLayoutProps {
     children: ReactNode;
 }
 
-const navigation = [
+interface NavItem {
+    name: string;
+    href: string;
+    icon: any;
+    roles: string[];
+    badgeKey?: 'pendingOrders';
+}
+
+const navigation: NavItem[] = [
     { name: 'Dashboard', href: '/dashboard', icon: FiHome, roles: ['admin', 'manager'] },
     { name: 'Phone Shop POS', href: '/pos', icon: FiShoppingCart, roles: ['admin', 'manager', 'cashier'] },
     { name: 'Café POS', href: '/cafe', icon: FiCoffee, roles: ['admin', 'manager', 'cashier'] },
-    { name: 'Kitchen Display', href: '/cafe/kitchen', icon: FiCoffee, roles: ['admin', 'manager', 'cashier'] },
-    { name: 'Order Queue', href: '/cafe/queue', icon: FiCoffee, roles: ['admin', 'manager', 'cashier'] },
+    { name: 'Kitchen Display', href: '/cafe/kitchen', icon: FiCoffee, roles: ['admin', 'manager', 'cashier'], badgeKey: 'pendingOrders' },
+    { name: 'Order Queue', href: '/cafe/queue', icon: FiCoffee, roles: ['admin', 'manager', 'cashier'], badgeKey: 'pendingOrders' },
     { name: 'Café Menu', href: '/cafe/menu', icon: FiCoffee, roles: ['admin', 'manager'] },
     { name: 'Café Sales', href: '/cafe/sales', icon: FiDollarSign, roles: ['admin', 'manager'] },
     { name: 'Café Reports', href: '/cafe/reports', icon: FiBarChart2, roles: ['admin', 'manager'] },
@@ -44,13 +52,30 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     const [lowStockCount, setLowStockCount] = useState(0);
     const [showNotifications, setShowNotifications] = useState(false);
     const [lowStockItems, setLowStockItems] = useState<any[]>([]);
+    const [pendingOrderCount, setPendingOrderCount] = useState(0);
 
     useEffect(() => {
         setIsMounted(true);
         if (isAuthenticated) {
             fetchLowStock();
+            fetchPendingOrders();
+            // Poll for pending orders every 30 seconds
+            const interval = setInterval(fetchPendingOrders, 30000);
+            return () => clearInterval(interval);
         }
     }, [isAuthenticated]);
+
+    const fetchPendingOrders = async () => {
+        try {
+            const res = await fetch('/api/cafe/orders?status=pending,preparing&limit=100');
+            const data = await res.json();
+            if (data.success) {
+                setPendingOrderCount(data.data?.length || 0);
+            }
+        } catch (error) {
+            console.error('Failed to fetch pending orders');
+        }
+    };
 
     const fetchLowStock = async () => {
         try {
@@ -62,6 +87,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         } catch (error) {
             console.error('Failed to fetch low stock alerts');
         }
+    };
+
+    const getBadgeCount = (badgeKey?: string): number => {
+        if (badgeKey === 'pendingOrders') return pendingOrderCount;
+        return 0;
     };
 
     useEffect(() => {
@@ -125,6 +155,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                         const isExactMatch = pathname === item.href;
                         const isChildMatch = item.href !== '/cafe' && pathname?.startsWith(item.href + '/');
                         const isActive = isExactMatch || isChildMatch;
+                        const badgeCount = getBadgeCount(item.badgeKey);
                         return (
                             <Link
                                 key={item.name}
@@ -136,7 +167,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                     }`}
                             >
                                 <item.icon className="w-5 h-5 flex-shrink-0" />
-                                <span className="truncate">{item.name}</span>
+                                <span className="truncate flex-1">{item.name}</span>
+                                {badgeCount > 0 && (
+                                    <span className="ml-auto px-2 py-0.5 text-xs font-bold bg-orange-500 text-white rounded-full min-w-[20px] text-center">
+                                        {badgeCount > 99 ? '99+' : badgeCount}
+                                    </span>
+                                )}
                             </Link>
                         );
                     })}
