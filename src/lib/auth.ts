@@ -39,6 +39,29 @@ export async function verifyAuth(req: NextRequest): Promise<AuthContext | null> 
     }
 }
 
+export async function verifyCustomerAuth(req: NextRequest): Promise<{ customerId: string; phone: string } | null> {
+    try {
+        const authHeader = req.headers.get('Authorization');
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return null;
+        }
+
+        const token = authHeader.split(' ')[1];
+        const decoded = jwt.verify(token, JWT_SECRET) as any;
+
+        if (!decoded || !decoded.id || decoded.role !== 'customer') {
+            return null;
+        }
+
+        return {
+            customerId: decoded.id,
+            phone: decoded.phone
+        };
+    } catch (error) {
+        return null;
+    }
+}
+
 export function unauthorizedResponse() {
     return NextResponse.json({
         success: false,

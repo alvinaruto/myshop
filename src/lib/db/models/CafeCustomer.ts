@@ -43,6 +43,14 @@ export default (sequelize: Sequelize) => {
         telegram_chat_id: {
             type: DataTypes.STRING(50),
             allowNull: true
+        },
+        otp_code: {
+            type: DataTypes.STRING(6),
+            allowNull: true
+        },
+        otp_expiry: {
+            type: DataTypes.DATE,
+            allowNull: true
         }
     }, {
         tableName: 'cafe_customers',

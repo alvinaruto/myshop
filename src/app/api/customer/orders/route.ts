@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { models, getSequelize } from '@/lib/db';
 import { sendOrderNotification, isTelegramConfigured } from '@/lib/telegram';
+import { verifyCustomerAuth, unauthorizedResponse } from '@/lib/auth';
 
-// POST /api/customer/orders - Create customer order (no auth required)
+// POST /api/customer/orders - Create customer order (Auth required)
 export async function POST(request: NextRequest) {
+    const auth = await verifyCustomerAuth(request);
+    if (!auth) {
+        return unauthorizedResponse();
+    }
+
     const sequelize = getSequelize();
     const transaction = await sequelize.transaction();
 
@@ -217,8 +223,13 @@ export async function POST(request: NextRequest) {
     }
 }
 
-// GET /api/customer/orders - Get orders by phone number
+// GET /api/customer/orders - Get orders by phone number (Auth required)
 export async function GET(request: NextRequest) {
+    const auth = await verifyCustomerAuth(request);
+    if (!auth) {
+        return unauthorizedResponse();
+    }
+
     try {
         const { searchParams } = new URL(request.url);
         const phone = searchParams.get('phone');
