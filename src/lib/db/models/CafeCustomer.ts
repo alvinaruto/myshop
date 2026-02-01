@@ -39,10 +39,6 @@ export default (sequelize: Sequelize) => {
         tier: {
             type: DataTypes.ENUM('bronze', 'silver', 'gold', 'platinum'),
             defaultValue: 'bronze'
-        },
-        is_active: {
-            type: DataTypes.BOOLEAN,
-            defaultValue: true
         }
     }, {
         tableName: 'cafe_customers',
