@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { FiCoffee, FiMapPin, FiClock, FiPhone, FiInstagram, FiFacebook, FiWifi, FiHeart, FiShoppingCart, FiPlus, FiMinus, FiX, FiCheck, FiSend } from 'react-icons/fi';
+import { FiCoffee, FiMapPin, FiClock, FiPhone, FiInstagram, FiFacebook, FiWifi, FiHeart, FiShoppingCart, FiPlus, FiMinus, FiX, FiCheck, FiSend, FiPackage, FiUsers } from 'react-icons/fi';
 import toast, { Toaster } from 'react-hot-toast';
 
 interface MenuItem {
@@ -765,7 +765,7 @@ export default function CustomerMenuPage() {
                                         onClick={() => setOrderType('takeaway')}
                                         className={`p-4 rounded-xl border-2 transition ${orderType === 'takeaway' ? 'border-amber-500 bg-amber-50' : 'border-stone-200 hover:border-amber-300'}`}
                                     >
-                                        <span className="text-2xl mb-1 block">📦</span>
+                                        <FiPackage className="w-8 h-8 mx-auto mb-1 text-amber-600" />
                                         <span className="font-medium">Takeaway</span>
                                     </button>
                                     <button
@@ -773,7 +773,7 @@ export default function CustomerMenuPage() {
                                         onClick={() => setOrderType('dine_in')}
                                         className={`p-4 rounded-xl border-2 transition ${orderType === 'dine_in' ? 'border-amber-500 bg-amber-50' : 'border-stone-200 hover:border-amber-300'}`}
                                     >
-                                        <span className="text-2xl mb-1 block">🍽️</span>
+                                        <FiUsers className="w-8 h-8 mx-auto mb-1 text-amber-600" />
                                         <span className="font-medium">Dine-In</span>
                                     </button>
                                 </div>
