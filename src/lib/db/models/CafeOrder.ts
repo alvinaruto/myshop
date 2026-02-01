@@ -75,10 +75,6 @@ export default (sequelize: Sequelize) => {
         status: {
             type: DataTypes.ENUM('pending', 'preparing', 'ready', 'completed', 'voided'),
             defaultValue: 'completed'
-        },
-        notes: {
-            type: DataTypes.TEXT,
-            allowNull: true
         }
     }, {
         tableName: 'cafe_orders',

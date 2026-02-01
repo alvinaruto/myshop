@@ -143,8 +143,8 @@ export async function POST(request: NextRequest) {
 
         const totalUsd = subtotal;
 
-        // Create order - try with notes first, fallback to without if column doesn't exist
-        const baseOrderData: any = {
+        // Create order (notes field excluded due to potential schema issues)
+        const order = await models.CafeOrder.create({
             customer_id: (customer as any).id,
             order_type,
             table_number: order_type === 'dine_in' ? table_number : null,
@@ -157,20 +157,7 @@ export async function POST(request: NextRequest) {
             exchange_rate,
             payment_method: 'cash',
             status: 'pending'
-        };
-
-        let order;
-        try {
-            // Try creating with notes field
-            order = await models.CafeOrder.create({ ...baseOrderData, notes: notes || null }, { transaction });
-        } catch (createError: any) {
-            // If notes column doesn't exist, create without it
-            if (createError.message && createError.message.includes('notes')) {
-                order = await models.CafeOrder.create(baseOrderData, { transaction });
-            } else {
-                throw createError;
-            }
-        }
+        }, { transaction });
 
         // Create order items
         for (const item of orderItems) {
