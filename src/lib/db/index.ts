@@ -1,12 +1,6 @@
 import { Sequelize } from 'sequelize';
 import pg from 'pg';
 
-// Workaround for Supabase SSL certificate issues in Vercel
-// This disables certificate verification (acceptable for trusted Supabase connections)
-if (process.env.NODE_ENV === 'production') {
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-}
-
 // Define Models (Imported below)
 import defineUser from './models/User';
 import defineProduct from './models/Product';
@@ -52,7 +46,8 @@ function getSequelize(): Sequelize {
             dialect: 'postgres',
             dialectModule: pg,
             dialectOptions: {
-                ssl: process.env.DISABLE_SSL === 'true' ? false : {
+                ssl: {
+                    require: true,
                     rejectUnauthorized: false
                 }
             },
