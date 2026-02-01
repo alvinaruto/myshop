@@ -72,20 +72,21 @@ export async function PATCH(
         if (body.status) {
             await order.update({ status: body.status });
 
+            // TODO: Re-enable after running migration to add telegram_chat_id column
             // Send Telegram notification to customer if they have a telegram_chat_id
-            const customer = (order as any).customer;
-            if (
-                isTelegramConfigured() &&
-                customer?.telegram_chat_id &&
-                ['preparing', 'ready', 'completed'].includes(body.status) &&
-                oldStatus !== body.status
-            ) {
-                sendCustomerAlert(
-                    customer.telegram_chat_id,
-                    (order as any).order_number,
-                    body.status
-                ).catch(err => console.error('Customer alert failed:', err));
-            }
+            // const customer = (order as any).customer;
+            // if (
+            //     isTelegramConfigured() &&
+            //     customer?.telegram_chat_id &&
+            //     ['preparing', 'ready', 'completed'].includes(body.status) &&
+            //     oldStatus !== body.status
+            // ) {
+            //     sendCustomerAlert(
+            //         customer.telegram_chat_id,
+            //         (order as any).order_number,
+            //         body.status
+            //     ).catch(err => console.error('Customer alert failed:', err));
+            // }
         }
 
         return NextResponse.json({

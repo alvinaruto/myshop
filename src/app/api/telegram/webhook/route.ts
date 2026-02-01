@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { models } from '@/lib/db';
 import { sendTelegramMessage } from '@/lib/telegram';
 
 /**
  * Telegram Webhook Handler
  * 
- * This endpoint processes incoming messages from Telegram.
- * When a customer sends their phone number, it links their Telegram account.
+ * This is a simplified version that just responds to messages.
+ * Full customer linking functionality requires database migrations.
  * 
  * To set up the webhook, use:
  * https://api.telegram.org/bot<TOKEN>/setWebhook?url=https://your-domain.com/api/telegram/webhook
@@ -46,117 +45,23 @@ export async function POST(request: NextRequest) {
         const message = update.message;
         const chatId = message.chat.id.toString();
         const text = message.text?.trim() || '';
-        const userName = message.from.first_name + (message.from.last_name ? ' ' + message.from.last_name : '');
 
         // Check if it's a /start command
         if (text === '/start') {
             await sendTelegramMessage(
                 chatId,
                 `👋 <b>Welcome to myShop Coffee!</b>\n\n` +
-                `To receive order notifications, please send your phone number.\n\n` +
-                `Example: <code>012345678</code>\n\n` +
-                `Once linked, you'll receive alerts when:\n` +
-                `• Your order is being prepared\n` +
-                `• Your order is ready for pickup`
+                `Thank you for connecting! This bot will notify you when your orders are ready.\n\n` +
+                `To place an order, visit our menu page and enter your phone number at checkout.`
             );
             return NextResponse.json({ ok: true });
         }
 
-        // Check if it's a phone number (Cambodian format)
-        const phoneRegex = /^0?\d{8,10}$/;
-        const cleanPhone = text.replace(/[\s\-\(\)]/g, '');
-
-        if (phoneRegex.test(cleanPhone)) {
-            // Normalize phone number (ensure it starts with 0)
-            const normalizedPhone = cleanPhone.startsWith('0') ? cleanPhone : '0' + cleanPhone;
-
-            // Find customer by phone
-            const customer = await models.CafeCustomer.findOne({
-                where: { phone: normalizedPhone }
-            });
-
-            if (customer) {
-                // Link Telegram chat ID to customer
-                await customer.update({ telegram_chat_id: chatId });
-
-                await sendTelegramMessage(
-                    chatId,
-                    `✅ <b>Phone number linked successfully!</b>\n\n` +
-                    `Hi ${(customer as any).name || 'there'}! Your Telegram account is now connected to phone number <b>${normalizedPhone}</b>.\n\n` +
-                    `You will now receive notifications about your orders at myShop Coffee! ☕`
-                );
-            } else {
-                // Create a new customer with this phone and link Telegram
-                await models.CafeCustomer.create({
-                    phone: normalizedPhone,
-                    name: userName,
-                    telegram_chat_id: chatId
-                });
-
-                await sendTelegramMessage(
-                    chatId,
-                    `✅ <b>Account created and linked!</b>\n\n` +
-                    `Welcome, ${userName}! We've created an account for you with phone number <b>${normalizedPhone}</b>.\n\n` +
-                    `You will now receive notifications about your orders at myShop Coffee! ☕`
-                );
-            }
-
-            return NextResponse.json({ ok: true });
-        }
-
-        // Check if it's a /status command
-        if (text.startsWith('/status')) {
-            // Find customer by chat ID
-            const customer = await models.CafeCustomer.findOne({
-                where: { telegram_chat_id: chatId }
-            });
-
-            if (!customer) {
-                await sendTelegramMessage(
-                    chatId,
-                    `⚠️ Your Telegram is not linked to any phone number.\n\n` +
-                    `Please send your phone number to link your account.`
-                );
-                return NextResponse.json({ ok: true });
-            }
-
-            // Get their active orders
-            const orders = await models.CafeOrder.findAll({
-                where: {
-                    customer_id: (customer as any).id,
-                    status: ['pending', 'preparing', 'ready']
-                },
-                order: [['created_at', 'DESC']],
-                limit: 5
-            });
-
-            if (orders.length === 0) {
-                await sendTelegramMessage(
-                    chatId,
-                    `📋 <b>No active orders</b>\n\n` +
-                    `You don't have any orders in progress. Visit our menu to place an order!`
-                );
-            } else {
-                let statusMessage = `📋 <b>Your Active Orders:</b>\n\n`;
-                for (const order of orders) {
-                    const orderNum = (order as any).order_number.split('-').pop();
-                    const status = (order as any).status;
-                    const statusEmoji = status === 'ready' ? '✅' : status === 'preparing' ? '☕' : '⏳';
-                    statusMessage += `${statusEmoji} Order #${orderNum}: <b>${status.toUpperCase()}</b>\n`;
-                }
-                await sendTelegramMessage(chatId, statusMessage);
-            }
-
-            return NextResponse.json({ ok: true });
-        }
-
-        // Unknown command - show help
+        // Default response
         await sendTelegramMessage(
             chatId,
-            `ℹ️ <b>How to use this bot:</b>\n\n` +
-            `• Send your <b>phone number</b> to link your account\n` +
-            `• Send <b>/status</b> to check your active orders\n` +
-            `• Send <b>/start</b> to see welcome message`
+            `☕ <b>myShop Coffee</b>\n\n` +
+            `Visit our menu to place an order! You'll receive notifications about your order status.`
         );
 
         return NextResponse.json({ ok: true });

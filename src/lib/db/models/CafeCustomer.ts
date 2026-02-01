@@ -40,14 +40,6 @@ export default (sequelize: Sequelize) => {
             type: DataTypes.ENUM('bronze', 'silver', 'gold', 'platinum'),
             defaultValue: 'bronze'
         },
-        notes: {
-            type: DataTypes.TEXT,
-            allowNull: true
-        },
-        telegram_chat_id: {
-            type: DataTypes.STRING(50),
-            allowNull: true
-        },
         is_active: {
             type: DataTypes.BOOLEAN,
             defaultValue: true
