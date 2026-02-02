@@ -37,15 +37,14 @@ function getSequelize(): Sequelize {
 
     let DATABASE_URL = process.env.DATABASE_URL || process.env.POSTGRES_URL;
 
-    if (!DATABASE_URL) {
-        throw new Error('DATABASE_URL or POSTGRES_URL environment variable is required');
-    }
-
-    // Clean up DATABASE_URL if it contains conflicting SSL params
-    if (DATABASE_URL.includes('sslmode=')) {
-        // Replace any sslmode with sslmode=no-verify if we are handling it in dialectOptions
-        // or just ensure we don't have conflicting ones.
-        // For simplicity, we'll rely on dialectOptions.
+    // Remove sslmode/ssl params that might conflict with our dialectOptions
+    if (DATABASE_URL.includes('?')) {
+        const [baseUrl, query] = DATABASE_URL.split('?');
+        const params = new URLSearchParams(query);
+        params.delete('sslmode');
+        params.delete('ssl');
+        const newQuery = params.toString();
+        DATABASE_URL = newQuery ? `${baseUrl}?${newQuery}` : baseUrl;
     }
 
     if (process.env.NODE_ENV === 'production') {
