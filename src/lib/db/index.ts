@@ -35,10 +35,17 @@ function getSequelize(): Sequelize {
         return sequelizeInstance;
     }
 
-    const DATABASE_URL = process.env.DATABASE_URL || process.env.POSTGRES_URL;
+    let DATABASE_URL = process.env.DATABASE_URL || process.env.POSTGRES_URL;
 
     if (!DATABASE_URL) {
         throw new Error('DATABASE_URL or POSTGRES_URL environment variable is required');
+    }
+
+    // Clean up DATABASE_URL if it contains conflicting SSL params
+    if (DATABASE_URL.includes('sslmode=')) {
+        // Replace any sslmode with sslmode=no-verify if we are handling it in dialectOptions
+        // or just ensure we don't have conflicting ones.
+        // For simplicity, we'll rely on dialectOptions.
     }
 
     if (process.env.NODE_ENV === 'production') {
@@ -49,11 +56,12 @@ function getSequelize(): Sequelize {
                 ssl: {
                     require: true,
                     rejectUnauthorized: false
-                }
+                },
+                keepAlive: true,
             },
             logging: false,
             pool: {
-                max: 2,
+                max: 10, // Increased for production
                 min: 0,
                 acquire: 30000,
                 idle: 10000
@@ -61,7 +69,7 @@ function getSequelize(): Sequelize {
         });
     } else {
         // Check if DATABASE_URL contains SSL requirement (e.g., Supabase in dev)
-        const needsSSL = DATABASE_URL.includes('supabase') || DATABASE_URL.includes('sslmode');
+        const needsSSL = DATABASE_URL.includes('supabase') || DATABASE_URL.includes('sslmode') || DATABASE_URL.includes('neon.tech');
         sequelizeInstance = new Sequelize(DATABASE_URL, {
             dialect: 'postgres',
             dialectModule: pg,
