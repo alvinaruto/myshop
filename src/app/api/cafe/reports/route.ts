@@ -47,8 +47,15 @@ export async function GET(request: NextRequest) {
 
         // Calculate metrics
         const totalRevenue = orders.reduce((sum: number, order: any) => {
-            const amount = order.totalUsd || order.total_usd || 0;
-            return sum + parseFloat(amount as any);
+            const orderTotal = parseFloat(order.totalUsd || order.total_usd || 0);
+            // If order total is 0, sum the items as a fallback
+            if (orderTotal === 0 && order.items && order.items.length > 0) {
+                const itemsSum = order.items.reduce((itemSum: number, item: any) => {
+                    return itemSum + parseFloat(item.total || 0);
+                }, 0);
+                return sum + itemsSum;
+            }
+            return sum + orderTotal;
         }, 0);
         const totalOrders = orders.length;
         const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
@@ -110,8 +117,12 @@ export async function GET(request: NextRequest) {
                 const date = order.createdAt || order.created_at;
                 const hour = new Date(date).getHours();
                 if (!isNaN(hour)) {
-                    const amount = order.totalUsd || order.total_usd || 0;
-                    hourlyData[hour] = (hourlyData[hour] || 0) + parseFloat(amount as any);
+                    let amount = parseFloat(order.totalUsd || order.total_usd || 0);
+                    // Fallback to items if order total is 0
+                    if (amount === 0 && order.items && order.items.length > 0) {
+                        amount = order.items.reduce((s: number, i: any) => s + parseFloat(i.total || 0), 0);
+                    }
+                    hourlyData[hour] = (hourlyData[hour] || 0) + amount;
                 }
             });
         }
