@@ -46,10 +46,11 @@ export async function POST(request: NextRequest) {
         let telegramSent = false;
         const botUsername = 'myshop_coffee_bot'; // Replace with actual bot username
         const botUrl = `https://t.me/${botUsername}`;
+        const customerAny = customer as any;
 
-        if (customer.telegram_chat_id) {
+        if (customerAny.telegram_chat_id) {
             const message = `🔐 <b>Verification Code</b>\n\nYour myShop OTP is: <code>${otp}</code>\n\nValid for 5 minutes.`;
-            telegramSent = await sendTelegramMessage(customer.telegram_chat_id, message);
+            telegramSent = await sendTelegramMessage(customerAny.telegram_chat_id, message);
         }
 
         return NextResponse.json({
@@ -57,7 +58,7 @@ export async function POST(request: NextRequest) {
             message: telegramSent ? 'OTP sent via Telegram' : 'OTP generated (Link Telegram for real delivery)',
             data: {
                 phone,
-                telegram_linked: !!customer.telegram_chat_id,
+                telegram_linked: !!customerAny.telegram_chat_id,
                 bot_url: botUrl
             }
         });
