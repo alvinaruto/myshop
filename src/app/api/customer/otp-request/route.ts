@@ -21,11 +21,8 @@ export async function POST(request: NextRequest) {
         const expiry = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes expiry
 
         // Find or create customer
-        // We only select essential fields to avoid errors if some columns are missing from the schema (e.g. loyalty_points)
-        const essentialFields = ['id', 'phone', 'otp_code', 'otp_expiry'];
         let customer = await models.CafeCustomer.findOne({
-            where: { phone },
-            attributes: essentialFields as any
+            where: { phone }
         });
 
         if (!customer) {
@@ -33,15 +30,11 @@ export async function POST(request: NextRequest) {
                 phone,
                 otp_code: otp,
                 otp_expiry: expiry
-            }, {
-                fields: ['phone', 'otp_code', 'otp_expiry'] as any
             });
         } else {
             await customer.update({
                 otp_code: otp,
                 otp_expiry: expiry
-            }, {
-                fields: ['otp_code', 'otp_expiry'] as any
             });
         }
 
