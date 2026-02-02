@@ -47,15 +47,26 @@ export async function GET(request: NextRequest) {
 
         // Calculate metrics
         const totalRevenue = orders.reduce((sum: number, order: any) => {
-            const orderTotal = parseFloat(order.totalUsd || order.total_usd || 0);
-            // If order total is 0, sum the items as a fallback
-            if (orderTotal === 0 && order.items && order.items.length > 0) {
-                const itemsSum = order.items.reduce((itemSum: number, item: any) => {
-                    return itemSum + parseFloat(item.total || 0);
-                }, 0);
-                return sum + itemsSum;
+            let orderTotal = parseFloat(order.totalUsd || order.total_usd || 0);
+
+            // If order total is invalid or 0, sum the items as a fallback
+            if (isNaN(orderTotal) || orderTotal === 0) {
+                if (order.items && order.items.length > 0) {
+                    const itemsSum = order.items.reduce((itemSum: number, item: any) => {
+                        let itemTotal = parseFloat(item.total || 0);
+                        // If item total is also NaN, try calculating it manually
+                        if (isNaN(itemTotal) || itemTotal === 0) {
+                            itemTotal = (parseFloat(item.unit_price || 0) * (item.quantity || 1));
+                        }
+                        return itemSum + (isNaN(itemTotal) ? 0 : itemTotal);
+                    }, 0);
+                    orderTotal = itemsSum;
+                } else {
+                    orderTotal = 0;
+                }
             }
-            return sum + orderTotal;
+
+            return sum + (isNaN(orderTotal) ? 0 : orderTotal);
         }, 0);
         const totalOrders = orders.length;
         const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
@@ -70,8 +81,9 @@ export async function GET(request: NextRequest) {
             }
         });
         const yesterdayRevenue = yesterdayOrders.reduce((sum: number, order: any) => {
-            const amount = order.totalUsd || order.total_usd || 0;
-            return sum + parseFloat(amount as any);
+            let amount = parseFloat(order.totalUsd || order.total_usd || 0);
+            if (isNaN(amount)) amount = 0;
+            return sum + amount;
         }, 0);
 
         // Top selling items
@@ -118,10 +130,17 @@ export async function GET(request: NextRequest) {
                 const hour = new Date(date).getHours();
                 if (!isNaN(hour)) {
                     let amount = parseFloat(order.totalUsd || order.total_usd || 0);
-                    // Fallback to items if order total is 0
-                    if (amount === 0 && order.items && order.items.length > 0) {
-                        amount = order.items.reduce((s: number, i: any) => s + parseFloat(i.total || 0), 0);
+                    // Fallback to items if order total is invalid or 0
+                    if ((isNaN(amount) || amount === 0) && order.items && order.items.length > 0) {
+                        amount = order.items.reduce((s: number, i: any) => {
+                            let itemTotal = parseFloat(i.total || 0);
+                            if (isNaN(itemTotal) || itemTotal === 0) {
+                                itemTotal = (parseFloat(i.unit_price || 0) * (i.quantity || 1));
+                            }
+                            return s + (isNaN(itemTotal) ? 0 : itemTotal);
+                        }, 0);
                     }
+                    if (isNaN(amount)) amount = 0;
                     hourlyData[hour] = (hourlyData[hour] || 0) + amount;
                 }
             });
