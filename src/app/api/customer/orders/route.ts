@@ -90,25 +90,29 @@ export async function POST(request: NextRequest) {
             }
 
             // Get price based on size
-            let unitPrice = parseFloat((menuItem as any).base_price);
-            if (item.size === 'medium' && (menuItem as any).price_medium) {
-                unitPrice = parseFloat((menuItem as any).price_medium);
-            } else if (item.size === 'medium') {
+            let unitPrice = Number((menuItem as any).base_price);
+            if (isNaN(unitPrice)) unitPrice = 0;
+
+            const size = (item.size || 'regular').toLowerCase();
+            if (size === 'medium' && (menuItem as any).price_medium) {
+                unitPrice = Number((menuItem as any).price_medium);
+            } else if (size === 'medium') {
                 unitPrice += 0.50;
-            } else if (item.size === 'large' && (menuItem as any).price_large) {
-                unitPrice = parseFloat((menuItem as any).price_large);
-            } else if (item.size === 'large') {
+            } else if (size === 'large' && (menuItem as any).price_large) {
+                unitPrice = Number((menuItem as any).price_large);
+            } else if (size === 'large') {
                 unitPrice += 1.00;
             }
 
-            const itemTotal = unitPrice * item.quantity;
+            const quantity = Number(item.quantity) > 0 ? Math.floor(Number(item.quantity)) : 1;
+            const itemTotal = unitPrice * quantity;
             subtotal += itemTotal;
 
             orderItems.push({
                 menu_item_id: item.menu_item_id,
                 name: (menuItem as any).name,
-                size: item.size || 'regular',
-                quantity: item.quantity,
+                size: size,
+                quantity: quantity,
                 unit_price: unitPrice,
                 discount: 0,
                 total: itemTotal,
@@ -119,7 +123,7 @@ export async function POST(request: NextRequest) {
             const recipes = await models.Recipe.findAll({
                 where: {
                     menu_item_id: item.menu_item_id,
-                    size: item.size || 'regular'
+                    size: size
                 },
                 transaction
             });
@@ -130,9 +134,10 @@ export async function POST(request: NextRequest) {
                     { transaction }
                 );
                 if (ingredient) {
-                    const recipeQty = parseFloat((recipe as any).quantity) * item.quantity;
-                    const currentQty = parseFloat((ingredient as any).quantity);
-                    const newQty = currentQty - recipeQty;
+                    const recipeQtyPerItem = parseFloat((recipe as any).quantity) || 0;
+                    const totalRecipeQty = recipeQtyPerItem * quantity;
+                    const currentQty = parseFloat((ingredient as any).quantity) || 0;
+                    const newQty = currentQty - totalRecipeQty;
 
                     if (newQty < 0) {
                         await transaction.rollback();
