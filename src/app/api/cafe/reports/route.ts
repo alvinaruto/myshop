@@ -46,7 +46,10 @@ export async function GET(request: NextRequest) {
         });
 
         // Calculate metrics
-        const totalRevenue = orders.reduce((sum: number, order: any) => sum + parseFloat(order.total_usd || 0), 0);
+        const totalRevenue = orders.reduce((sum: number, order: any) => {
+            const amount = order.totalUsd || order.total_usd || 0;
+            return sum + parseFloat(amount as any);
+        }, 0);
         const totalOrders = orders.length;
         const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
 
@@ -59,13 +62,16 @@ export async function GET(request: NextRequest) {
                 created_at: { [Op.between]: [yesterdayStart, yesterdayEnd] }
             }
         });
-        const yesterdayRevenue = yesterdayOrders.reduce((sum: number, order: any) => sum + parseFloat(order.total_usd || 0), 0);
+        const yesterdayRevenue = yesterdayOrders.reduce((sum: number, order: any) => {
+            const amount = order.totalUsd || order.total_usd || 0;
+            return sum + parseFloat(amount as any);
+        }, 0);
 
         // Top selling items
         const itemSales: Record<string, { name: string; quantity: number; revenue: number }> = {};
         orders.forEach((order: any) => {
             order.items?.forEach((item: any) => {
-                const key = item.menu_item_id;
+                const key = item.menuItemId || item.menu_item_id;
                 if (!itemSales[key]) {
                     itemSales[key] = {
                         name: item.menuItem?.name || item.name || 'Unknown',
@@ -89,8 +95,9 @@ export async function GET(request: NextRequest) {
                 if (!categorySales[categoryName]) {
                     categorySales[categoryName] = { name: categoryName, revenue: 0, count: 0 };
                 }
-                categorySales[categoryName].revenue += parseFloat(item.total || 0);
-                categorySales[categoryName].count += item.quantity;
+                const itemTotal = item.total || 0;
+                categorySales[categoryName].revenue += parseFloat(itemTotal as any);
+                categorySales[categoryName].count += (item.quantity || 0);
             });
         });
 
@@ -100,8 +107,12 @@ export async function GET(request: NextRequest) {
 
         if (period === 'today') {
             orders.forEach((order: any) => {
-                const hour = new Date(order.created_at).getHours();
-                hourlyData[hour] = (hourlyData[hour] || 0) + parseFloat(order.total_usd || 0);
+                const date = order.createdAt || order.created_at;
+                const hour = new Date(date).getHours();
+                if (!isNaN(hour)) {
+                    const amount = order.totalUsd || order.total_usd || 0;
+                    hourlyData[hour] = (hourlyData[hour] || 0) + parseFloat(amount as any);
+                }
             });
         }
 
@@ -110,8 +121,10 @@ export async function GET(request: NextRequest) {
         if (period !== 'today') {
             const ordersByDay: Record<string, number> = {};
             orders.forEach((order: any) => {
-                const dateStr = new Date(order.created_at).toISOString().split('T')[0];
-                ordersByDay[dateStr] = (ordersByDay[dateStr] || 0) + parseFloat(order.total_usd || 0);
+                const date = order.createdAt || order.created_at;
+                const dateStr = new Date(date).toISOString().split('T')[0];
+                const amount = order.totalUsd || order.total_usd || 0;
+                ordersByDay[dateStr] = (ordersByDay[dateStr] || 0) + parseFloat(amount as any);
             });
             Object.entries(ordersByDay)
                 .sort((a, b) => a[0].localeCompare(b[0]))
@@ -123,8 +136,9 @@ export async function GET(request: NextRequest) {
         // Payment method breakdown
         const paymentMethods: Record<string, number> = { cash: 0, card: 0, khqr: 0, split: 0 };
         orders.forEach((order: any) => {
-            const method = order.payment_method || 'cash';
-            paymentMethods[method] = (paymentMethods[method] || 0) + parseFloat(order.total_usd || 0);
+            const method = order.paymentMethod || order.payment_method || 'cash';
+            const amount = order.totalUsd || order.total_usd || 0;
+            paymentMethods[method] = (paymentMethods[method] || 0) + parseFloat(amount as any);
         });
 
         return NextResponse.json({
