@@ -50,7 +50,12 @@ export async function POST(request: NextRequest) {
     } catch (error: any) {
         console.error('Error requesting OTP:', error);
         return NextResponse.json(
-            { success: false, message: error.message },
+            {
+                success: false,
+                message: error.message,
+                detail: error.original?.message || error.parent?.message || 'No additional detail',
+                stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+            },
             { status: 500 }
         );
     }
