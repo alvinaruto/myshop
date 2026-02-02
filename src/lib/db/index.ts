@@ -37,6 +37,10 @@ function getSequelize(): Sequelize {
 
     let DATABASE_URL = process.env.DATABASE_URL || process.env.POSTGRES_URL;
 
+    if (!DATABASE_URL) {
+        throw new Error('DATABASE_URL or POSTGRES_URL environment variable is required');
+    }
+
     // Remove sslmode/ssl params that might conflict with our dialectOptions
     if (DATABASE_URL.includes('?')) {
         const [baseUrl, query] = DATABASE_URL.split('?');
