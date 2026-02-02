@@ -23,8 +23,11 @@ interface ReportData {
     paymentMethods: Record<string, number>;
 }
 
-const formatPrice = (value: number): string => {
-    return value.toFixed(2);
+const formatPrice = (value: any): string => {
+    if (value === null || value === undefined) return '0.00';
+    const num = typeof value === 'string' ? parseFloat(value) : value;
+    if (isNaN(num)) return '0.00';
+    return num.toFixed(2);
 };
 
 // Modern color palette
