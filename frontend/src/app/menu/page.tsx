@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { FiCoffee, FiMapPin, FiClock, FiPhone, FiInstagram, FiFacebook, FiWifi, FiHeart, FiShoppingCart, FiPlus, FiMinus, FiX, FiCheck, FiSend, FiPackage, FiUsers, FiShield, FiLock, FiArrowLeft } from 'react-icons/fi';
 import toast, { Toaster } from 'react-hot-toast';
+import { QRCodeSVG } from 'qrcode.react';
+import { generateKHQR, DEFAULT_KHQR_CONFIG } from '@/lib/khqr.util';
 
 interface MenuItem {
     id: string;
@@ -131,7 +133,7 @@ export default function CustomerMenuPage() {
     // OTP Auth state
     const [authToken, setAuthToken] = useState<string | null>(null);
     const [verifiedPhone, setVerifiedPhone] = useState<string | null>(null);
-    const [otpStep, setOtpStep] = useState<'phone' | 'otp' | 'checkout'>('phone');
+    const [otpStep, setOtpStep] = useState<'phone' | 'otp' | 'checkout' | 'payment'>('phone');
     const [otpCode, setOtpCode] = useState('');
     const [otpLoading, setOtpLoading] = useState(false);
     const [otpError, setOtpError] = useState<string | null>(null);
@@ -861,13 +863,13 @@ export default function CustomerMenuPage() {
                         {/* Header */}
                         <div className="sticky top-0 bg-white border-b border-stone-200 px-6 py-4 flex items-center justify-between z-10">
                             <div className="flex items-center gap-3">
-                                {otpStep === 'otp' && (
-                                    <button onClick={() => setOtpStep('phone')} className="p-1 hover:bg-stone-100 rounded-full">
+                                {(otpStep === 'otp' || otpStep === 'payment') && (
+                                    <button onClick={() => setOtpStep(otpStep === 'payment' ? 'checkout' : 'phone')} className="p-1 hover:bg-stone-100 rounded-full">
                                         <FiArrowLeft className="w-5 h-5 text-stone-600" />
                                     </button>
                                 )}
                                 <h2 className="text-xl font-bold text-stone-900">
-                                    {otpStep === 'phone' ? 'Verify Phone' : otpStep === 'otp' ? 'Enter Code' : 'Checkout'}
+                                    {otpStep === 'phone' ? 'Verify Phone' : otpStep === 'otp' ? 'Enter Code' : otpStep === 'payment' ? 'Payment' : 'Checkout'}
                                 </h2>
                             </div>
                             <button onClick={() => setCheckoutOpen(false)} className="p-2 hover:bg-stone-100 rounded-full">
@@ -878,22 +880,22 @@ export default function CustomerMenuPage() {
                         {/* Step Progress */}
                         <div className="px-6 pt-4">
                             <div className="flex items-center gap-2">
-                                {['phone', 'otp', 'checkout'].map((step, i) => (
+                                {['phone', 'otp', 'checkout', 'payment'].map((step, i) => (
                                     <div key={step} className="flex items-center flex-1">
                                         <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${otpStep === step
-                                                ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/30'
-                                                : ['phone', 'otp', 'checkout'].indexOf(otpStep) > i
-                                                    ? 'bg-green-500 text-white'
-                                                    : 'bg-stone-200 text-stone-500'
+                                            ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/30'
+                                            : ['phone', 'otp', 'checkout', 'payment'].indexOf(otpStep) > i
+                                                ? 'bg-green-500 text-white'
+                                                : 'bg-stone-200 text-stone-500'
                                             }`}>
-                                            {['phone', 'otp', 'checkout'].indexOf(otpStep) > i ? (
+                                            {['phone', 'otp', 'checkout', 'payment'].indexOf(otpStep) > i ? (
                                                 <FiCheck className="w-4 h-4" />
                                             ) : (
                                                 i + 1
                                             )}
                                         </div>
-                                        {i < 2 && (
-                                            <div className={`flex-1 h-1 mx-2 rounded-full transition-all ${['phone', 'otp', 'checkout'].indexOf(otpStep) > i ? 'bg-green-500' : 'bg-stone-200'
+                                        {i < 3 && (
+                                            <div className={`flex-1 h-1 mx-2 rounded-full transition-all ${['phone', 'otp', 'checkout', 'payment'].indexOf(otpStep) > i ? 'bg-green-500' : 'bg-stone-200'
                                                 }`} />
                                         )}
                                     </div>
@@ -902,7 +904,8 @@ export default function CustomerMenuPage() {
                             <div className="flex justify-between mt-1 px-1">
                                 <span className="text-[10px] text-stone-400">Phone</span>
                                 <span className="text-[10px] text-stone-400">Verify</span>
-                                <span className="text-[10px] text-stone-400">Confirm</span>
+                                <span className="text-[10px] text-stone-400">Details</span>
+                                <span className="text-[10px] text-stone-400">Payment</span>
                             </div>
                         </div>
 
@@ -1144,24 +1147,157 @@ export default function CustomerMenuPage() {
                                         </p>
                                     </div>
 
-                                    {/* Submit Button */}
+                                    {/* Next Step Button */}
                                     <button
-                                        onClick={submitOrder}
-                                        disabled={submitting || (orderType === 'dine_in' && !tableNumber)}
+                                        onClick={() => setOtpStep('payment')}
+                                        disabled={orderType === 'dine_in' && !tableNumber}
                                         className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold py-4 rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                     >
-                                        {submitting ? (
-                                            <>
-                                                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                                Placing Order...
-                                            </>
-                                        ) : (
-                                            <>
-                                                <FiSend className="w-5 h-5" />
-                                                Place Order - {formatPrice(cartTotal)}
-                                            </>
-                                        )}
+                                        <FiCheck className="w-5 h-5" />
+                                        Proceed to Payment
                                     </button>
+                                </>
+                            )}
+
+                            {/* ========== STEP 4: KHQR Payment ========== */}
+                            {otpStep === 'payment' && (
+                                <>
+                                    <div className="text-center">
+                                        <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-red-700 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-red-500/20">
+                                            <span className="text-2xl">🇰🇭</span>
+                                        </div>
+                                        <h3 className="text-xl font-bold text-stone-900 mb-1">Pay with KHQR</h3>
+                                        <p className="text-stone-500 text-sm">Scan the QR code or pay via Bakong</p>
+                                    </div>
+
+                                    {/* Amount Badge */}
+                                    <div className="bg-gradient-to-r from-amber-500 to-orange-500 rounded-2xl p-4 text-center text-white shadow-lg shadow-amber-500/20">
+                                        <p className="text-sm opacity-80 mb-0.5">Total Amount</p>
+                                        <p className="text-3xl font-black">{formatPrice(cartTotal)}</p>
+                                        <p className="text-xs opacity-70 mt-1 uppercase tracking-wider">{DEFAULT_KHQR_CONFIG.merchantName}</p>
+                                    </div>
+
+                                    {/* QR Code Section */}
+                                    <div className="flex flex-col items-center p-6 bg-white rounded-2xl border-2 border-stone-100 shadow-sm">
+                                        <div className="relative p-3 bg-white rounded-xl">
+                                            <QRCodeSVG
+                                                value={generateKHQR({
+                                                    amount: cartTotal,
+                                                    currency: 'USD',
+                                                    merchantName: DEFAULT_KHQR_CONFIG.merchantName,
+                                                    accountNumber: DEFAULT_KHQR_CONFIG.accountNumber,
+                                                    bankCode: DEFAULT_KHQR_CONFIG.bankCode,
+                                                    merchantCity: DEFAULT_KHQR_CONFIG.merchantCity,
+                                                    billNumber: `INV${Date.now().toString().slice(-6)}`
+                                                })}
+                                                size={180}
+                                                level="H"
+                                            />
+                                        </div>
+                                        <p className="mt-4 text-xs text-center text-stone-400">
+                                            Scan with Bakong, ABA, ACLEDA, WING, or any KHQR-supported app
+                                        </p>
+                                    </div>
+
+                                    {/* OR Divider */}
+                                    <div className="flex items-center gap-4">
+                                        <div className="flex-1 h-px bg-stone-200" />
+                                        <span className="text-xs font-bold text-stone-400 uppercase">or pay manually</span>
+                                        <div className="flex-1 h-px bg-stone-200" />
+                                    </div>
+
+                                    {/* Bakong Account Info for Manual Transfer */}
+                                    <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5">
+                                        <div className="flex items-center gap-2 mb-3">
+                                            <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
+                                                <span className="text-white text-[10px] font-bold">B</span>
+                                            </div>
+                                            <span className="text-sm font-bold text-blue-900">Bakong Transfer</span>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <div className="flex items-center justify-between bg-white rounded-xl px-4 py-3 border border-blue-100">
+                                                <div>
+                                                    <p className="text-[10px] text-blue-400 uppercase tracking-wider font-bold">Account Number</p>
+                                                    <p className="text-base font-bold text-stone-900 tracking-wide">{DEFAULT_KHQR_CONFIG.accountNumber}</p>
+                                                </div>
+                                                <button
+                                                    onClick={() => {
+                                                        navigator.clipboard.writeText(DEFAULT_KHQR_CONFIG.accountNumber);
+                                                        toast.success('Account number copied!');
+                                                    }}
+                                                    className="px-3 py-1.5 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg text-xs font-bold transition"
+                                                >
+                                                    Copy
+                                                </button>
+                                            </div>
+                                            <div className="flex items-center justify-between bg-white rounded-xl px-4 py-3 border border-blue-100">
+                                                <div>
+                                                    <p className="text-[10px] text-blue-400 uppercase tracking-wider font-bold">Amount (USD)</p>
+                                                    <p className="text-base font-bold text-stone-900">{formatPrice(cartTotal)}</p>
+                                                </div>
+                                                <button
+                                                    onClick={() => {
+                                                        navigator.clipboard.writeText(cartTotal.toFixed(2));
+                                                        toast.success('Amount copied!');
+                                                    }}
+                                                    className="px-3 py-1.5 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg text-xs font-bold transition"
+                                                >
+                                                    Copy
+                                                </button>
+                                            </div>
+                                            <div className="bg-white rounded-xl px-4 py-3 border border-blue-100">
+                                                <p className="text-[10px] text-blue-400 uppercase tracking-wider font-bold">Merchant</p>
+                                                <p className="text-sm font-bold text-stone-900">{DEFAULT_KHQR_CONFIG.merchantName}</p>
+                                            </div>
+                                        </div>
+                                        <p className="text-blue-600 text-[11px] mt-3">
+                                            Open your Bakong app → Transfer → Enter the account number above → Send {formatPrice(cartTotal)}
+                                        </p>
+                                    </div>
+
+                                    {/* Waiting indicator */}
+                                    <div className="flex items-center gap-3 bg-stone-50 rounded-xl p-3 border border-stone-200">
+                                        <div className="w-3 h-3 bg-amber-500 rounded-full animate-pulse" />
+                                        <p className="text-stone-600 text-sm">Waiting for payment... Complete the transfer then confirm below.</p>
+                                    </div>
+
+                                    {/* Supported Banks */}
+                                    <div className="flex items-center justify-center gap-6 text-[10px] font-bold text-stone-300 uppercase tracking-wider">
+                                        <span>Bakong</span>
+                                        <span>•</span>
+                                        <span>ABA</span>
+                                        <span>•</span>
+                                        <span>ACLEDA</span>
+                                        <span>•</span>
+                                        <span>WING</span>
+                                    </div>
+
+                                    {/* Action Buttons */}
+                                    <div className="flex gap-3">
+                                        <button
+                                            onClick={() => setOtpStep('checkout')}
+                                            className="flex-1 bg-stone-100 hover:bg-stone-200 text-stone-600 font-bold py-4 rounded-xl transition"
+                                        >
+                                            Back
+                                        </button>
+                                        <button
+                                            onClick={submitOrder}
+                                            disabled={submitting}
+                                            className="flex-[2] bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-4 rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-green-500/20"
+                                        >
+                                            {submitting ? (
+                                                <>
+                                                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                                    Placing Order...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <FiCheck className="w-5 h-5" />
+                                                    I Have Paid – Place Order
+                                                </>
+                                            )}
+                                        </button>
+                                    </div>
                                 </>
                             )}
                         </div>

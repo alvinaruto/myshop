@@ -127,8 +127,8 @@ export const generateMd5 = (khqrString: string): string => {
  * Default KHQR configuration - Update these with your real account details
  */
 export const DEFAULT_KHQR_CONFIG = {
-    merchantName: 'MARA LAVIN',
-    accountNumber: '85525658506',
-    bankCode: 'ACLEDA' as const,
+    merchantName: 'MYSHOP COFFEE',
+    accountNumber: '855078211599',
+    bankCode: 'BAKONG' as const,
     merchantCity: 'PHNOM PENH'
 };
