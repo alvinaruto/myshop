@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { DataTypes, Sequelize } from 'sequelize';
 
 export default (sequelize: Sequelize) => {

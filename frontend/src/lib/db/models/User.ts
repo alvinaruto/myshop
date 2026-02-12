@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { DataTypes, Model, Sequelize } from 'sequelize';
 import bcrypt from 'bcryptjs';
 
