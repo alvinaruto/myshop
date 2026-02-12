@@ -1,8 +1,5 @@
-/**
- * Bakong KHQR Generator Utility (Using official bakong-khqr package)
- */
-
-import { BakongKHQR, IndividualInfo } from 'bakong-khqr';
+import { BakongKHQR, IndividualInfo, khqrData } from 'bakong-khqr';
+import CryptoJS from 'crypto-js';
 
 interface KHQRConfig {
     amount: number;
@@ -23,36 +20,39 @@ export const generateKHQR = ({
     merchantName,
     accountNumber,
     merchantCity = 'PHNOM PENH',
+    billNumber,
 }: KHQRConfig): string => {
-    // Note: for Bakong individual accounts, the ID is typically phone@bank
-    // If the user's phone is 078211599 and they use Bakong, it might be 078211599@nbc
-    // However, the package's IndividualInfo takes bakongAccountId, merchantName, accountInformation, currency, amount
-
-    // We'll use the accountNumber as the bakongAccountId. 
-    // If it's just a phone number, we append @nbc as a sane default for "Bakong" account.
-    const bakongAccountId = accountNumber.includes('@') ? accountNumber : `${accountNumber}@nbc`;
+    // SDK expects: bakongAccountID, merchantName, merchantCity, optional = {}
 
     const info = new IndividualInfo(
-        bakongAccountId,
+        accountNumber,
         merchantName,
         merchantCity,
-        currency === 'USD' ? '840' : '116',
-        amount
+        {
+            currency: currency === 'USD' ? khqrData.currency.usd : khqrData.currency.khr,
+            amount: amount,
+            billNumber: billNumber,
+            // Dynamic QR with amount > 0 REQUIRES expirationTimestamp in the official SDK
+            expirationTimestamp: Date.now() + (30 * 60 * 1000), // 30 mins
+        }
     );
 
     const khqr = new BakongKHQR();
     const result = khqr.generateIndividual(info);
 
     if (result && result.data && result.data.qr) {
-        return result.data.qr;
+        // Double check validity with internal verify
+        const verification = BakongKHQR.verify(result.data.qr);
+        if (verification.isValid) {
+            return result.data.qr;
+        }
+        console.error('Generated KHQR failed internal verification:', result.data.qr);
     }
 
     // Fallback or error handling
     console.error('Failed to generate KHQR:', result);
     return '';
 };
-
-import CryptoJS from 'crypto-js';
 
 /**
  * Formats price to USD or KHR format
