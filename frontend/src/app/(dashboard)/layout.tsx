@@ -46,7 +46,7 @@ const navigation: NavItem[] = [
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
     const router = useRouter();
     const pathname = usePathname();
-    const { isAuthenticated, user, logout } = useAuthStore();
+    const { isAuthenticated, user, logout, _hasHydrated } = useAuthStore();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
     const [lowStockCount, setLowStockCount] = useState(0);
@@ -95,17 +95,23 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     };
 
     useEffect(() => {
-        if (isMounted && !isAuthenticated) {
+        // Only redirect if we ARE mounted AND hydration finished AND we're still not authenticated
+        if (isMounted && _hasHydrated && !isAuthenticated) {
             router.push('/login');
         }
-    }, [isAuthenticated, isMounted, router]);
+    }, [isAuthenticated, isMounted, _hasHydrated, router]);
 
-    if (!isMounted || !isAuthenticated || !user) {
+    // Enhanced loading state to handle hydration and protected access
+    if (!isMounted || !_hasHydrated) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600"></div>
             </div>
         );
+    }
+
+    if (!isAuthenticated || !user) {
+        return null; // Will redirect via useEffect
     }
 
     const filteredNavigation = navigation.filter((item) =>

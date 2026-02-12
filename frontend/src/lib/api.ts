@@ -1,4 +1,5 @@
-import axios from 'axios';
+import axios, { InternalAxiosRequestConfig, AxiosResponse } from 'axios';
+import { useAuthStore } from '@/stores/authStore';
 
 // API Base URL - Uses relative path for both local and production
 const API_URL = '/api';
@@ -42,8 +43,8 @@ api.interceptors.response.use(
     (error) => {
         if (error.response?.status === 401) {
             if (typeof window !== 'undefined') {
-                localStorage.removeItem('token');
-                localStorage.removeItem('user');
+                // Fully clear the auth store
+                useAuthStore.getState().logout();
                 window.location.href = '/login';
             }
         }
