@@ -14,6 +14,7 @@
         "@types/pg": "^8.16.0",
         "@types/sequelize": "^4.28.20",
         "axios": "^1.6.5",
+        "bakong-khqr": "^1.0.20",
         "bcryptjs": "^3.0.3",
         "cloudinary": "^1.41.3",
         "crypto-js": "^4.2.0",

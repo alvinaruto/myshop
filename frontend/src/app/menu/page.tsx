@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { FiCoffee, FiMapPin, FiClock, FiPhone, FiInstagram, FiFacebook, FiWifi, FiHeart, FiShoppingCart, FiPlus, FiMinus, FiX, FiCheck, FiSend, FiPackage, FiUsers, FiShield, FiLock, FiArrowLeft } from 'react-icons/fi';
 import toast, { Toaster } from 'react-hot-toast';
 import { QRCodeSVG } from 'qrcode.react';
-import { generateKHQR, DEFAULT_KHQR_CONFIG } from '@/lib/khqr.util';
+import { KHQR } from '@/components/KHQR';
+import { generateKHQR, DEFAULT_KHQR_CONFIG, formatPrice } from '@/lib/khqr.util';
 
 interface MenuItem {
     id: string;
@@ -45,10 +46,6 @@ interface CartItem {
     };
 }
 
-const formatPrice = (price: number | string) => {
-    const numPrice = typeof price === 'string' ? parseFloat(price) : price;
-    return `$${(numPrice || 0).toFixed(2)}`;
-};
 
 // Coffee placeholder images from Unsplash
 const coffeeImages: Record<string, string> = {
@@ -1162,128 +1159,35 @@ export default function CustomerMenuPage() {
                             {/* ========== STEP 4: KHQR Payment ========== */}
                             {otpStep === 'payment' && (
                                 <>
-                                    <div className="text-center">
-                                        <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-red-700 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-red-500/20">
-                                            <span className="text-2xl">🇰🇭</span>
-                                        </div>
-                                        <h3 className="text-xl font-bold text-stone-900 mb-1">Pay with KHQR</h3>
-                                        <p className="text-stone-500 text-sm">Scan the QR code or pay via Bakong</p>
+                                    <div className="text-center mb-6">
+                                        <h3 className="text-xl font-bold text-stone-900 mb-1">Final Step: Payment</h3>
+                                        <p className="text-stone-500 text-sm">Please scan the KHQR card below to pay</p>
                                     </div>
 
-                                    {/* Amount Badge */}
-                                    <div className="bg-gradient-to-r from-amber-500 to-orange-500 rounded-2xl p-4 text-center text-white shadow-lg shadow-amber-500/20">
-                                        <p className="text-sm opacity-80 mb-0.5">Total Amount</p>
-                                        <p className="text-3xl font-black">{formatPrice(cartTotal)}</p>
-                                        <p className="text-xs opacity-70 mt-1 uppercase tracking-wider">{DEFAULT_KHQR_CONFIG.merchantName}</p>
-                                    </div>
-
-                                    {/* QR Code Section */}
-                                    <div className="flex flex-col items-center p-6 bg-white rounded-2xl border-2 border-stone-100 shadow-sm">
-                                        <div className="relative p-3 bg-white rounded-xl">
-                                            <QRCodeSVG
-                                                value={generateKHQR({
-                                                    amount: cartTotal,
-                                                    currency: 'USD',
-                                                    merchantName: DEFAULT_KHQR_CONFIG.merchantName,
-                                                    accountNumber: DEFAULT_KHQR_CONFIG.accountNumber,
-                                                    bankCode: DEFAULT_KHQR_CONFIG.bankCode,
-                                                    merchantCity: DEFAULT_KHQR_CONFIG.merchantCity,
-                                                    billNumber: `INV${Date.now().toString().slice(-6)}`
-                                                })}
-                                                size={180}
-                                                level="H"
-                                            />
-                                        </div>
-                                        <p className="mt-4 text-xs text-center text-stone-400">
-                                            Scan with Bakong, ABA, ACLEDA, WING, or any KHQR-supported app
-                                        </p>
-                                    </div>
-
-                                    {/* OR Divider */}
-                                    <div className="flex items-center gap-4">
-                                        <div className="flex-1 h-px bg-stone-200" />
-                                        <span className="text-xs font-bold text-stone-400 uppercase">or pay manually</span>
-                                        <div className="flex-1 h-px bg-stone-200" />
-                                    </div>
-
-                                    {/* Bakong Account Info for Manual Transfer */}
-                                    <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5">
-                                        <div className="flex items-center gap-2 mb-3">
-                                            <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
-                                                <span className="text-white text-[10px] font-bold">B</span>
-                                            </div>
-                                            <span className="text-sm font-bold text-blue-900">Bakong Transfer</span>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <div className="flex items-center justify-between bg-white rounded-xl px-4 py-3 border border-blue-100">
-                                                <div>
-                                                    <p className="text-[10px] text-blue-400 uppercase tracking-wider font-bold">Account Number</p>
-                                                    <p className="text-base font-bold text-stone-900 tracking-wide">{DEFAULT_KHQR_CONFIG.accountNumber}</p>
-                                                </div>
-                                                <button
-                                                    onClick={() => {
-                                                        navigator.clipboard.writeText(DEFAULT_KHQR_CONFIG.accountNumber);
-                                                        toast.success('Account number copied!');
-                                                    }}
-                                                    className="px-3 py-1.5 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg text-xs font-bold transition"
-                                                >
-                                                    Copy
-                                                </button>
-                                            </div>
-                                            <div className="flex items-center justify-between bg-white rounded-xl px-4 py-3 border border-blue-100">
-                                                <div>
-                                                    <p className="text-[10px] text-blue-400 uppercase tracking-wider font-bold">Amount (USD)</p>
-                                                    <p className="text-base font-bold text-stone-900">{formatPrice(cartTotal)}</p>
-                                                </div>
-                                                <button
-                                                    onClick={() => {
-                                                        navigator.clipboard.writeText(cartTotal.toFixed(2));
-                                                        toast.success('Amount copied!');
-                                                    }}
-                                                    className="px-3 py-1.5 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg text-xs font-bold transition"
-                                                >
-                                                    Copy
-                                                </button>
-                                            </div>
-                                            <div className="bg-white rounded-xl px-4 py-3 border border-blue-100">
-                                                <p className="text-[10px] text-blue-400 uppercase tracking-wider font-bold">Merchant</p>
-                                                <p className="text-sm font-bold text-stone-900">{DEFAULT_KHQR_CONFIG.merchantName}</p>
-                                            </div>
-                                        </div>
-                                        <p className="text-blue-600 text-[11px] mt-3">
-                                            Open your Bakong app → Transfer → Enter the account number above → Send {formatPrice(cartTotal)}
-                                        </p>
-                                    </div>
-
-                                    {/* Waiting indicator */}
-                                    <div className="flex items-center gap-3 bg-stone-50 rounded-xl p-3 border border-stone-200">
-                                        <div className="w-3 h-3 bg-amber-500 rounded-full animate-pulse" />
-                                        <p className="text-stone-600 text-sm">Waiting for payment... Complete the transfer then confirm below.</p>
-                                    </div>
-
-                                    {/* Supported Banks */}
-                                    <div className="flex items-center justify-center gap-6 text-[10px] font-bold text-stone-300 uppercase tracking-wider">
-                                        <span>Bakong</span>
-                                        <span>•</span>
-                                        <span>ABA</span>
-                                        <span>•</span>
-                                        <span>ACLEDA</span>
-                                        <span>•</span>
-                                        <span>WING</span>
-                                    </div>
+                                    {/* The Redesigned KHQR Card Component */}
+                                    <KHQR
+                                        amount={cartTotal}
+                                        currency="USD"
+                                        onPaymentSuccess={() => {
+                                            // Optional: automatically submit order on success
+                                            // submitOrder(); 
+                                        }}
+                                    />
 
                                     {/* Action Buttons */}
-                                    <div className="flex gap-3">
+                                    <div className="flex gap-3 mt-8">
                                         <button
                                             onClick={() => setOtpStep('checkout')}
                                             className="flex-1 bg-stone-100 hover:bg-stone-200 text-stone-600 font-bold py-4 rounded-xl transition"
                                         >
                                             Back
                                         </button>
+
+                                        {/* Submit button only enabled after payment or kept as 'Confirm' after automatic verification */}
                                         <button
                                             onClick={submitOrder}
                                             disabled={submitting}
-                                            className="flex-[2] bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-4 rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-green-500/20"
+                                            className="flex-[2] bg-stone-900 hover:bg-stone-800 text-white font-bold py-4 rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg"
                                         >
                                             {submitting ? (
                                                 <>
@@ -1293,11 +1197,15 @@ export default function CustomerMenuPage() {
                                             ) : (
                                                 <>
                                                     <FiCheck className="w-5 h-5" />
-                                                    I Have Paid – Place Order
+                                                    Place Order
                                                 </>
                                             )}
                                         </button>
                                     </div>
+
+                                    <p className="mt-4 text-[10px] text-center text-stone-400">
+                                        Order will be processed once payment is confirmed.
+                                    </p>
                                 </>
                             )}
                         </div>
