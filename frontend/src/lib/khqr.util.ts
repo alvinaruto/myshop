@@ -79,8 +79,8 @@ export const generateMd5 = (khqrString: string): string => {
  * Default KHQR configuration
  */
 export const DEFAULT_KHQR_CONFIG = {
-    merchantName: 'LONG KIMHAK',
-    accountNumber: '078211599', // User's Bakong phone
+    merchantName: 'MY SHOP',
+    accountNumber: 'lavin_mara@bkrt', // User's Bakong ID
     bankCode: 'BAKONG' as const,
     merchantCity: 'PHNOM PENH'
 };
