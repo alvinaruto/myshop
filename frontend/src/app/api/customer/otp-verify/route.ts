@@ -60,8 +60,8 @@ export async function POST(request: NextRequest) {
                 phone: customerData.phone,
                 role: 'customer'
             },
-            secret,
-            { expiresIn: '30d' }
+            JWT_SECRET,
+            { expiresIn: '7d' }
         );
 
         return NextResponse.json({
