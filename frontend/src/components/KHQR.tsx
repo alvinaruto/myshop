@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
-import { generateKHQR, DEFAULT_KHQR_CONFIG } from '@/lib/khqr.util';
+import { generateKHQR, DEFAULT_KHQR_CONFIG, generateMd5 } from '@/lib/khqr.util';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 
@@ -22,7 +22,10 @@ export const KHQR = ({ amount, currency, billNumber, onPaymentSuccess }: KHQRPro
         accountNumber: DEFAULT_KHQR_CONFIG.accountNumber,
         bankCode: DEFAULT_KHQR_CONFIG.bankCode,
         merchantCity: DEFAULT_KHQR_CONFIG.merchantCity,
+        billNumber: billNumber,
     });
+
+    const md5 = generateMd5(khqrString);
 
     // Polling effect
     useEffect(() => {
@@ -30,12 +33,9 @@ export const KHQR = ({ amount, currency, billNumber, onPaymentSuccess }: KHQRPro
 
         const checkPayment = async () => {
             try {
-                // In a real app, we'd verify with the backend
-                // For now, we'll simulate verification or call the real endpoint if available
                 const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}/api/sales/verify-khqr`, {
-                    qr: khqrString,
-                    amount,
-                    currency
+                    md5: md5,
+                    externalRef: billNumber
                 });
 
                 if (response.data.success) {
@@ -57,7 +57,7 @@ export const KHQR = ({ amount, currency, billNumber, onPaymentSuccess }: KHQRPro
         return () => {
             if (pollTimerRef.current) clearTimeout(pollTimerRef.current);
         };
-    }, [khqrString, status, onPaymentSuccess, amount, currency]);
+    }, [md5, billNumber, status, onPaymentSuccess]);
 
     return (
         <div className="flex flex-col items-center">

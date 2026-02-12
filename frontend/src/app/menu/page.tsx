@@ -1168,9 +1168,10 @@ export default function CustomerMenuPage() {
                                     <KHQR
                                         amount={cartTotal}
                                         currency="USD"
+                                        billNumber={`CAFE${Date.now().toString().slice(-8)}`}
                                         onPaymentSuccess={() => {
-                                            // Optional: automatically submit order on success
-                                            // submitOrder(); 
+                                            // Automatically submit order on success
+                                            submitOrder();
                                         }}
                                     />
 
@@ -1183,25 +1184,16 @@ export default function CustomerMenuPage() {
                                             Back
                                         </button>
 
-                                        {/* Submit button only enabled after payment or kept as 'Confirm' after automatic verification */}
+                                        {/* Submit button only kept as 'Processing' or disabled during polling */}
                                         <button
-                                            onClick={submitOrder}
-                                            disabled={submitting}
-                                            className="flex-[2] bg-stone-900 hover:bg-stone-800 text-white font-bold py-4 rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg"
+                                            disabled={true} // Disabled because we auto-submit on payment success
+                                            className="flex-[2] bg-stone-200 text-stone-400 font-bold py-4 rounded-xl transition cursor-not-allowed flex items-center justify-center gap-2"
                                         >
-                                            {submitting ? (
-                                                <>
-                                                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                                    Placing Order...
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <FiCheck className="w-5 h-5" />
-                                                    Place Order
-                                                </>
-                                            )}
+                                            <div className="w-4 h-4 border-2 border-stone-400 border-t-transparent rounded-full animate-spin" />
+                                            {submitting ? 'Placing Order...' : 'Waiting for Payment'}
                                         </button>
                                     </div>
+
 
                                     <p className="mt-4 text-[10px] text-center text-stone-400">
                                         Order will be processed once payment is confirmed.

@@ -1,7 +1,7 @@
 const { Op } = require('sequelize');
 const { sequelize, Sale, SaleItem, Product, SerialItem, Warranty, Customer, User, ExchangeRate } = require('../models');
 const { calculatePayment } = require('../utils/currency.util');
-const { checkTransactionStatus } = require('../services/bakong.service');
+const { checkTransactionStatus, checkTransactionByRef } = require('../services/bakong.service');
 
 /**
  * Get today's exchange rate or default
@@ -425,21 +425,24 @@ const voidSale = async (req, res, next) => {
  */
 const verifyKhqrPayment = async (req, res, next) => {
     try {
-        const { md5 } = req.body;
+        const { md5, externalRef } = req.body;
 
-        if (!md5) {
+        if (!md5 && !externalRef) {
             return res.status(400).json({
                 success: false,
-                message: 'MD5 hash is required'
+                message: 'MD5 hash or External Reference is required'
             });
         }
 
-        // Call Bakong service to check status
-        const result = await checkTransactionStatus(md5);
+        let result;
+        if (externalRef) {
+            result = await checkTransactionByRef(externalRef);
+        } else {
+            result = await checkTransactionStatus(md5);
+        }
 
         if (result.success) {
-            // You might want to validate the amount and currency here if returned by API
-            // For now, we return the success status to the frontend
+            // Success response from status check
             return res.json({
                 success: true,
                 message: 'Payment verified successfully',
