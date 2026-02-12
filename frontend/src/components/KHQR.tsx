@@ -96,12 +96,10 @@ export const KHQR = ({ amount, currency, billNumber, onPaymentSuccess }: KHQRPro
                             level="H"
                             includeMargin={false}
                             imageSettings={{
-                                src: "https://bakong.nbc.gov.kh/images/bakong_logo.png", // Attempt to use official logo
-                                x: undefined,
-                                y: undefined,
-                                height: 40,
-                                width: 40,
-                                excavate: true,
+                                src: "https://bakong.nbc.gov.kh/images/bakong_logo.png",
+                                height: 32,
+                                width: 32,
+                                excavate: false,
                             }}
                         />
 
