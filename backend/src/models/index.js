@@ -1,7 +1,14 @@
 const { Sequelize } = require('sequelize');
+// Explicitly require pg to help Vercel bundler detect it
+try { require('pg'); } catch (e) { }
 
 const isProduction = process.env.NODE_ENV === 'production';
-const databaseUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL;
+let databaseUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL;
+
+// Safety check for stringified "undefined" or empty strings
+if (databaseUrl === 'undefined' || databaseUrl === 'null' || !databaseUrl) {
+    databaseUrl = null;
+}
 
 const sequelizeOptions = {
     dialect: 'postgres',
@@ -24,7 +31,7 @@ const sequelizeOptions = {
     }
 };
 
-const sequelize = databaseUrl
+const sequelize = (databaseUrl && typeof databaseUrl === 'string' && databaseUrl.length > 0)
     ? new Sequelize(databaseUrl, sequelizeOptions)
     : new Sequelize(
         process.env.DB_NAME || 'myshop',
