@@ -13,7 +13,7 @@ export async function GET(
                 as: 'transactions',
                 limit: 20,
                 order: [['created_at', 'DESC']]
-            }]
+            } as any]
         });
 
         if (!ingredient) {
