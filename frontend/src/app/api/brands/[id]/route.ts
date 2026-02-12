@@ -18,7 +18,7 @@ export async function PATCH(
         if (!brand) return NextResponse.json({ success: false, message: 'Brand not found' }, { status: 404 });
 
         const data = await req.json();
-        await brand.update(data);
+        await (brand as any).update(data);
 
         return NextResponse.json({ success: true, data: brand });
     } catch (error: any) {

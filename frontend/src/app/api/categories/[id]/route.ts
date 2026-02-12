@@ -37,7 +37,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
         }
 
         const data = await req.json();
-        await category.update(data);
+        await (category as any).update(data);
 
         return NextResponse.json({
             success: true,
