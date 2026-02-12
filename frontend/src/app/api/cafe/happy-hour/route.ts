@@ -139,7 +139,7 @@ export async function DELETE(request: NextRequest) {
             );
         }
 
-        await happyHour.destroy();
+        await (happyHour as any).destroy();
 
         return NextResponse.json({
             success: true,

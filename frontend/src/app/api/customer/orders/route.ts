@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
                 name: customer_name || null,
             }, { transaction });
         } else if (customer_name && !(customer as any).name) {
-            await customer.update({ name: customer_name }, { transaction });
+            await (customer as any).update({ name: customer_name }, { transaction });
         }
 
         // Calculate totals
@@ -147,7 +147,7 @@ export async function POST(request: NextRequest) {
                         );
                     }
 
-                    await ingredient.update({ quantity: newQty }, { transaction });
+                    await (ingredient as any).update({ quantity: newQty }, { transaction });
                 }
             }
         }
@@ -179,7 +179,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Update customer stats
-        await customer.update({
+        await (customer as any).update({
             total_orders: ((customer as any).total_orders || 0) + 1,
             total_spent: parseFloat((customer as any).total_spent || 0) + totalUsd,
             last_visit: new Date()

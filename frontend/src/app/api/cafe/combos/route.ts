@@ -99,7 +99,7 @@ export async function PATCH(request: NextRequest) {
             );
         }
 
-        await combo.update(updates);
+        await (combo as any).update(updates);
 
         return NextResponse.json({
             success: true,
@@ -135,7 +135,7 @@ export async function DELETE(request: NextRequest) {
             );
         }
 
-        await combo.destroy();
+        await (combo as any).destroy();
 
         return NextResponse.json({
             success: true,

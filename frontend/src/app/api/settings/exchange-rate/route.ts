@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
         });
 
         if (!created) {
-            await rate.update({ ...data, set_by: auth.userId });
+            await (rate as any).update({ ...data, set_by: auth.userId });
         }
 
         return NextResponse.json({ success: true, data: rate });

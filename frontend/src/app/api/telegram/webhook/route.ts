@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
 
                 if (customer) {
                     // Link Telegram chat ID to customer
-                    await customer.update({ telegram_chat_id: chatId });
+                    await (customer as any).update({ telegram_chat_id: chatId });
 
                     await sendTelegramMessage(
                         chatId,

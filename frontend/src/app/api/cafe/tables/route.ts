@@ -92,7 +92,7 @@ export async function PATCH(request: NextRequest) {
             );
         }
 
-        await table.update({
+        await (table as any).update({
             ...(status && { status }),
             ...(current_order_id !== undefined && { current_order_id }),
             ...updates
@@ -129,7 +129,7 @@ export async function DELETE(request: NextRequest) {
         }
 
         // Soft delete
-        await table.update({ is_active: false });
+        await (table as any).update({ is_active: false });
 
         return NextResponse.json({
             success: true,

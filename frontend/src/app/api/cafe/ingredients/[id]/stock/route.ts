@@ -64,7 +64,7 @@ export async function POST(
         }
 
         // Update ingredient quantity
-        await ingredient.update({ quantity: newQty }, { transaction });
+        await (ingredient as any).update({ quantity: newQty }, { transaction });
 
         // Create stock transaction record
         await models.StockTransaction.create({

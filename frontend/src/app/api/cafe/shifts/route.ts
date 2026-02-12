@@ -138,7 +138,7 @@ export async function PATCH(request: NextRequest) {
         const expectedCashUsd = parseFloat(shift.opening_cash_usd || 0) + cashSalesUsd;
         const discrepancyUsd = (closing_cash_usd || 0) - expectedCashUsd;
 
-        await shift.update({
+        await (shift as any).update({
             end_time: new Date(),
             closing_cash_usd,
             closing_cash_khr,

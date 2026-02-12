@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
 
         // Update name/email if provided and customer exists
         if (!created && (name || email)) {
-            await customer.update({
+            await (customer as any).update({
                 ...(name && { name }),
                 ...(email && { email })
             });
@@ -121,7 +121,7 @@ export async function PATCH(request: NextRequest) {
         else if (totalPoints >= 200) tier = 'gold';
         else if (totalPoints >= 50) tier = 'silver';
 
-        await customer.update({
+        await (customer as any).update({
             loyalty_points: totalPoints,
             total_spent: parseFloat(customer.total_spent || 0) + parseFloat(order_amount || 0),
             total_orders: (customer.total_orders || 0) + 1,

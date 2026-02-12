@@ -55,7 +55,7 @@ export async function PATCH(
             );
         }
 
-        await ingredient.update(body);
+        await (ingredient as any).update(body);
 
         return NextResponse.json({
             success: true,
@@ -89,7 +89,7 @@ export async function DELETE(
         }
 
         // Soft delete
-        await ingredient.update({ is_active: false });
+        await (ingredient as any).update({ is_active: false });
 
         return NextResponse.json({
             success: true,

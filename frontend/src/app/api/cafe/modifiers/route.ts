@@ -90,7 +90,7 @@ export async function DELETE(request: NextRequest) {
             );
         }
 
-        await modifier.destroy();
+        await (modifier as any).destroy();
 
         return NextResponse.json({
             success: true,

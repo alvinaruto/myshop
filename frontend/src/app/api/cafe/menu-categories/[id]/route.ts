@@ -52,7 +52,7 @@ export async function PATCH(
             );
         }
 
-        await category.update(body);
+        await (category as any).update(body);
 
         return NextResponse.json({
             success: true,
@@ -83,7 +83,7 @@ export async function DELETE(
         }
 
         // Soft delete - set is_active to false
-        await category.update({ is_active: false });
+        await (category as any).update({ is_active: false });
 
         return NextResponse.json({
             success: true,

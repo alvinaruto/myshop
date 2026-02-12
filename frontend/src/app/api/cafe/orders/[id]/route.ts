@@ -71,7 +71,7 @@ export async function PATCH(
 
         // Only allow status updates
         if (newStatus && oldStatus !== newStatus) {
-            await order.update({ status: newStatus });
+            await (order as any).update({ status: newStatus });
 
             const customer = (order as any).customer;
             const orderNumber = (order as any).order_number;
@@ -163,7 +163,7 @@ export async function POST(
                 if (ingredient) {
                     const restoreQty = parseFloat((recipe as any).quantity) * item.quantity;
                     const currentQty = parseFloat((ingredient as any).quantity);
-                    await ingredient.update({ quantity: currentQty + restoreQty }, { transaction });
+                    await (ingredient as any).update({ quantity: currentQty + restoreQty }, { transaction });
 
                     // Log the restoration
                     await models.StockTransaction.create({
@@ -178,7 +178,7 @@ export async function POST(
             }
         }
 
-        await order.update({ status: 'voided' }, { transaction });
+        await (order as any).update({ status: 'voided' }, { transaction });
         await transaction.commit();
 
         return NextResponse.json({
