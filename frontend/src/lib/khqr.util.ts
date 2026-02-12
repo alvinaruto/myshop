@@ -56,12 +56,16 @@ import CryptoJS from 'crypto-js';
 
 /**
  * Formats price to USD or KHR format
+ * Robustly handles strings or null values
  */
-export const formatPrice = (amount: number, currency: 'USD' | 'KHR' = 'USD'): string => {
+export const formatPrice = (amount: number | string | null | undefined, currency: 'USD' | 'KHR' = 'USD'): string => {
+    const num = typeof amount === 'string' ? parseFloat(amount) : amount;
+    const safeNum = num && !isNaN(num) ? num : 0;
+
     if (currency === 'USD') {
-        return `$${amount.toFixed(2)}`;
+        return `$${safeNum.toFixed(2)}`;
     }
-    return `${amount.toLocaleString()} ៛`;
+    return `${safeNum.toLocaleString()} ៛`;
 };
 
 /**
