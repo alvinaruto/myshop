@@ -1,0 +1,69 @@
+com.myshop.cafe.app-lifecycle-livedata-core-ktx-2.7.0-0 /Users/alvin/.gradle/caches/transforms-3/001646c39d5b061dee25fcf2a03d6e34/transformed/lifecycle-livedata-core-ktx-2.7.0/res
+com.myshop.cafe.app-ui-release-1 /Users/alvin/.gradle/caches/transforms-3/00d6cfd4c9fa6b0dc7270ce39419d897/transformed/ui-release/res
+com.myshop.cafe.app-customview-poolingcontainer-1.0.0-2 /Users/alvin/.gradle/caches/transforms-3/0160ccce8f0981220f30dcbe92f2c3df/transformed/customview-poolingcontainer-1.0.0/res
+com.myshop.cafe.app-lifecycle-runtime-2.7.0-3 /Users/alvin/.gradle/caches/transforms-3/03fbed61e57f88ea10864f6e057d7e66/transformed/lifecycle-runtime-2.7.0/res
+com.myshop.cafe.app-lifecycle-runtime-ktx-2.7.0-4 /Users/alvin/.gradle/caches/transforms-3/1103f158375d1f632773fd42dcf4504d/transformed/lifecycle-runtime-ktx-2.7.0/res
+com.myshop.cafe.app-datastore-preferences-1.0.0-5 /Users/alvin/.gradle/caches/transforms-3/18c09d55825e9fbbc54c307d98fdb228/transformed/datastore-preferences-1.0.0/res
+com.myshop.cafe.app-ui-geometry-release-6 /Users/alvin/.gradle/caches/transforms-3/1aff18ee83e7b1d4daec5f01e4141c67/transformed/ui-geometry-release/res
+com.myshop.cafe.app-lifecycle-runtime-compose-2.7.0-7 /Users/alvin/.gradle/caches/transforms-3/2617ed61686b5ce76863641af0b24904/transformed/lifecycle-runtime-compose-2.7.0/res
+com.myshop.cafe.app-lifecycle-livedata-2.7.0-8 /Users/alvin/.gradle/caches/transforms-3/2a8eda9cb096795b4d46cc494c2526bc/transformed/lifecycle-livedata-2.7.0/res
+com.myshop.cafe.app-hilt-navigation-1.1.0-9 /Users/alvin/.gradle/caches/transforms-3/2b60ef7275ec8f47c21dfd64e2d8b2e0/transformed/hilt-navigation-1.1.0/res
+com.myshop.cafe.app-core-1.12.0-10 /Users/alvin/.gradle/caches/transforms-3/3b0fcb85eb2f7897d09d340b22c4f7cb/transformed/core-1.12.0/res
+com.myshop.cafe.app-lifecycle-process-2.7.0-11 /Users/alvin/.gradle/caches/transforms-3/3b4e39701435842b8ecd8ea37ae876bd/transformed/lifecycle-process-2.7.0/res
+com.myshop.cafe.app-fragment-1.5.1-12 /Users/alvin/.gradle/caches/transforms-3/3b5f69730c2d6053f95d1ffa6cb105e4/transformed/fragment-1.5.1/res
+com.myshop.cafe.app-navigation-common-ktx-2.7.6-13 /Users/alvin/.gradle/caches/transforms-3/3c55786220fc7455d1ea3033e65dc02a/transformed/navigation-common-ktx-2.7.6/res
+com.myshop.cafe.app-emoji2-views-helper-1.3.0-14 /Users/alvin/.gradle/caches/transforms-3/3f2485493bf1d988f345ffe984ad05fe/transformed/emoji2-views-helper-1.3.0/res
+com.myshop.cafe.app-activity-ktx-1.8.2-15 /Users/alvin/.gradle/caches/transforms-3/3ffc1e89af076d99f6fe0c6cd23ab184/transformed/activity-ktx-1.8.2/res
+com.myshop.cafe.app-ui-tooling-preview-release-16 /Users/alvin/.gradle/caches/transforms-3/470736e4138763a5dcd11281dece88f4/transformed/ui-tooling-preview-release/res
+com.myshop.cafe.app-drawerlayout-1.1.1-17 /Users/alvin/.gradle/caches/transforms-3/4b1c2dd9bc66e997c496c591327154f2/transformed/drawerlayout-1.1.1/res
+com.myshop.cafe.app-foundation-layout-release-18 /Users/alvin/.gradle/caches/transforms-3/4dec023839130931985d841034c759b1/transformed/foundation-layout-release/res
+com.myshop.cafe.app-animation-release-19 /Users/alvin/.gradle/caches/transforms-3/51b4e984639e26044c0ec89712148bf9/transformed/animation-release/res
+com.myshop.cafe.app-emoji2-1.3.0-20 /Users/alvin/.gradle/caches/transforms-3/526a9f7c5d9a84f6551df0bcf8a94a2a/transformed/emoji2-1.3.0/res
+com.myshop.cafe.app-coil-base-2.5.0-21 /Users/alvin/.gradle/caches/transforms-3/54906fe9c05bc586f3d97f5f8b028421/transformed/coil-base-2.5.0/res
+com.myshop.cafe.app-core-runtime-2.2.0-22 /Users/alvin/.gradle/caches/transforms-3/55c8ec9546046d7b525914678f7fabb4/transformed/core-runtime-2.2.0/res
+com.myshop.cafe.app-recyclerview-1.1.0-23 /Users/alvin/.gradle/caches/transforms-3/57435e90cbb78696c0be9dcf68778ce3/transformed/recyclerview-1.1.0/res
+com.myshop.cafe.app-activity-1.8.2-24 /Users/alvin/.gradle/caches/transforms-3/5bea6a438a926d6c712b963fd33b9f2c/transformed/activity-1.8.2/res
+com.myshop.cafe.app-activity-compose-1.8.2-25 /Users/alvin/.gradle/caches/transforms-3/5e9652977072b726f798d4b243b0e8d2/transformed/activity-compose-1.8.2/res
+com.myshop.cafe.app-constraintlayout-2.0.1-26 /Users/alvin/.gradle/caches/transforms-3/622ae411556479ac0970bcff18b88c98/transformed/constraintlayout-2.0.1/res
+com.myshop.cafe.app-animation-core-release-27 /Users/alvin/.gradle/caches/transforms-3/697396629df51d66f933eef1bf5ae602/transformed/animation-core-release/res
+com.myshop.cafe.app-profileinstaller-1.3.1-28 /Users/alvin/.gradle/caches/transforms-3/6c7735db2c3032287538d3412eb277f7/transformed/profileinstaller-1.3.1/res
+com.myshop.cafe.app-lifecycle-viewmodel-savedstate-2.7.0-29 /Users/alvin/.gradle/caches/transforms-3/6d72019b6f77a4e51f761092eacbc000/transformed/lifecycle-viewmodel-savedstate-2.7.0/res
+com.myshop.cafe.app-hilt-navigation-compose-1.1.0-30 /Users/alvin/.gradle/caches/transforms-3/6df6fe25da7ae8f73e1316a1071e08c4/transformed/hilt-navigation-compose-1.1.0/res
+com.myshop.cafe.app-coordinatorlayout-1.1.0-31 /Users/alvin/.gradle/caches/transforms-3/73363c698fc7576388c21df429db1acd/transformed/coordinatorlayout-1.1.0/res
+com.myshop.cafe.app-foundation-release-32 /Users/alvin/.gradle/caches/transforms-3/76898301f3ab7bb1dfb6093962121622/transformed/foundation-release/res
+com.myshop.cafe.app-appcompat-1.6.1-33 /Users/alvin/.gradle/caches/transforms-3/7bbc1a7fb0df555b68079263726e2db3/transformed/appcompat-1.6.1/res
+com.myshop.cafe.app-transition-1.2.0-34 /Users/alvin/.gradle/caches/transforms-3/7d03f73bd0533a84743dd7af4f75f04e/transformed/transition-1.2.0/res
+com.myshop.cafe.app-ui-unit-release-35 /Users/alvin/.gradle/caches/transforms-3/831916b013e4b51f7f82810a9c309dca/transformed/ui-unit-release/res
+com.myshop.cafe.app-savedstate-ktx-1.2.1-36 /Users/alvin/.gradle/caches/transforms-3/83a48a27d824232103f4403e26748927/transformed/savedstate-ktx-1.2.1/res
+com.myshop.cafe.app-material-ripple-release-37 /Users/alvin/.gradle/caches/transforms-3/8a2c45207fa7ca147cf4843ec2d34ddc/transformed/material-ripple-release/res
+com.myshop.cafe.app-lifecycle-viewmodel-ktx-2.7.0-38 /Users/alvin/.gradle/caches/transforms-3/8ad9ebff9e282a3f03579b4fdb2327fd/transformed/lifecycle-viewmodel-ktx-2.7.0/res
+com.myshop.cafe.app-material-1.11.0-39 /Users/alvin/.gradle/caches/transforms-3/8c0d4d8b14c6b1eeb8e2bdfb7d50ebd1/transformed/material-1.11.0/res
+com.myshop.cafe.app-material-icons-extended-release-40 /Users/alvin/.gradle/caches/transforms-3/8ce1b66e654962e903711623d4715e03/transformed/material-icons-extended-release/res
+com.myshop.cafe.app-datastore-1.0.0-41 /Users/alvin/.gradle/caches/transforms-3/924877701c74df722aceeebcd254e782/transformed/datastore-1.0.0/res
+com.myshop.cafe.app-annotation-experimental-1.4.0-42 /Users/alvin/.gradle/caches/transforms-3/927c45a4dea7ee6b984f48c27f88e569/transformed/annotation-experimental-1.4.0/res
+com.myshop.cafe.app-savedstate-1.2.1-43 /Users/alvin/.gradle/caches/transforms-3/92c385c641d97c041b914663227dabec/transformed/savedstate-1.2.1/res
+com.myshop.cafe.app-ui-graphics-release-44 /Users/alvin/.gradle/caches/transforms-3/9493743d7b648f4245d7a495adb27091/transformed/ui-graphics-release/res
+com.myshop.cafe.app-lifecycle-viewmodel-compose-2.7.0-45 /Users/alvin/.gradle/caches/transforms-3/96eb17833fcd08d34d8969add10290a7/transformed/lifecycle-viewmodel-compose-2.7.0/res
+com.myshop.cafe.app-navigation-compose-2.7.6-46 /Users/alvin/.gradle/caches/transforms-3/9a2bfb8932055b55de596d13c7ea8890/transformed/navigation-compose-2.7.6/res
+com.myshop.cafe.app-navigation-common-2.7.6-47 /Users/alvin/.gradle/caches/transforms-3/a7f4ace9b0c5da8676aa44ba4b89a435/transformed/navigation-common-2.7.6/res
+com.myshop.cafe.app-cardview-1.0.0-48 /Users/alvin/.gradle/caches/transforms-3/b4010767c377efe0bdbe436533c035a6/transformed/cardview-1.0.0/res
+com.myshop.cafe.app-material-icons-core-release-49 /Users/alvin/.gradle/caches/transforms-3/b7e8db55206023ecfe7bfc0f1e401e09/transformed/material-icons-core-release/res
+com.myshop.cafe.app-ui-util-release-50 /Users/alvin/.gradle/caches/transforms-3/bd7710ab327d478d6309743f81b17d21/transformed/ui-util-release/res
+com.myshop.cafe.app-runtime-saveable-release-51 /Users/alvin/.gradle/caches/transforms-3/c5cfcf5a489282e91acdb6614dc38615/transformed/runtime-saveable-release/res
+com.myshop.cafe.app-lifecycle-viewmodel-2.7.0-52 /Users/alvin/.gradle/caches/transforms-3/cd6f6c13fd15cadb332bcbfb2620e434/transformed/lifecycle-viewmodel-2.7.0/res
+com.myshop.cafe.app-core-ktx-1.12.0-53 /Users/alvin/.gradle/caches/transforms-3/d42f937044d718b4716a5d640bf9ddbd/transformed/core-ktx-1.12.0/res
+com.myshop.cafe.app-startup-runtime-1.1.1-54 /Users/alvin/.gradle/caches/transforms-3/ded9b006fcc01634487943b30d1818ec/transformed/startup-runtime-1.1.1/res
+com.myshop.cafe.app-lifecycle-livedata-core-2.7.0-55 /Users/alvin/.gradle/caches/transforms-3/e2123405ef85bb3d6a08a61ab12078b2/transformed/lifecycle-livedata-core-2.7.0/res
+com.myshop.cafe.app-appcompat-resources-1.6.1-56 /Users/alvin/.gradle/caches/transforms-3/e3454bdaddf0b9a471ce6e874b779d38/transformed/appcompat-resources-1.6.1/res
+com.myshop.cafe.app-runtime-release-57 /Users/alvin/.gradle/caches/transforms-3/e511a82d4ebc4e54b6c4c67874c09d76/transformed/runtime-release/res
+com.myshop.cafe.app-material3-release-58 /Users/alvin/.gradle/caches/transforms-3/f20653e94c81ba7562dcbb630b69c3d1/transformed/material3-release/res
+com.myshop.cafe.app-viewpager2-1.0.0-59 /Users/alvin/.gradle/caches/transforms-3/f4e868fd97f1aedc5fa9caca6d0032fb/transformed/viewpager2-1.0.0/res
+com.myshop.cafe.app-ui-text-release-60 /Users/alvin/.gradle/caches/transforms-3/fb079f1a02db31a246d61d7f52ac65b7/transformed/ui-text-release/res
+com.myshop.cafe.app-navigation-runtime-2.7.6-61 /Users/alvin/.gradle/caches/transforms-3/fb26ba331ebd9dd8b33c9c126f9322f0/transformed/navigation-runtime-2.7.6/res
+com.myshop.cafe.app-navigation-runtime-ktx-2.7.6-62 /Users/alvin/.gradle/caches/transforms-3/fc45ed255f98ebe186607016c19c4df5/transformed/navigation-runtime-ktx-2.7.6/res
+com.myshop.cafe.app-resValues-63 /Users/alvin/Web App Dev/myShop/android/app/build/generated/res/resValues/release
+com.myshop.cafe.app-packageReleaseResources-64 /Users/alvin/Web App Dev/myShop/android/app/build/intermediates/incremental/release/packageReleaseResources/merged.dir
+com.myshop.cafe.app-packageReleaseResources-65 /Users/alvin/Web App Dev/myShop/android/app/build/intermediates/incremental/release/packageReleaseResources/stripped.dir
+com.myshop.cafe.app-merged_res-66 /Users/alvin/Web App Dev/myShop/android/app/build/intermediates/merged_res/release
+com.myshop.cafe.app-main-67 /Users/alvin/Web App Dev/myShop/android/app/src/main/res
+com.myshop.cafe.app-release-68 /Users/alvin/Web App Dev/myShop/android/app/src/release/res

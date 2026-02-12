@@ -1,0 +1,19 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.myshop.cafe.app-mergeReleaseResources-65:/values-h550dp-port-v13/values-h550dp-port-v13.xml",
+            "map": [
+                {
+                    "source": "/Users/alvin/.gradle/caches/transforms-3/8c0d4d8b14c6b1eeb8e2bdfb7d50ebd1/transformed/material-1.11.0/res/values-h550dp-port-v13/values-h550dp-port-v13.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "64",
+                        "endOffsets": "115"
+                    }
+                }
+            ]
+        }
+    ]
+}

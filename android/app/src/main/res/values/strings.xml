@@ -1,0 +1,68 @@
+<resources>
+    <string name="app_name">myShop Coffee</string>
+    
+    <!-- Menu Screen -->
+    <string name="menu_title">Menu</string>
+    <string name="menu_loading">Loading menu…</string>
+    <string name="menu_empty">Menu Coming Soon</string>
+    <string name="menu_empty_subtitle">We\'re preparing something special for you!</string>
+    <string name="sold_out">Sold Out</string>
+    <string name="select_size">Select Size</string>
+    <string name="size_small">S</string>
+    <string name="size_medium">M</string>
+    <string name="size_large">L</string>
+    <string name="add_to_cart">Add to Cart</string>
+    
+    <!-- Cart -->
+    <string name="cart_title">Your Cart</string>
+    <string name="cart_empty">Your cart is empty</string>
+    <string name="cart_total">Total</string>
+    <string name="proceed_to_checkout">Proceed to Checkout</string>
+    <string name="clear_cart">Clear Cart</string>
+    
+    <!-- Checkout -->
+    <string name="checkout_title">Checkout</string>
+    <string name="order_summary">Order Summary</string>
+    <string name="order_type">Order Type</string>
+    <string name="takeaway">Takeaway</string>
+    <string name="dine_in">Dine-In</string>
+    <string name="table_number">Table Number</string>
+    <string name="table_number_hint">Enter your table number</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="phone_number_hint">Enter your phone number</string>
+    <string name="customer_name">Name (Optional)</string>
+    <string name="customer_name_hint">Enter your name</string>
+    <string name="place_order">Place Order</string>
+    <string name="order_placed">Order Placed!</string>
+    <string name="order_sent_to_kitchen">Your order has been sent to the kitchen</string>
+    <string name="order_number">Order Number</string>
+    <string name="proceed_to_counter">Please proceed to the counter for payment.</string>
+    <string name="track_order">Track Order</string>
+    <string name="order_more">Order More</string>
+    
+    <!-- Order Status -->
+    <string name="order_status_title">Order Status</string>
+    <string name="track_your_order">Track Your Order</string>
+    <string name="search">Search</string>
+    <string name="orders_for">Orders for %s</string>
+    <string name="no_orders_found">No orders found for this phone number.</string>
+    <string name="status_queued">Queued</string>
+    <string name="status_preparing">Preparing</string>
+    <string name="status_ready">Ready!</string>
+    <string name="status_completed">Completed</string>
+    <string name="preparing_column">Preparing</string>
+    <string name="ready_column">Ready for Pickup!</string>
+    <string name="orders_in_queue">%d orders in queue</string>
+    <string name="orders_ready">%d orders ready</string>
+    <string name="no_orders_preparing">No orders preparing</string>
+    <string name="no_orders_ready">No orders ready yet</string>
+    
+    <!-- General -->
+    <string name="back">Back</string>
+    <string name="retry">Retry</string>
+    <string name="error_loading">Failed to load data</string>
+    <string name="cafe_name">myShop Coffee</string>
+    <string name="cafe_khmer">កាហ្វេ myShop</string>
+    <string name="tagline">Artisan coffee crafted with passion</string>
+    <string name="check_order_status">Check Order Status</string>
+</resources>

@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:16-alpine
+    container_name: myshop_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: myshop
+      POSTGRES_PASSWORD: myshop_secret_2024
+      POSTGRES_DB: myshop_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U myshop -d myshop_db" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Unified App (Next.js with Integrated Backend)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: myshop_frontend
+    restart: unless-stopped
+    environment:
+      # Connect to internal docker database
+      DATABASE_URL: postgresql://myshop:myshop_secret_2024@db:5432/myshop_db
+      # Internal secrets (mirroring .env)
+      JWT_SECRET: your_super_secret_jwt_key_change_in_production
+      JWT_EXPIRES_IN: 7d
+      # Cloudinary (Optional for Docker, will fallback to non-persistent local if missing)
+      # CLOUDINARY_CLOUD_NAME: ...
+      # CLOUDINARY_API_KEY: ...
+      # CLOUDINARY_API_SECRET: ...
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      db:
+        condition: service_healthy
+    command: npm run dev
+
+volumes:
+  postgres_data:
