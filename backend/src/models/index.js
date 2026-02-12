@@ -1,6 +1,9 @@
 const { Sequelize } = require('sequelize');
 
-const sequelize = new Sequelize(process.env.DATABASE_URL, {
+const isProduction = process.env.NODE_ENV === 'production';
+const databaseUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL;
+
+const sequelizeOptions = {
     dialect: 'postgres',
     logging: process.env.NODE_ENV === 'development' ? console.log : false,
     define: {
@@ -12,8 +15,27 @@ const sequelize = new Sequelize(process.env.DATABASE_URL, {
         min: 0,
         acquire: 30000,
         idle: 10000
+    },
+    dialectOptions: {
+        ssl: isProduction ? {
+            require: true,
+            rejectUnauthorized: false
+        } : false
     }
-});
+};
+
+const sequelize = databaseUrl
+    ? new Sequelize(databaseUrl, sequelizeOptions)
+    : new Sequelize(
+        process.env.DB_NAME || 'myshop',
+        process.env.DB_USER || 'postgres',
+        process.env.DB_PASSWORD || 'postgres',
+        {
+            host: process.env.DB_HOST || 'localhost',
+            port: process.env.DB_PORT || 5432,
+            ...sequelizeOptions
+        }
+    );
 
 // Import models
 const User = require('./User')(sequelize);
