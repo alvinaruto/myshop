@@ -73,7 +73,7 @@ export async function DELETE(req: NextRequest, { params }: Params) {
             }, { status: 400 });
         }
 
-        await category.destroy();
+        await (category as any).destroy();
 
         return NextResponse.json({
             success: true,

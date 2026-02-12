@@ -127,7 +127,7 @@ export async function POST(req: NextRequest) {
             }, { transaction });
 
             if (item.serialItem) {
-                await item.serialItem.update({ status: 'sold', sale_id: sale.id, sold_at: new Date() }, { transaction });
+                await (item.serialItem as any).update({ status: 'sold', sale_id: sale.id, sold_at: new Date() }, { transaction });
                 const endDate = new Date();
                 endDate.setMonth(endDate.getMonth() + warranty_months);
                 await models.Warranty.create({ serial_item_id: item.serialItem.id, sale_id: sale.id, start_date: new Date(), end_date: endDate, duration_months: warranty_months, status: 'active' }, { transaction });

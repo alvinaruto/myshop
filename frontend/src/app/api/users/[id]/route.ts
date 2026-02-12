@@ -38,7 +38,7 @@ export async function PATCH(
             return NextResponse.json({ success: false, message: 'You cannot change your own role' }, { status: 400 });
         }
 
-        await user.update(data);
+        await (user as any).update(data);
         return NextResponse.json({ success: true, data: user.toJSON() });
     } catch (error: any) {
         return NextResponse.json({ success: false, message: error.message }, { status: 500 });
@@ -61,7 +61,7 @@ export async function DELETE(
         const user = await models.User.findByPk(params.id);
         if (!user) return NextResponse.json({ success: false, message: 'User not found' }, { status: 404 });
 
-        await user.destroy();
+        await (user as any).destroy();
         return NextResponse.json({ success: true, message: 'User deleted successfully' });
     } catch (error: any) {
         return NextResponse.json({ success: false, message: error.message }, { status: 500 });

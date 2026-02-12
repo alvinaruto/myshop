@@ -55,7 +55,7 @@ export async function PATCH(
         }
 
         // Update menu item
-        await item.update(body);
+        await (item as any).update(body);
 
         // Update recipes if provided
         if (body.recipes && Array.isArray(body.recipes)) {
@@ -116,7 +116,7 @@ export async function DELETE(
         }
 
         // Soft delete
-        await item.update({ is_active: false });
+        await (item as any).update({ is_active: false });
 
         return NextResponse.json({
             success: true,

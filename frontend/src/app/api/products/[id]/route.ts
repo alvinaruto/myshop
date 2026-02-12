@@ -67,7 +67,7 @@ export async function PATCH(
             }
         }
 
-        await product.update(data);
+        await (product as any).update(data);
 
         return NextResponse.json({
             success: true,
@@ -97,7 +97,7 @@ export async function DELETE(
         }
 
         // Soft delete
-        await product.update({ is_active: false });
+        await (product as any).update({ is_active: false });
 
         return NextResponse.json({
             success: true,

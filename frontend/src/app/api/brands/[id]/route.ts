@@ -41,7 +41,7 @@ export async function DELETE(
         const brand = await models.Brand.findByPk(params.id);
         if (!brand) return NextResponse.json({ success: false, message: 'Brand not found' }, { status: 404 });
 
-        await brand.destroy();
+        await (brand as any).destroy();
         return NextResponse.json({ success: true, message: 'Brand deleted successfully' });
     } catch (error: any) {
         return NextResponse.json({ success: false, message: error.message }, { status: 500 });
