@@ -126,7 +126,7 @@ function initializeModels(sequelize: Sequelize) {
     return models;
 }
 
-function getModels() {
+function getModels(): Record<string, any> {
     if (modelsInstance) {
         return modelsInstance;
     }
@@ -144,7 +144,7 @@ const sequelize = new Proxy({} as Sequelize, {
     }
 });
 
-const models = new Proxy({} as ReturnType<typeof initializeModels>, {
+const models: Record<string, any> = new Proxy({} as Record<string, any>, {
     get(_, prop) {
         return (getModels() as any)[prop];
     }
