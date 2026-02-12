@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
             success: true,
             message: 'Login successful',
             data: {
-                user: user.toJSON(),
+                user: (user as any).toJSON(),
                 token,
                 expiresIn
             }

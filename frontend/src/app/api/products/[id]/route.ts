@@ -28,7 +28,7 @@ export async function GET(
         }
 
         const canViewCostPrice = auth.role === 'admin' || auth.role === 'manager';
-        const result = product.toJSON();
+        const result = (product as any).toJSON();
 
         if (!canViewCostPrice) {
             delete result.cost_price;

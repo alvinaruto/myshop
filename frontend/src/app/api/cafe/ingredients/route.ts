@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
 
         // Add stock status to each ingredient
         const data = ingredients.map((ing: any) => ({
-            ...ing.toJSON(),
+            ...(ing as any).toJSON(),
             stock_status: ing.getStockStatus()
         }));
 

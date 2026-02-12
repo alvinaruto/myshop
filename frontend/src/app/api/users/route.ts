@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
         delete userData.password; // Remove password field if present
 
         const user = await models.User.create(userData);
-        return NextResponse.json({ success: true, data: user.toJSON() }, { status: 201 });
+        return NextResponse.json({ success: true, data: (user as any).toJSON() }, { status: 201 });
     } catch (error: any) {
         console.error('User creation error:', error);
         return NextResponse.json({ success: false, message: error.message }, { status: 500 });

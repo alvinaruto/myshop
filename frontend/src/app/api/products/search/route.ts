@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
 
         // For serialized products, get available stock count
         const results = await Promise.all(products.map(async (product: any) => {
-            const p = product.toJSON();
+            const p = (product as any).toJSON();
             if (p.is_serialized) {
                 const inStockCount = await models.SerialItem.count({
                     where: {

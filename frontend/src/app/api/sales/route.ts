@@ -132,7 +132,7 @@ export async function POST(req: NextRequest) {
                 endDate.setMonth(endDate.getMonth() + warranty_months);
                 await models.Warranty.create({ serial_item_id: item.serialItem.id, sale_id: sale.id, start_date: new Date(), end_date: endDate, duration_months: warranty_months, status: 'active' }, { transaction });
             } else {
-                await item.product.decrement('quantity', { by: item.quantity, transaction });
+                await (item.product as any).decrement('quantity', { by: item.quantity, transaction });
             }
         }
 

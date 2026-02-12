@@ -62,7 +62,7 @@ export async function GET(req: NextRequest) {
 
         // Sanitize for role
         const sanitizedProducts = products.map((p: any) => {
-            const product = p.toJSON();
+            const product = (p as any).toJSON();
             if (!canViewCostPrice) {
                 delete product.cost_price;
             }

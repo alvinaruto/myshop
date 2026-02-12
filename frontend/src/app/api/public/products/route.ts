@@ -47,7 +47,7 @@ export async function GET(req: NextRequest) {
 
         // For public API, we always hide cost price
         const sanitizedProducts = products.map(p => {
-            const product = p.toJSON();
+            const product = (p as any).toJSON();
             delete product.cost_price;
             return product;
         });

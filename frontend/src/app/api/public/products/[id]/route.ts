@@ -26,7 +26,7 @@ export async function GET(
             }, { status: 404 });
         }
 
-        const result = product.toJSON();
+        const result = (product as any).toJSON();
         // Hide cost price for public view
         delete result.cost_price;
 

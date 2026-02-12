@@ -14,7 +14,7 @@ export async function GET(
         const user = await models.User.findByPk(params.id);
         if (!user) return NextResponse.json({ success: false, message: 'User not found' }, { status: 404 });
 
-        return NextResponse.json({ success: true, data: user.toJSON() });
+        return NextResponse.json({ success: true, data: (user as any).toJSON() });
     } catch (error: any) {
         return NextResponse.json({ success: false, message: error.message }, { status: 500 });
     }
@@ -39,7 +39,7 @@ export async function PATCH(
         }
 
         await (user as any).update(data);
-        return NextResponse.json({ success: true, data: user.toJSON() });
+        return NextResponse.json({ success: true, data: (user as any).toJSON() });
     } catch (error: any) {
         return NextResponse.json({ success: false, message: error.message }, { status: 500 });
     }

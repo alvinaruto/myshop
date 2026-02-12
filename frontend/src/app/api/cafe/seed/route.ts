@@ -116,7 +116,7 @@ export async function POST(request: NextRequest) {
 
         // Add recipes to some coffee drinks
         for (const item of menuItemRecords) {
-            const itemData = item.toJSON();
+            const itemData = (item as any).toJSON();
             if (itemData.name.includes('Latte') || itemData.name.includes('Cappuccino') || itemData.name.includes('Americano')) {
                 // Espresso recipe
                 await Recipe.create({

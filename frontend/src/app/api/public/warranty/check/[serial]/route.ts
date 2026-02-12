@@ -31,7 +31,7 @@ export async function GET(
             }, { status: 404 });
         }
 
-        const warrantyData = warranty.toJSON();
+        const warrantyData = (warranty as any).toJSON();
 
         return NextResponse.json({
             success: true,
@@ -48,5 +48,5 @@ export async function GET(
         return NextResponse.json({ success: false, message: error.message }, { status: 500 });
     }
 }
- 
+
 // Force Vercel Refresh
