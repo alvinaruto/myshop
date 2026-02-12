@@ -64,12 +64,12 @@ function getSequelize(): Sequelize {
             },
             logging: false,
             pool: {
-                max: 10, // Increased for production
+                max: 10,
                 min: 0,
                 acquire: 30000,
                 idle: 10000
             }
-        });
+        } as any);
     } else {
         // Check if DATABASE_URL contains SSL requirement (e.g., Supabase in dev)
         const needsSSL = DATABASE_URL.includes('supabase') || DATABASE_URL.includes('sslmode') || DATABASE_URL.includes('neon.tech');
@@ -83,7 +83,7 @@ function getSequelize(): Sequelize {
                 }
             } : undefined,
             logging: false,
-        });
+        } as any);
     }
 
     return sequelizeInstance;
