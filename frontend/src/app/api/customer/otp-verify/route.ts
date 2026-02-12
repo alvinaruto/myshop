@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
         });
 
         // Generate JWT Token
-        const secret = process.env.JWT_SECRET || 'your-fallback-secret';
+        const JWT_SECRET = process.env.JWT_SECRET || 'myshop_fallback_secret_for_production_safety';
         const token = jwt.sign(
             {
                 id: customerData.id,

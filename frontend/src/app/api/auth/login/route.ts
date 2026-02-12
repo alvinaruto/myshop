@@ -35,12 +35,12 @@ export async function POST(req: NextRequest) {
         }
 
         // Generate JWT token
-        const secret = process.env.JWT_SECRET || 'your-fallback-secret';
+        const JWT_SECRET = process.env.JWT_SECRET || 'myshop_fallback_secret_for_production_safety';
         const expiresIn = process.env.JWT_EXPIRES_IN || '7d';
 
         const token = jwt.sign(
             { userId: user.id, role: user.role },
-            secret,
+            JWT_SECRET,
             { expiresIn: expiresIn as any }
         );
 

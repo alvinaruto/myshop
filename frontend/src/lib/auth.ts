@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import { models } from './db';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-fallback-secret';
+const JWT_SECRET = process.env.JWT_SECRET || 'myshop_fallback_secret_for_production_safety';
 
 export interface AuthContext {
     user: any;
