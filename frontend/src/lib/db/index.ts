@@ -52,6 +52,8 @@ function getSequelize(): Sequelize {
     }
 
     if (process.env.NODE_ENV === 'production') {
+        // Allow self-signed certs (Supabase/Neon use them)
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
         sequelizeInstance = new Sequelize(DATABASE_URL, {
             dialect: 'postgres',
             dialectModule: pg,

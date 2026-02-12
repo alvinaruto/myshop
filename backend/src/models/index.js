@@ -10,6 +10,21 @@ if (databaseUrl === 'undefined' || databaseUrl === 'null' || !databaseUrl) {
     databaseUrl = null;
 }
 
+// Strip sslmode/ssl query params that conflict with dialectOptions
+if (databaseUrl && databaseUrl.includes('?')) {
+    const [baseUrl, query] = databaseUrl.split('?');
+    const params = new URLSearchParams(query);
+    params.delete('sslmode');
+    params.delete('ssl');
+    const newQuery = params.toString();
+    databaseUrl = newQuery ? `${baseUrl}?${newQuery}` : baseUrl;
+}
+
+// Allow self-signed certs in production (Supabase/Neon use them)
+if (isProduction) {
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+}
+
 const sequelizeOptions = {
     dialect: 'postgres',
     logging: process.env.NODE_ENV === 'development' ? console.log : false,
