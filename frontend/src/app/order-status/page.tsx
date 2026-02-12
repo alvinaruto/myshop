@@ -42,10 +42,18 @@ export default function PublicOrderStatusPage() {
         if (!phone) return;
         setLoading(true);
         try {
-            const res = await fetch(`/api/customer/orders?phone=${encodeURIComponent(phone)}`);
+            const token = localStorage.getItem('myshop_customer_token');
+            const headers: Record<string, string> = {};
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+            const res = await fetch(`/api/customer/orders?phone=${encodeURIComponent(phone)}`, { headers });
             const data = await res.json();
             if (data.success) {
                 setCustomerOrders(data.data || []);
+                setSearchedPhone(phone);
+            } else if (res.status === 401) {
+                setCustomerOrders([]);
                 setSearchedPhone(phone);
             }
         } catch (error) {
@@ -169,9 +177,9 @@ export default function PublicOrderStatusPage() {
                                         <div
                                             key={order.id}
                                             className={`bg-white/10 rounded-xl p-4 border-2 ${order.status === 'ready' ? 'border-green-500 animate-pulse' :
-                                                    order.status === 'preparing' ? 'border-blue-500' :
-                                                        order.status === 'pending' ? 'border-yellow-500' :
-                                                            'border-transparent'
+                                                order.status === 'preparing' ? 'border-blue-500' :
+                                                    order.status === 'pending' ? 'border-yellow-500' :
+                                                        'border-transparent'
                                                 }`}
                                         >
                                             <div className="flex items-center justify-between mb-2">

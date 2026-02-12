@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { FiCoffee, FiMapPin, FiClock, FiPhone, FiInstagram, FiFacebook, FiWifi, FiHeart, FiShoppingCart, FiPlus, FiMinus, FiX, FiCheck, FiSend, FiPackage, FiUsers } from 'react-icons/fi';
+import { FiCoffee, FiMapPin, FiClock, FiPhone, FiInstagram, FiFacebook, FiWifi, FiHeart, FiShoppingCart, FiPlus, FiMinus, FiX, FiCheck, FiSend, FiPackage, FiUsers, FiShield, FiLock, FiArrowLeft } from 'react-icons/fi';
 import toast, { Toaster } from 'react-hot-toast';
 
 interface MenuItem {
@@ -128,6 +128,34 @@ export default function CustomerMenuPage() {
     // Order success
     const [orderSuccess, setOrderSuccess] = useState<{ orderNumber: string } | null>(null);
 
+    // OTP Auth state
+    const [authToken, setAuthToken] = useState<string | null>(null);
+    const [verifiedPhone, setVerifiedPhone] = useState<string | null>(null);
+    const [otpStep, setOtpStep] = useState<'phone' | 'otp' | 'checkout'>('phone');
+    const [otpCode, setOtpCode] = useState('');
+    const [otpLoading, setOtpLoading] = useState(false);
+    const [otpError, setOtpError] = useState<string | null>(null);
+    const [otpCountdown, setOtpCountdown] = useState(0);
+
+    // Load saved auth from localStorage
+    useEffect(() => {
+        const savedToken = localStorage.getItem('myshop_customer_token');
+        const savedPhone = localStorage.getItem('myshop_customer_phone');
+        if (savedToken && savedPhone) {
+            setAuthToken(savedToken);
+            setVerifiedPhone(savedPhone);
+            setCustomerPhone(savedPhone);
+            setOtpStep('checkout');
+        }
+    }, []);
+
+    // OTP resend countdown timer
+    useEffect(() => {
+        if (otpCountdown <= 0) return;
+        const timer = setTimeout(() => setOtpCountdown(otpCountdown - 1), 1000);
+        return () => clearTimeout(timer);
+    }, [otpCountdown]);
+
     useEffect(() => {
         fetchMenu();
     }, []);
@@ -225,10 +253,103 @@ export default function CustomerMenuPage() {
 
     const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-    // Submit order
-    const submitOrder = async () => {
+    // OTP Request handler
+    const requestOtp = async () => {
         if (!customerPhone) {
             toast.error('Please enter your phone number');
+            return;
+        }
+        setOtpLoading(true);
+        setOtpError(null);
+        try {
+            const res = await fetch('/api/customer/otp-request', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phone: customerPhone })
+            });
+            const data = await res.json();
+            if (data.success) {
+                setOtpStep('otp');
+                setOtpCountdown(60);
+                setOtpCode('');
+                toast.success(data.message || 'Verification code sent!');
+            } else {
+                throw new Error(data.message || 'Failed to send code');
+            }
+        } catch (error: any) {
+            setOtpError(error.message);
+            toast.error(error.message || 'Failed to send verification code');
+        } finally {
+            setOtpLoading(false);
+        }
+    };
+
+    // OTP Verify handler
+    const verifyOtp = async () => {
+        if (!otpCode || otpCode.length !== 6) {
+            toast.error('Please enter the 6-digit code');
+            return;
+        }
+        setOtpLoading(true);
+        setOtpError(null);
+        try {
+            const res = await fetch('/api/customer/otp-verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phone: customerPhone, otp_code: otpCode })
+            });
+            const data = await res.json();
+            if (data.success) {
+                const token = data.data.token;
+                setAuthToken(token);
+                setVerifiedPhone(customerPhone);
+                localStorage.setItem('myshop_customer_token', token);
+                localStorage.setItem('myshop_customer_phone', customerPhone);
+                if (data.data.customer?.name) {
+                    setCustomerName(data.data.customer.name);
+                }
+                setOtpStep('checkout');
+                toast.success('Phone verified!');
+            } else {
+                throw new Error(data.message || 'Verification failed');
+            }
+        } catch (error: any) {
+            setOtpError(error.message);
+            toast.error(error.message || 'Invalid verification code');
+        } finally {
+            setOtpLoading(false);
+        }
+    };
+
+    // Change phone / logout
+    const changePhone = () => {
+        setAuthToken(null);
+        setVerifiedPhone(null);
+        setOtpStep('phone');
+        setOtpCode('');
+        setOtpError(null);
+        setCustomerPhone('');
+        localStorage.removeItem('myshop_customer_token');
+        localStorage.removeItem('myshop_customer_phone');
+    };
+
+    // Open checkout with correct initial step
+    const openCheckout = () => {
+        setCartOpen(false);
+        if (authToken && verifiedPhone) {
+            setOtpStep('checkout');
+        } else {
+            setOtpStep('phone');
+        }
+        setOtpError(null);
+        setCheckoutOpen(true);
+    };
+
+    // Submit order
+    const submitOrder = async () => {
+        if (!authToken) {
+            toast.error('Please verify your phone number first');
+            setOtpStep('phone');
             return;
         }
 
@@ -249,9 +370,12 @@ export default function CustomerMenuPage() {
 
             const res = await fetch('/api/customer/orders', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                },
                 body: JSON.stringify({
-                    customer_phone: customerPhone,
+                    customer_phone: verifiedPhone || customerPhone,
                     customer_name: customerName || undefined,
                     items: orderItems,
                     order_type: orderType,
@@ -270,6 +394,10 @@ export default function CustomerMenuPage() {
                 setCheckoutOpen(false);
                 setCartOpen(false);
                 toast.success('Order placed successfully!');
+            } else if (res.status === 401) {
+                // Token expired — clear and restart OTP
+                changePhone();
+                toast.error('Session expired. Please verify your phone again.');
             } else {
                 throw new Error(data.message || 'Failed to place order');
             }
@@ -706,7 +834,7 @@ export default function CustomerMenuPage() {
                                 <span className="font-black text-2xl text-amber-600">{formatPrice(cartTotal)}</span>
                             </div>
                             <button
-                                onClick={() => { setCartOpen(false); setCheckoutOpen(true); }}
+                                onClick={openCheckout}
                                 className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold py-4 rounded-xl transition flex items-center justify-center gap-2"
                             >
                                 <FiSend className="w-5 h-5" />
@@ -723,7 +851,7 @@ export default function CustomerMenuPage() {
                 </div>
             )}
 
-            {/* Checkout Modal */}
+            {/* Checkout Modal — 3-step OTP flow */}
             {checkoutOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70" onClick={() => setCheckoutOpen(false)}>
                     <div
@@ -731,130 +859,311 @@ export default function CustomerMenuPage() {
                         onClick={(e) => e.stopPropagation()}
                     >
                         {/* Header */}
-                        <div className="sticky top-0 bg-white border-b border-stone-200 px-6 py-4 flex items-center justify-between">
-                            <h2 className="text-xl font-bold text-stone-900">Checkout</h2>
+                        <div className="sticky top-0 bg-white border-b border-stone-200 px-6 py-4 flex items-center justify-between z-10">
+                            <div className="flex items-center gap-3">
+                                {otpStep === 'otp' && (
+                                    <button onClick={() => setOtpStep('phone')} className="p-1 hover:bg-stone-100 rounded-full">
+                                        <FiArrowLeft className="w-5 h-5 text-stone-600" />
+                                    </button>
+                                )}
+                                <h2 className="text-xl font-bold text-stone-900">
+                                    {otpStep === 'phone' ? 'Verify Phone' : otpStep === 'otp' ? 'Enter Code' : 'Checkout'}
+                                </h2>
+                            </div>
                             <button onClick={() => setCheckoutOpen(false)} className="p-2 hover:bg-stone-100 rounded-full">
                                 <FiX className="w-5 h-5" />
                             </button>
                         </div>
 
-                        <div className="p-6 space-y-6">
-                            {/* Order Summary */}
-                            <div className="bg-stone-50 rounded-xl p-4">
-                                <h3 className="font-bold text-stone-700 mb-3">Order Summary</h3>
-                                <div className="space-y-2">
-                                    {cart.map((item) => (
-                                        <div key={item.id} className="flex justify-between text-sm">
-                                            <span>{item.quantity}x {item.menuItem.name} ({item.size.toUpperCase()})</span>
-                                            <span className="font-medium">{formatPrice(getItemPrice(item.menuItem, item.size) * item.quantity)}</span>
+                        {/* Step Progress */}
+                        <div className="px-6 pt-4">
+                            <div className="flex items-center gap-2">
+                                {['phone', 'otp', 'checkout'].map((step, i) => (
+                                    <div key={step} className="flex items-center flex-1">
+                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${otpStep === step
+                                                ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/30'
+                                                : ['phone', 'otp', 'checkout'].indexOf(otpStep) > i
+                                                    ? 'bg-green-500 text-white'
+                                                    : 'bg-stone-200 text-stone-500'
+                                            }`}>
+                                            {['phone', 'otp', 'checkout'].indexOf(otpStep) > i ? (
+                                                <FiCheck className="w-4 h-4" />
+                                            ) : (
+                                                i + 1
+                                            )}
                                         </div>
-                                    ))}
-                                    <div className="border-t border-stone-200 pt-2 mt-2 flex justify-between font-bold">
-                                        <span>Total</span>
-                                        <span className="text-amber-600">{formatPrice(cartTotal)}</span>
+                                        {i < 2 && (
+                                            <div className={`flex-1 h-1 mx-2 rounded-full transition-all ${['phone', 'otp', 'checkout'].indexOf(otpStep) > i ? 'bg-green-500' : 'bg-stone-200'
+                                                }`} />
+                                        )}
                                     </div>
-                                </div>
+                                ))}
                             </div>
-
-                            {/* Order Type */}
-                            <div>
-                                <label className="block text-sm font-bold text-stone-700 mb-2">Order Type</label>
-                                <div className="grid grid-cols-2 gap-3">
-                                    <button
-                                        type="button"
-                                        onClick={() => setOrderType('takeaway')}
-                                        className={`p-4 rounded-xl border-2 transition ${orderType === 'takeaway' ? 'border-amber-500 bg-amber-50' : 'border-stone-200 hover:border-amber-300'}`}
-                                    >
-                                        <FiPackage className="w-8 h-8 mx-auto mb-1 text-amber-600" />
-                                        <span className="font-medium">Takeaway</span>
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => setOrderType('dine_in')}
-                                        className={`p-4 rounded-xl border-2 transition ${orderType === 'dine_in' ? 'border-amber-500 bg-amber-50' : 'border-stone-200 hover:border-amber-300'}`}
-                                    >
-                                        <FiUsers className="w-8 h-8 mx-auto mb-1 text-amber-600" />
-                                        <span className="font-medium">Dine-In</span>
-                                    </button>
-                                </div>
+                            <div className="flex justify-between mt-1 px-1">
+                                <span className="text-[10px] text-stone-400">Phone</span>
+                                <span className="text-[10px] text-stone-400">Verify</span>
+                                <span className="text-[10px] text-stone-400">Confirm</span>
                             </div>
+                        </div>
 
-                            {/* Table Number (for dine-in) */}
-                            {orderType === 'dine_in' && (
-                                <div>
-                                    <label className="block text-sm font-bold text-stone-700 mb-2">Table Number *</label>
-                                    <input
-                                        type="number"
-                                        value={tableNumber}
-                                        onChange={(e) => setTableNumber(e.target.value)}
-                                        placeholder="Enter your table number"
-                                        className="w-full px-4 py-3 border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-stone-900 placeholder-stone-400"
-                                    />
-                                </div>
+                        <div className="p-6 space-y-6">
+                            {/* ========== STEP 1: Phone ========== */}
+                            {otpStep === 'phone' && (
+                                <>
+                                    <div className="text-center">
+                                        <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                            <FiShield className="w-10 h-10 text-amber-600" />
+                                        </div>
+                                        <h3 className="text-xl font-bold text-stone-900 mb-1">Verify Your Phone</h3>
+                                        <p className="text-stone-500 text-sm">We'll send you a verification code to confirm your identity</p>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-bold text-stone-700 mb-2">Phone Number</label>
+                                        <input
+                                            type="tel"
+                                            value={customerPhone}
+                                            onChange={(e) => setCustomerPhone(e.target.value)}
+                                            placeholder="012 345 678"
+                                            className="w-full px-4 py-3 border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-stone-900 placeholder-stone-400 text-lg"
+                                            onKeyDown={(e) => e.key === 'Enter' && requestOtp()}
+                                        />
+                                    </div>
+
+                                    {otpError && (
+                                        <div className="bg-red-50 text-red-700 rounded-xl p-3 text-sm">
+                                            {otpError}
+                                        </div>
+                                    )}
+
+                                    <button
+                                        onClick={requestOtp}
+                                        disabled={otpLoading || !customerPhone}
+                                        className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold py-4 rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                    >
+                                        {otpLoading ? (
+                                            <>
+                                                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                                Sending Code...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <FiSend className="w-5 h-5" />
+                                                Send Verification Code
+                                            </>
+                                        )}
+                                    </button>
+
+                                    {/* Order Summary Mini */}
+                                    <div className="bg-stone-50 rounded-xl p-4">
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-stone-500">{cartItemCount} items</span>
+                                            <span className="font-bold text-amber-600">{formatPrice(cartTotal)}</span>
+                                        </div>
+                                    </div>
+                                </>
                             )}
 
-                            {/* Phone Number */}
-                            <div>
-                                <label className="block text-sm font-bold text-stone-700 mb-2">Phone Number *</label>
-                                <input
-                                    type="tel"
-                                    value={customerPhone}
-                                    onChange={(e) => setCustomerPhone(e.target.value)}
-                                    placeholder="012 345 678"
-                                    className="w-full px-4 py-3 border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-stone-900 placeholder-stone-400"
-                                />
-                                <p className="text-xs text-stone-400 mt-1">We'll use this to track your order</p>
-                            </div>
+                            {/* ========== STEP 2: OTP Verify ========== */}
+                            {otpStep === 'otp' && (
+                                <>
+                                    <div className="text-center">
+                                        <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                            <FiLock className="w-10 h-10 text-blue-600" />
+                                        </div>
+                                        <h3 className="text-xl font-bold text-stone-900 mb-1">Enter Verification Code</h3>
+                                        <p className="text-stone-500 text-sm">
+                                            Code sent to <strong className="text-stone-700">{customerPhone}</strong>
+                                        </p>
+                                    </div>
 
-                            {/* Name */}
-                            <div>
-                                <label className="block text-sm font-bold text-stone-700 mb-2">Your Name (Optional)</label>
-                                <input
-                                    type="text"
-                                    value={customerName}
-                                    onChange={(e) => setCustomerName(e.target.value)}
-                                    placeholder="Enter your name"
-                                    className="w-full px-4 py-3 border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-stone-900 placeholder-stone-400"
-                                />
-                            </div>
+                                    <div>
+                                        <label className="block text-sm font-bold text-stone-700 mb-2">6-Digit Code</label>
+                                        <input
+                                            type="text"
+                                            value={otpCode}
+                                            onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                                            placeholder="000000"
+                                            maxLength={6}
+                                            className="w-full px-4 py-4 border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-stone-900 placeholder-stone-300 text-center text-3xl tracking-[0.5em] font-mono"
+                                            onKeyDown={(e) => e.key === 'Enter' && otpCode.length === 6 && verifyOtp()}
+                                            autoFocus
+                                        />
+                                    </div>
 
-                            {/* Notes */}
-                            <div>
-                                <label className="block text-sm font-bold text-stone-700 mb-2">Special Instructions (Optional)</label>
-                                <textarea
-                                    value={orderNotes}
-                                    onChange={(e) => setOrderNotes(e.target.value)}
-                                    placeholder="Any special requests?"
-                                    rows={2}
-                                    className="w-full px-4 py-3 border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none bg-white text-stone-900 placeholder-stone-400"
-                                />
-                            </div>
+                                    {otpError && (
+                                        <div className="bg-red-50 text-red-700 rounded-xl p-3 text-sm">
+                                            {otpError}
+                                        </div>
+                                    )}
 
-                            {/* Payment Notice */}
-                            <div className="bg-blue-50 rounded-xl p-4">
-                                <p className="text-blue-800 text-sm">
-                                    <strong>💳 Payment:</strong> Please pay at the counter after placing your order.
-                                </p>
-                            </div>
+                                    <button
+                                        onClick={verifyOtp}
+                                        disabled={otpLoading || otpCode.length !== 6}
+                                        className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold py-4 rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                    >
+                                        {otpLoading ? (
+                                            <>
+                                                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                                Verifying...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <FiCheck className="w-5 h-5" />
+                                                Verify Code
+                                            </>
+                                        )}
+                                    </button>
 
-                            {/* Submit Button */}
-                            <button
-                                onClick={submitOrder}
-                                disabled={submitting || !customerPhone || (orderType === 'dine_in' && !tableNumber)}
-                                className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold py-4 rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                            >
-                                {submitting ? (
-                                    <>
-                                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                        Placing Order...
-                                    </>
-                                ) : (
-                                    <>
-                                        <FiSend className="w-5 h-5" />
-                                        Place Order - {formatPrice(cartTotal)}
-                                    </>
-                                )}
-                            </button>
+                                    {/* Resend */}
+                                    <div className="text-center">
+                                        {otpCountdown > 0 ? (
+                                            <p className="text-stone-400 text-sm">
+                                                Resend code in <span className="font-bold text-stone-600">{otpCountdown}s</span>
+                                            </p>
+                                        ) : (
+                                            <button
+                                                onClick={requestOtp}
+                                                disabled={otpLoading}
+                                                className="text-amber-600 hover:text-amber-700 font-medium text-sm"
+                                            >
+                                                Resend Code
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    <div className="bg-blue-50 rounded-xl p-4">
+                                        <p className="text-blue-800 text-sm">
+                                            <strong>💡 Tip:</strong> Check your Telegram bot for the code, or look at the console output if testing locally.
+                                        </p>
+                                    </div>
+                                </>
+                            )}
+
+                            {/* ========== STEP 3: Checkout Confirm ========== */}
+                            {otpStep === 'checkout' && (
+                                <>
+                                    {/* Verified Badge */}
+                                    <div className="bg-green-50 border border-green-200 rounded-xl p-3 flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <FiCheck className="w-5 h-5 text-green-600" />
+                                            <span className="text-green-800 font-medium text-sm">
+                                                Verified: {verifiedPhone}
+                                            </span>
+                                        </div>
+                                        <button
+                                            onClick={changePhone}
+                                            className="text-xs text-stone-500 hover:text-stone-700 underline"
+                                        >
+                                            Change
+                                        </button>
+                                    </div>
+
+                                    {/* Order Summary */}
+                                    <div className="bg-stone-50 rounded-xl p-4">
+                                        <h3 className="font-bold text-stone-700 mb-3">Order Summary</h3>
+                                        <div className="space-y-2">
+                                            {cart.map((item) => (
+                                                <div key={item.id} className="flex justify-between text-sm">
+                                                    <span>{item.quantity}x {item.menuItem.name} ({item.size.toUpperCase()})</span>
+                                                    <span className="font-medium">{formatPrice(getItemPrice(item.menuItem, item.size) * item.quantity)}</span>
+                                                </div>
+                                            ))}
+                                            <div className="border-t border-stone-200 pt-2 mt-2 flex justify-between font-bold">
+                                                <span>Total</span>
+                                                <span className="text-amber-600">{formatPrice(cartTotal)}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Order Type */}
+                                    <div>
+                                        <label className="block text-sm font-bold text-stone-700 mb-2">Order Type</label>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <button
+                                                type="button"
+                                                onClick={() => setOrderType('takeaway')}
+                                                className={`p-4 rounded-xl border-2 transition ${orderType === 'takeaway' ? 'border-amber-500 bg-amber-50' : 'border-stone-200 hover:border-amber-300'}`}
+                                            >
+                                                <FiPackage className="w-8 h-8 mx-auto mb-1 text-amber-600" />
+                                                <span className="font-medium">Takeaway</span>
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setOrderType('dine_in')}
+                                                className={`p-4 rounded-xl border-2 transition ${orderType === 'dine_in' ? 'border-amber-500 bg-amber-50' : 'border-stone-200 hover:border-amber-300'}`}
+                                            >
+                                                <FiUsers className="w-8 h-8 mx-auto mb-1 text-amber-600" />
+                                                <span className="font-medium">Dine-In</span>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Table Number (for dine-in) */}
+                                    {orderType === 'dine_in' && (
+                                        <div>
+                                            <label className="block text-sm font-bold text-stone-700 mb-2">Table Number *</label>
+                                            <input
+                                                type="number"
+                                                value={tableNumber}
+                                                onChange={(e) => setTableNumber(e.target.value)}
+                                                placeholder="Enter your table number"
+                                                className="w-full px-4 py-3 border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-stone-900 placeholder-stone-400"
+                                            />
+                                        </div>
+                                    )}
+
+                                    {/* Name */}
+                                    <div>
+                                        <label className="block text-sm font-bold text-stone-700 mb-2">Your Name (Optional)</label>
+                                        <input
+                                            type="text"
+                                            value={customerName}
+                                            onChange={(e) => setCustomerName(e.target.value)}
+                                            placeholder="Enter your name"
+                                            className="w-full px-4 py-3 border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-stone-900 placeholder-stone-400"
+                                        />
+                                    </div>
+
+                                    {/* Notes */}
+                                    <div>
+                                        <label className="block text-sm font-bold text-stone-700 mb-2">Special Instructions (Optional)</label>
+                                        <textarea
+                                            value={orderNotes}
+                                            onChange={(e) => setOrderNotes(e.target.value)}
+                                            placeholder="Any special requests?"
+                                            rows={2}
+                                            className="w-full px-4 py-3 border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none bg-white text-stone-900 placeholder-stone-400"
+                                        />
+                                    </div>
+
+                                    {/* Payment Notice */}
+                                    <div className="bg-blue-50 rounded-xl p-4">
+                                        <p className="text-blue-800 text-sm">
+                                            <strong>💳 Payment:</strong> Please pay at the counter after placing your order.
+                                        </p>
+                                    </div>
+
+                                    {/* Submit Button */}
+                                    <button
+                                        onClick={submitOrder}
+                                        disabled={submitting || (orderType === 'dine_in' && !tableNumber)}
+                                        className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold py-4 rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                    >
+                                        {submitting ? (
+                                            <>
+                                                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                                Placing Order...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <FiSend className="w-5 h-5" />
+                                                Place Order - {formatPrice(cartTotal)}
+                                            </>
+                                        )}
+                                    </button>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>
