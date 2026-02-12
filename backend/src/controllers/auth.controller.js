@@ -37,9 +37,10 @@ const login = async (req, res, next) => {
         }
 
         // Generate JWT token
+        const secret = process.env.JWT_SECRET || 'myshop_fallback_secret_for_production_safety';
         const token = jwt.sign(
             { userId: user.id, role: user.role },
-            process.env.JWT_SECRET,
+            secret,
             { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
         );
 
