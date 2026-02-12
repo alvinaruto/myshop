@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        const shift = await models.CafeShift.create({
+        const shift = await (models.CafeShift as any).create({
             cashier_id,
             opening_cash_usd: opening_cash_usd || 0,
             opening_cash_khr: opening_cash_khr || 0,

@@ -33,6 +33,12 @@ export async function GET(request: NextRequest) {
             ];
         }
 
+        const shift = await (models.CafeShift as any).create({
+            where,
+            include: [{ model: models.MenuCategory, as: 'category' }],
+            order: [['start_time', 'ASC']]
+        });
+
         const happyHours = await models.HappyHour.findAll({
             where,
             include: [{ model: models.MenuCategory, as: 'category' }],
@@ -84,7 +90,7 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        const happyHour = await models.HappyHour.create({
+        const happyHour = await (models.HappyHour as any).create({
             name,
             description,
             discount_type: discount_type || 'percentage',

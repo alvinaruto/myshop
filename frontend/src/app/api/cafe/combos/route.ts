@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        const combo = await models.MenuCombo.create({
+        const combo = await (models.MenuCombo as any).create({
             name,
             name_kh,
             description,

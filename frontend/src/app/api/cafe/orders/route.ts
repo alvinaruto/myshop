@@ -178,7 +178,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Create order
-        const order = await models.CafeOrder.create({
+        const order = await (models.CafeOrder as any).create({
             cashier_id: cashier_id || null,
             subtotal_usd: subtotal,
             total_usd: totalUsd,
@@ -194,7 +194,7 @@ export async function POST(request: NextRequest) {
 
         // Create order items
         for (const item of orderItems) {
-            await models.CafeOrderItem.create({
+            await (models.CafeOrderItem as any).create({
                 order_id: (order as any).id,
                 ...item
             }, { transaction });
