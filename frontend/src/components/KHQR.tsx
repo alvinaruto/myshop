@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { generateKHQR, DEFAULT_KHQR_CONFIG, generateMd5 } from '@/lib/khqr.util';
+import axios from 'axios';
 import { toast } from 'react-hot-toast';
 
 interface KHQRProps {
@@ -10,8 +11,11 @@ interface KHQRProps {
     onPaymentSuccess?: (data: any) => void;
 }
 
+const BAKONG_PROXY_URL = 'https://bakong-proxy.alvinmara7.workers.dev';
+
 export const KHQR = ({ amount, currency, billNumber, onPaymentSuccess }: KHQRProps) => {
     const [status, setStatus] = useState<'pending' | 'success'>('pending');
+    const pollTimerRef = useRef<NodeJS.Timeout | null>(null);
 
     const khqrString = generateKHQR({
         amount,
@@ -23,9 +27,44 @@ export const KHQR = ({ amount, currency, billNumber, onPaymentSuccess }: KHQRPro
         billNumber: billNumber,
     });
 
+    const md5 = generateMd5(khqrString);
+
+    // Polling effect
+    useEffect(() => {
+        if (status === 'success') return;
+
+        const checkPayment = async () => {
+            try {
+                const response = await axios.post(BAKONG_PROXY_URL, {
+                    md5: md5,
+                    externalRef: billNumber
+                });
+
+                if (response.data.success) {
+                    setStatus('success');
+                    toast.success('Payment Verified Automatically!');
+                    if (onPaymentSuccess) {
+                        onPaymentSuccess(response.data.data);
+                    }
+                } else {
+                    pollTimerRef.current = setTimeout(checkPayment, 3000);
+                }
+            } catch (error) {
+                // Silently retry, as polling is expected to fail until paid
+                // We don't want to spam toast errors for polling
+                pollTimerRef.current = setTimeout(checkPayment, 5000);
+            }
+        };
+
+        pollTimerRef.current = setTimeout(checkPayment, 3000);
+        return () => {
+            if (pollTimerRef.current) clearTimeout(pollTimerRef.current);
+        };
+    }, [md5, billNumber, status, onPaymentSuccess]);
+
     const handleConfirmPayment = () => {
         setStatus('success');
-        toast.success('Payment Confirmed!');
+        toast.success('Payment Confirmed Manually!');
         if (onPaymentSuccess) {
             onPaymentSuccess({
                 confirmed: true,
