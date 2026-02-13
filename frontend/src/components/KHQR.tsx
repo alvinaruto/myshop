@@ -62,21 +62,6 @@ export const KHQR = ({ amount, currency, billNumber, onPaymentSuccess }: KHQRPro
         };
     }, [md5, billNumber, status, onPaymentSuccess]);
 
-    const handleConfirmPayment = () => {
-        setStatus('success');
-        toast.success('Payment Confirmed Manually!');
-        if (onPaymentSuccess) {
-            onPaymentSuccess({
-                confirmed: true,
-                method: 'manual',
-                billNumber,
-                amount,
-                currency,
-                timestamp: new Date().toISOString(),
-            });
-        }
-    };
-
     return (
         <div className="flex flex-col items-center">
             {/* KHQR Card Style */}
@@ -150,24 +135,31 @@ export const KHQR = ({ amount, currency, billNumber, onPaymentSuccess }: KHQRPro
                 )}
             </div>
 
-            {/* Confirm Payment Button */}
-            <div className="mt-6 text-center px-4 w-full">
+            {/* Verification Status */}
+            <div className="mt-8 text-center px-4 w-full">
                 {status === 'pending' ? (
-                    <>
-                        <p className="text-xs text-stone-400 font-medium mb-3">
-                            After customer has paid, tap below to confirm
+                    <div className="flex flex-col items-center gap-2">
+                        <div className="flex items-center gap-2 text-stone-400 font-medium">
+                            <svg className="animate-spin h-4 w-4 text-stone-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span className="text-xs">Waiting for payment verification...</span>
+                        </div>
+                        <p className="text-[10px] text-stone-100 font-medium italic">
+                            Order will be processed once payment is confirmed.
                         </p>
-                        <button
-                            onClick={handleConfirmPayment}
-                            className="w-full py-3 px-6 bg-green-500 hover:bg-green-600 active:bg-green-700 text-white font-bold rounded-xl shadow-lg shadow-green-200 transition-all duration-200 text-sm uppercase tracking-wider"
-                        >
-                            ✓ Confirm Payment Received
-                        </button>
-                    </>
+                    </div>
                 ) : (
-                    <p className="text-xs text-green-500 font-bold uppercase tracking-wider">
-                        Payment confirmed! Processing your order...
-                    </p>
+                    <div className="animate-in fade-in zoom-in duration-500 flex flex-col items-center gap-1">
+                        <p className="text-sm text-green-600 font-black uppercase tracking-widest flex items-center gap-2">
+                            <span className="bg-green-100 p-1 rounded-full">✓</span>
+                            Payment Verified!
+                        </p>
+                        <p className="text-xs text-stone-500 font-medium italic">
+                            Processing your order now...
+                        </p>
+                    </div>
                 )}
             </div>
         </div>
