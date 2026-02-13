@@ -39,16 +39,21 @@ export const KHQR = ({ amount, currency, billNumber, onPaymentSuccess }: KHQRPro
 
         const checkPayment = async () => {
             try {
-                const response = await axios.post(BAKONG_PROXY_URL, {
-                    md5: md5,
-                    externalRef: billNumber
+                const response = await fetch(BAKONG_PROXY_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Bypass-Tunnel-Reminder': 'true',
+                    },
+                    body: JSON.stringify({ md5, externalRef: billNumber }),
                 });
+                const data = await response.json();
 
-                if (response.data.success) {
+                if (data.success) {
                     setStatus('success');
                     toast.success('Payment Verified Automatically!');
                     if (onPaymentSuccess) {
-                        onPaymentSuccess(response.data.data);
+                        onPaymentSuccess(data.data);
                     }
                 } else {
                     pollTimerRef.current = setTimeout(checkPayment, 3000);
