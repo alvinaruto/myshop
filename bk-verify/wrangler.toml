@@ -1,0 +1,6 @@
+name = "bk-verify"
+main = "src/worker.js"
+compatibility_date = "2024-01-01"
+
+[vars]
+BAKONG_API_URL = "https://api-bakong.nbc.gov.kh/v1"

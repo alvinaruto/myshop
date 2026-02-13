@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { generateKHQR, DEFAULT_KHQR_CONFIG, generateMd5 } from '@/lib/khqr.util';
-import axios from 'axios';
 import { toast } from 'react-hot-toast';
 
 interface KHQRProps {
@@ -13,7 +12,9 @@ interface KHQRProps {
 
 // Helper to get the current proxy URL from localStorage or env
 const getProxyUrl = () => {
+    // Priority: 1. LocalStorage (for manual testing) 2. NextPublic Env (for easier config) 3. Hardcoded Fallback
     if (typeof window === 'undefined') return 'https://bk-verify.alvinmara7.workers.dev/';
+
     return localStorage.getItem('bakong_proxy_url')
         || process.env.NEXT_PUBLIC_BAKONG_PROXY_URL
         || 'https://bk-verify.alvinmara7.workers.dev/';
@@ -22,6 +23,11 @@ const getProxyUrl = () => {
 export const KHQR = ({ amount, currency, billNumber, onPaymentSuccess }: KHQRProps) => {
     const [status, setStatus] = useState<'pending' | 'success'>('pending');
     const pollTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+    // Official proportions based on 20:29 ratio
+    // If width is 280, height should be 406
+    const cardWidth = 280;
+    const cardHeight = Math.round((cardWidth / 20) * 29); // 406
 
     const khqrString = generateKHQR({
         amount,
@@ -41,7 +47,6 @@ export const KHQR = ({ amount, currency, billNumber, onPaymentSuccess }: KHQRPro
 
         const checkPayment = async () => {
             const currentProxy = getProxyUrl();
-            console.log(`[KHQR] Polling via: ${currentProxy}`);
 
             try {
                 const response = await fetch(currentProxy, {
@@ -65,8 +70,6 @@ export const KHQR = ({ amount, currency, billNumber, onPaymentSuccess }: KHQRPro
                     pollTimerRef.current = setTimeout(checkPayment, 3000);
                 }
             } catch (error) {
-                // Silently retry, as polling is expected to fail until paid
-                // We don't want to spam toast errors for polling
                 pollTimerRef.current = setTimeout(checkPayment, 5000);
             }
         };
@@ -79,69 +82,85 @@ export const KHQR = ({ amount, currency, billNumber, onPaymentSuccess }: KHQRPro
 
     return (
         <div className="flex flex-col items-center">
-            {/* KHQR Card Style */}
-            <div className="w-[280px] bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-stone-100 flex flex-col relative">
-                {/* Red Header */}
-                <div className="bg-[#E31B23] pt-6 pb-8 px-6 relative">
-                    <div className="flex justify-center mb-1">
-                        <span className="text-white font-black text-2xl tracking-tighter italic">KHQR</span>
+            {/* Import Nunito Sans for official branding */}
+            <style jsx global>{`
+                @import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700;900&display=swap');
+                .khqr-card {
+                    font-family: 'Nunito Sans', sans-serif;
+                }
+            `}</style>
+
+            {/* Official KHQR Card Style (20:29 Ratio) */}
+            <div
+                className="khqr-card bg-white rounded-[1.5rem] shadow-2xl overflow-hidden flex flex-col relative border border-stone-100"
+                style={{ width: `${cardWidth}px`, height: `${cardHeight}px` }}
+            >
+                {/* Official RED Header: #E1232E */}
+                <div className="bg-[#E1232E] pt-5 pb-7 px-6 relative">
+                    <div className="flex justify-center">
+                        <span className="text-white font-black text-2xl italic tracking-tighter">KHQR</span>
                     </div>
-                    {/* Decorative Cutout (Right bottom of red part) */}
-                    <div className="absolute right-0 bottom-0 w-8 h-8 bg-white" style={{ clipPath: 'polygon(100% 100%, 0 100%, 100% 0)' }}></div>
                 </div>
 
-                {/* Merchant Info Section */}
-                <div className="px-8 pt-6 pb-2">
-                    <p className="text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-1">
-                        {DEFAULT_KHQR_CONFIG.merchantName}
-                    </p>
-                    <p className="text-3xl font-black text-stone-900 leading-none">
-                        {currency === 'USD' ? '$' : ''}{amount}{currency === 'KHR' ? '៛' : ''}
-                    </p>
-                </div>
+                {/* White Body */}
+                <div className="flex-1 px-8 flex flex-col">
+                    {/* Merchant Info: Left Aligned as per Guideline */}
+                    <div className="pt-6 pb-2 text-left">
+                        <p
+                            className="font-bold text-stone-400 uppercase tracking-widest leading-none mb-1"
+                            style={{ fontSize: `${cardHeight * 0.03}px` }} // 3% of Height
+                        >
+                            {DEFAULT_KHQR_CONFIG.merchantName}
+                        </p>
+                        <p
+                            className="font-black text-stone-900 leading-tight"
+                            style={{ fontSize: `${cardHeight * 0.065}px` }} // 6.5% of Height
+                        >
+                            {currency === 'USD' ? '$' : ''}{amount.toFixed(2)}{currency === 'KHR' ? '៛' : ''}
+                        </p>
+                    </div>
 
-                {/* Dashed Divider */}
-                <div className="px-6 my-4">
-                    <div className="border-t-2 border-dashed border-stone-200"></div>
-                </div>
+                    {/* QR Code Section */}
+                    <div className="flex-1 flex flex-col items-center justify-center -mt-2">
+                        <div className="relative p-2 bg-white rounded-xl shadow-sm border border-stone-50">
+                            <QRCodeSVG
+                                value={khqrString}
+                                size={180}
+                                level="H"
+                                includeMargin={false}
+                                imageSettings={{
+                                    src: "https://bakong.nbc.gov.kh/images/bakong_logo.png",
+                                    height: 32,
+                                    width: 32,
+                                    excavate: false,
+                                }}
+                            />
 
-                {/* QR Code Section */}
-                <div className="px-8 pb-10 flex flex-col items-center">
-                    <div className="relative p-2 bg-white rounded-xl shadow-sm border border-stone-50">
-                        <QRCodeSVG
-                            value={khqrString}
-                            size={180}
-                            level="H"
-                            includeMargin={false}
-                            imageSettings={{
-                                src: "https://bakong.nbc.gov.kh/images/bakong_logo.png",
-                                height: 32,
-                                width: 32,
-                                excavate: false,
-                            }}
-                        />
-
-                        {/* Status Overlay */}
-                        {status === 'success' && (
-                            <div className="absolute inset-0 flex items-center justify-center bg-white/90 rounded-xl z-20">
-                                <div className="flex flex-col items-center animate-in zoom-in duration-300">
-                                    <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center shadow-lg shadow-green-200 mb-2">
-                                        <span className="text-white text-3xl">✓</span>
+                            {/* Status Overlay */}
+                            {status === 'success' && (
+                                <div className="absolute inset-0 flex items-center justify-center bg-white/90 rounded-xl z-20">
+                                    <div className="flex flex-col items-center animate-in zoom-in duration-300">
+                                        <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center shadow-lg shadow-green-200 mb-2">
+                                            <span className="text-white text-3xl">✓</span>
+                                        </div>
+                                        <span className="text-green-600 font-black uppercase text-sm tracking-widest">Paid</span>
                                     </div>
-                                    <span className="text-green-600 font-black uppercase text-sm tracking-widest">Paid</span>
                                 </div>
-                            </div>
-                        )}
+                            )}
+                        </div>
                     </div>
 
-                    <p className="mt-6 text-[9px] text-center text-stone-400 font-bold uppercase tracking-wider leading-relaxed">
-                        Scan to pay with Bakong<br />or any mobile banking app
-                    </p>
+                    {/* Footer Instructions */}
+                    <div className="pb-8 text-center">
+                        <p className="text-[10px] text-stone-400 font-bold uppercase tracking-wider leading-relaxed">
+                            Scan to pay with Bakong<br />or any mobile banking app
+                        </p>
+                    </div>
                 </div>
 
                 {/* Floating Bakong Pulse (Waiting state) */}
                 {status === 'pending' && (
-                    <div className="absolute top-[165px] right-6">
+                    <div className="absolute top-[160px] right-6">
                         <div className="relative">
                             <div className="absolute inset-0 bg-red-500 rounded-full animate-ping opacity-25"></div>
                             <div className="w-3 h-3 bg-red-500 rounded-full relative z-10"></div>
@@ -150,7 +169,7 @@ export const KHQR = ({ amount, currency, billNumber, onPaymentSuccess }: KHQRPro
                 )}
             </div>
 
-            {/* Verification Status */}
+            {/* Verification Status Text */}
             <div className="mt-8 text-center px-4 w-full">
                 {status === 'pending' ? (
                     <div className="flex flex-col items-center gap-2">
@@ -161,18 +180,12 @@ export const KHQR = ({ amount, currency, billNumber, onPaymentSuccess }: KHQRPro
                             </svg>
                             <span className="text-xs">Waiting for payment verification...</span>
                         </div>
-                        <p className="text-[10px] text-stone-100 font-medium italic">
-                            Order will be processed once payment is confirmed.
-                        </p>
                     </div>
                 ) : (
                     <div className="animate-in fade-in zoom-in duration-500 flex flex-col items-center gap-1">
                         <p className="text-sm text-green-600 font-black uppercase tracking-widest flex items-center gap-2">
                             <span className="bg-green-100 p-1 rounded-full">✓</span>
                             Payment Verified!
-                        </p>
-                        <p className="text-xs text-stone-500 font-medium italic">
-                            Processing your order now...
                         </p>
                     </div>
                 )}
