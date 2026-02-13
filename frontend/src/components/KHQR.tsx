@@ -1,7 +1,6 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { generateKHQR, DEFAULT_KHQR_CONFIG, generateMd5 } from '@/lib/khqr.util';
-import axios from 'axios';
 import { toast } from 'react-hot-toast';
 
 interface KHQRProps {
@@ -12,8 +11,7 @@ interface KHQRProps {
 }
 
 export const KHQR = ({ amount, currency, billNumber, onPaymentSuccess }: KHQRProps) => {
-    const [status, setStatus] = useState<'pending' | 'success' | 'error'>('pending');
-    const pollTimerRef = useRef<NodeJS.Timeout | null>(null);
+    const [status, setStatus] = useState<'pending' | 'success'>('pending');
 
     const khqrString = generateKHQR({
         amount,
@@ -25,39 +23,20 @@ export const KHQR = ({ amount, currency, billNumber, onPaymentSuccess }: KHQRPro
         billNumber: billNumber,
     });
 
-    const md5 = generateMd5(khqrString);
-
-    // Polling effect
-    useEffect(() => {
-        if (status === 'success') return;
-
-        const checkPayment = async () => {
-            try {
-                const response = await axios.post('/api/sales/verify-khqr', {
-                    md5: md5,
-                    externalRef: billNumber
-                });
-
-                if (response.data.success) {
-                    setStatus('success');
-                    toast.success('Payment Verified Successfully!');
-                    if (onPaymentSuccess) {
-                        onPaymentSuccess(response.data.data);
-                    }
-                } else {
-                    pollTimerRef.current = setTimeout(checkPayment, 3000);
-                }
-            } catch (error) {
-                console.error('Error checking payment:', error);
-                pollTimerRef.current = setTimeout(checkPayment, 5000);
-            }
-        };
-
-        pollTimerRef.current = setTimeout(checkPayment, 3000);
-        return () => {
-            if (pollTimerRef.current) clearTimeout(pollTimerRef.current);
-        };
-    }, [md5, billNumber, status, onPaymentSuccess]);
+    const handleConfirmPayment = () => {
+        setStatus('success');
+        toast.success('Payment Confirmed!');
+        if (onPaymentSuccess) {
+            onPaymentSuccess({
+                confirmed: true,
+                method: 'manual',
+                billNumber,
+                amount,
+                currency,
+                timestamp: new Date().toISOString(),
+            });
+        }
+    };
 
     return (
         <div className="flex flex-col items-center">
@@ -132,11 +111,25 @@ export const KHQR = ({ amount, currency, billNumber, onPaymentSuccess }: KHQRPro
                 )}
             </div>
 
-            {/* Manual Confirmation (Fallback / Waiting) */}
-            <div className="mt-8 text-center px-4">
-                <p className="text-xs text-stone-400 font-medium italic">
-                    {status === 'pending' ? "Waiting for payment verification..." : "Payment confirmed! Processing your order..."}
-                </p>
+            {/* Confirm Payment Button */}
+            <div className="mt-6 text-center px-4 w-full">
+                {status === 'pending' ? (
+                    <>
+                        <p className="text-xs text-stone-400 font-medium mb-3">
+                            After customer has paid, tap below to confirm
+                        </p>
+                        <button
+                            onClick={handleConfirmPayment}
+                            className="w-full py-3 px-6 bg-green-500 hover:bg-green-600 active:bg-green-700 text-white font-bold rounded-xl shadow-lg shadow-green-200 transition-all duration-200 text-sm uppercase tracking-wider"
+                        >
+                            ✓ Confirm Payment Received
+                        </button>
+                    </>
+                ) : (
+                    <p className="text-xs text-green-500 font-bold uppercase tracking-wider">
+                        Payment confirmed! Processing your order...
+                    </p>
+                )}
             </div>
         </div>
     );
