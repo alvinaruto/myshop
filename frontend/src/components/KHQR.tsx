@@ -44,6 +44,7 @@ export const KHQR = ({ amount, currency, billNumber, onPaymentSuccess }: KHQRPro
                     headers: {
                         'Content-Type': 'application/json',
                         'Bypass-Tunnel-Reminder': 'true',
+                        'ngrok-skip-browser-warning': 'true',
                     },
                     body: JSON.stringify({ md5, externalRef: billNumber }),
                 });
