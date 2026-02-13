@@ -33,7 +33,7 @@ export const KHQR = ({ amount, currency, billNumber, onPaymentSuccess }: KHQRPro
 
         const checkPayment = async () => {
             try {
-                const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}/api/sales/verify-khqr`, {
+                const response = await axios.post('/api/sales/verify-khqr', {
                     md5: md5,
                     externalRef: billNumber
                 });

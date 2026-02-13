@@ -613,7 +613,7 @@ public final class DaggerMyShopApplication_HiltComponents_SingletonC {
     }
 
     @Override
-    public void injectMyShopApplication(MyShopApplication arg0) {
+    public void injectMyShopApplication(MyShopApplication myShopApplication) {
     }
 
     @Override

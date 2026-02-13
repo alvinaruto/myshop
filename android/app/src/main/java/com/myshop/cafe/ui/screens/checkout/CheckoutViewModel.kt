@@ -98,13 +98,14 @@ class CheckoutViewModel @Inject constructor(
         
         if (show) {
             // Generate KHQR
+            val billNo = "CAFE${System.currentTimeMillis().toString().takeLast(8)}"
             val khqr = KhqrUtil.generateKhqr(
                 KhqrUtil.KhqrConfig(
                     amount = state.totalPrice,
                     currency = "USD",
-                    merchantName = "Alvin Cafe", // TODO: Get from config
-                    accountNumber = "012345678", // TODO: Get from config
-                    merchantCity = "PHNOM PENH"
+                    merchantName = "MY SHOP",
+                    accountNumber = "lavin_mara@bkrt",
+                    billNumber = billNo
                 )
             )
             val md5 = KhqrUtil.generateMd5(khqr)

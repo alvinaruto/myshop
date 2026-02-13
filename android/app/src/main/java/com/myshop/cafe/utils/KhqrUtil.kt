@@ -9,79 +9,23 @@ import java.security.MessageDigest
 
 object KhqrUtil {
 
-    private const val BANK_ACLEDA = "khqr@aclb"
-    private const val BANK_ABA = "khqr@aba"
-    private const val BANK_WING = "khqr@wing"
-    private const val BANK_BAKONG = "bakong@nbc"
-
     data class KhqrConfig(
         val amount: Double,
         val currency: String = "USD", // USD or KHR
         val merchantName: String,
         val accountNumber: String,
-        val bankCode: String = "ACLEDA",
         val merchantCity: String = "PHNOM PENH",
         val billNumber: String? = null
     )
-
-    fun generateKhqr(config: KhqrConfig): String {
-        var khqr = formatTlv("00", "01")
-        
-        // Dynamic QR (12) if amount > 0, else Static (11)
-        khqr += formatTlv("01", if (config.amount > 0) "12" else "11")
-
-        // 30. Merchant Account Information
-        val acquirerId = when (config.bankCode) {
-            "ABA" -> BANK_ABA
-            "WING" -> BANK_WING
-            "BAKONG" -> BANK_BAKONG
-            else -> BANK_ACLEDA
-        }
-
-        val merchantAccountInfo = formatTlv("00", acquirerId) +
-                formatTlv("01", config.accountNumber) +
-                formatTlv("02", config.bankCode)
-        
-        khqr += formatTlv("30", merchantAccountInfo)
-        
-        // 52. Merchant Category Code
-        khqr += formatTlv("52", "2000")
-        
-        // 53. Transaction Currency
-        khqr += formatTlv("53", if (config.currency == "USD") "840" else "116")
-        
-        // 54. Transaction Amount
-        if (config.amount > 0) {
-            khqr += formatTlv("54", String.format("%.2f", config.amount))
-        }
-        
-        // 58. Country Code
-        khqr += formatTlv("58", "KH")
-        
-        // 59. Merchant Name
-        khqr += formatTlv("59", config.merchantName.take(25).uppercase())
-        
-        // 60. Merchant City
-        khqr += formatTlv("60", config.merchantCity.uppercase())
-        
-        // 62. Additional Data
-        if (config.billNumber != null) {
-            val additionalData = formatTlv("02", config.billNumber)
-            khqr += formatTlv("62", additionalData)
-        }
-        
-        // 63. CRC
-        khqr += "6304"
-        khqr += calculateCrc16(khqr)
-        
-        return khqr
-    }
 
     private fun formatTlv(tag: String, value: String): String {
         val length = value.length.toString().padStart(2, '0')
         return "$tag$length$value"
     }
 
+    /**
+     * CRC16-CCITT implementation for KHQR
+     */
     private fun calculateCrc16(data: String): String {
         var crc = 0xFFFF
         for (char in data) {
@@ -96,6 +40,60 @@ object KhqrUtil {
             }
         }
         return (crc and 0xFFFF).toString(16).uppercase().padStart(4, '0')
+    }
+
+    /**
+     * Generates a KHQR string following the BSTHEN pattern (Manual Tag Builder)
+     */
+    fun generateKhqr(config: KhqrConfig): String {
+        var khqr = ""
+
+        // Tag 00: Payload Format Indicator
+        khqr += formatTlv("00", "01")
+
+        // Tag 01: Point of Initiation Method (11 for Static, 12 for Dynamic)
+        val isDynamic = config.amount > 0
+        khqr += formatTlv("01", if (isDynamic) "12" else "11")
+
+        // Tag 29: Merchant Account Information (Individual)
+        val tag29Value = formatTlv("00", config.accountNumber)
+        khqr += formatTlv("29", tag29Value)
+
+        // Tag 52: Merchant Category Code
+        khqr += formatTlv("52", "5999")
+
+        // Tag 53: Transaction Currency (840 for USD, 116 for KHR)
+        khqr += formatTlv("53", if (config.currency == "USD") "840" else "116")
+
+        // Tag 54: Transaction Amount
+        if (isDynamic) {
+            khqr += formatTlv("54", String.format("%.2f", config.amount))
+        }
+
+        // Tag 58: Country Code
+        khqr += formatTlv("58", "KH")
+
+        // Tag 59: Merchant Name
+        khqr += formatTlv("59", config.merchantName)
+
+        // Tag 60: Merchant City
+        khqr += formatTlv("60", config.merchantCity)
+
+        // Tag 62: Additional Data Field Template
+        var tag62Value = ""
+        if (config.billNumber != null) tag62Value += formatTlv("01", config.billNumber)
+        tag62Value += formatTlv("02", "078211599") // Mobile Number
+        tag62Value += formatTlv("03", config.merchantName) // Store Label
+
+        if (tag62Value.isNotEmpty()) {
+            khqr += formatTlv("62", tag62Value)
+        }
+
+        // Final Tag 63: CRC
+        khqr += "6304"
+        khqr += calculateCrc16(khqr)
+
+        return khqr
     }
 
     fun generateMd5(input: String): String {
