@@ -11,11 +11,13 @@ interface KHQRProps {
     onPaymentSuccess?: (data: any) => void;
 }
 
-// Use a configurable proxy URL. This can be overridden in the browser console using:
-// localStorage.setItem('bakong_proxy_url', 'https://your-ngrok-url.com/')
-const BAKONG_PROXY_URL = (typeof window !== 'undefined' && localStorage.getItem('bakong_proxy_url'))
-    || process.env.NEXT_PUBLIC_BAKONG_PROXY_URL
-    || 'https://bk-verify.alvinmara7.workers.dev/';
+// Helper to get the current proxy URL from localStorage or env
+const getProxyUrl = () => {
+    if (typeof window === 'undefined') return 'https://bk-verify.alvinmara7.workers.dev/';
+    return localStorage.getItem('bakong_proxy_url')
+        || process.env.NEXT_PUBLIC_BAKONG_PROXY_URL
+        || 'https://bk-verify.alvinmara7.workers.dev/';
+};
 
 export const KHQR = ({ amount, currency, billNumber, onPaymentSuccess }: KHQRProps) => {
     const [status, setStatus] = useState<'pending' | 'success'>('pending');
@@ -38,8 +40,11 @@ export const KHQR = ({ amount, currency, billNumber, onPaymentSuccess }: KHQRPro
         if (status === 'success') return;
 
         const checkPayment = async () => {
+            const currentProxy = getProxyUrl();
+            console.log(`[KHQR] Polling via: ${currentProxy}`);
+
             try {
-                const response = await fetch(BAKONG_PROXY_URL, {
+                const response = await fetch(currentProxy, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
