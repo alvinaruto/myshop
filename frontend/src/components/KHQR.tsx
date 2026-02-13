@@ -11,7 +11,11 @@ interface KHQRProps {
     onPaymentSuccess?: (data: any) => void;
 }
 
-const BAKONG_PROXY_URL = 'https://bk-verify.alvinmara7.workers.dev/';
+// Use a configurable proxy URL. This can be overridden in the browser console using:
+// localStorage.setItem('bakong_proxy_url', 'https://your-ngrok-url.com/')
+const BAKONG_PROXY_URL = (typeof window !== 'undefined' && localStorage.getItem('bakong_proxy_url'))
+    || process.env.NEXT_PUBLIC_BAKONG_PROXY_URL
+    || 'https://bk-verify.alvinmara7.workers.dev/';
 
 export const KHQR = ({ amount, currency, billNumber, onPaymentSuccess }: KHQRProps) => {
     const [status, setStatus] = useState<'pending' | 'success'>('pending');
