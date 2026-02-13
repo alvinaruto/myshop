@@ -8,7 +8,9 @@ let cachedToken = process.env.BAKONG_TOKEN || null;
 const bakongApi = axios.create({
     baseURL: BAKONG_API_URL,
     headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'User-Agent': 'MyShop/1.0'
     }
 });
 
