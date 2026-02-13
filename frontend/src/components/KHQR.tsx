@@ -11,7 +11,7 @@ interface KHQRProps {
     onPaymentSuccess?: (data: any) => void;
 }
 
-const BAKONG_PROXY_URL = 'https://bakong-proxy.alvinmara7.workers.dev';
+const BAKONG_PROXY_URL = 'https://bakong-proxy.alvinmara7.workers.dev/';
 
 export const KHQR = ({ amount, currency, billNumber, onPaymentSuccess }: KHQRProps) => {
     const [status, setStatus] = useState<'pending' | 'success'>('pending');
