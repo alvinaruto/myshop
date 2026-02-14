@@ -12,12 +12,12 @@ interface KHQRProps {
 
 // Helper to get the current proxy URL from localStorage or env
 const getProxyUrl = () => {
-    // Priority: 1. LocalStorage (for manual testing) 2. NextPublic Env (for easier config) 3. Hardcoded Fallback
-    if (typeof window === 'undefined') return 'https://bk-verify.alvinmara7.workers.dev/';
+    // Priority: 1. LocalStorage (for manual testing) 2. NextPublic Env (for easier config) 3. Ngrok/Local Fallback
+    if (typeof window === 'undefined') return 'https://risible-marcos-entertainedly.ngrok-free.dev';
 
     return localStorage.getItem('bakong_proxy_url')
         || process.env.NEXT_PUBLIC_BAKONG_PROXY_URL
-        || 'https://bk-verify.alvinmara7.workers.dev/';
+        || 'https://risible-marcos-entertainedly.ngrok-free.dev';
 };
 
 export const KHQR = ({ amount, currency, billNumber, onPaymentSuccess }: KHQRProps) => {
