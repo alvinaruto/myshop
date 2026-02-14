@@ -135,6 +135,7 @@ export default function CustomerMenuPage() {
     const [otpLoading, setOtpLoading] = useState(false);
     const [otpError, setOtpError] = useState<string | null>(null);
     const [otpCountdown, setOtpCountdown] = useState(0);
+    const [currentBillNumber, setCurrentBillNumber] = useState('');
 
     // Load saved auth from localStorage
     useEffect(() => {
@@ -1146,7 +1147,10 @@ export default function CustomerMenuPage() {
 
                                     {/* Next Step Button */}
                                     <button
-                                        onClick={() => setOtpStep('payment')}
+                                        onClick={() => {
+                                            setCurrentBillNumber(`CAFE${Date.now().toString().slice(-8)}`);
+                                            setOtpStep('payment');
+                                        }}
                                         disabled={orderType === 'dine_in' && !tableNumber}
                                         className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold py-4 rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                     >
@@ -1168,7 +1172,7 @@ export default function CustomerMenuPage() {
                                     <KHQR
                                         amount={cartTotal}
                                         currency="USD"
-                                        billNumber={`CAFE${Date.now().toString().slice(-8)}`}
+                                        billNumber={currentBillNumber}
                                         onPaymentSuccess={() => {
                                             // Automatically submit order on success
                                             submitOrder();
