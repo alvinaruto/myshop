@@ -1190,33 +1190,38 @@ export default function CustomerMenuPage() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid grid-cols-1 md:grid-cols-12 gap-16">
                         {/* Brand */}
+                        <div className="md:col-span-12 flex flex-col items-center text-center">
+                            <Link href="/" className="flex items-center gap-4 mb-8">
+                                <div className="w-12 h-12 border-2 border-gold rounded-xl flex items-center justify-center">
+                                    <span className="font-serif text-2xl font-black text-gold">B&B</span>
+                                </div>
+                                <span className="text-2xl font-serif font-black tracking-[0.2em]">BREW & BEAN</span>
+                            </Link>
+                            <p className="text-cream/40 max-w-sm mb-10 leading-relaxed text-lg">
+                                Your destination for artisan coffee and a moment of peace in Phnom Penh, Cambodia. 🇰🇭
+                            </p>
+                            <div className="flex items-center gap-2 text-gold/60">
+                                <FiMapPin className="w-5 h-5" />
+                                <span className="font-bold tracking-widest text-xs uppercase">64B street, Phnom Penh</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="mt-24 pt-12 border-t border-white/5 text-center text-cream/20 text-[10px] font-bold tracking-[0.5em] uppercase">
+                        © 2024 BREW & BEAN. All Rights Reserved.
                     </div>
                 </div>
+            </footer>
 
-                <div className="border-t border-white/10 mt-12 pt-8 text-center">
-                    <p className="text-amber-200/40 text-sm flex items-center justify-center gap-1">
-                        Made with <FiHeart className="w-4 h-4 text-red-400" /> in Cambodia
-                    </p>
-                    <Link href="/order-status" className="text-amber-400 hover:text-amber-300 text-sm mt-3 inline-block font-medium">
-                        Check Order Status →
-                    </Link>
-                </div>
-        </div>
-            </footer >
-
-        <style jsx>{`
+            <style jsx>{`
                 @keyframes slide-in-right {
-                    from {
-                        transform: translateX(100%);
-                    }
-                    to {
-                        transform: translateX(0);
-                    }
+                    from { transform: translateX(100%); }
+                    to { transform: translateX(0); }
                 }
                 .animate-slide-in-right {
                     animation: slide-in-right 0.3s ease-out;
                 }
             `}</style>
-        </div >
+        </div>
     );
 }
