@@ -75,10 +75,13 @@ const coffeeImages: Record<string, string> = {
     'salted cream': 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=800&q=80',
 
     // Blended / Frappes
-    'frappe': 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=800&q=80',
-    'java chip': 'https://images.unsplash.com/photo-1544145945-f904253db0ad?w=800&q=80',
+    'caramel frappe': '/images/coffee/caramel_frappe.png',
+    'chocolate frappe': '/images/coffee/chocolate_frappe.png',
+    'coffee frappe': '/images/coffee/coffee_frappe.png',
+    'java chip': '/images/coffee/java_chip_frappe.png',
     'oreo': 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=800&q=80',
     'taro': 'https://images.unsplash.com/photo-1628522338002-3ff94b130e92?w=800&q=80',
+    'frappe': '/images/coffee/coffee_frappe.png',
 
     // Teas
     'thai milk tea': 'https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=800&q=80',
