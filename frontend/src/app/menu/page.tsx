@@ -51,9 +51,9 @@ interface CartItem {
 // Premium Coffee & Drink Images from Unsplash
 const coffeeImages: Record<string, string> = {
     // Hot Coffee Specialties
-    'espresso': '/Users/alvin/.gemini/antigravity/brain/8d8568e4-715a-4515-9869-2da2954b8475/espresso_hot_v2_1771437610910.png',
+    'espresso': 'https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?w=800&q=80',
     'americano': 'https://images.unsplash.com/photo-1551030173-122adbb01f3a?w=800&q=80',
-    'cappuccino': 'https://images.unsplash.com/photo-1541167760496-16295558ad5c?w=800&q=80',
+    'cappuccino': 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=800&q=80',
     'latte': 'https://images.unsplash.com/photo-1536935338218-9bca6d274f3b?w=800&q=80',
     'mocha': 'https://images.unsplash.com/photo-1578314675249-a6910f80cc4e?w=800&q=80',
     'flat white': 'https://images.unsplash.com/photo-1577968897966-3d4325b36b61?w=800&q=80',

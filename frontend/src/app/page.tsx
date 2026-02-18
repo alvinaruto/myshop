@@ -54,7 +54,7 @@ export default function HomePage() {
                 {/* Background Image with Overlay */}
                 <div className="absolute inset-0 z-0">
                     <img
-                        src="/Users/alvin/.gemini/antigravity/brain/8d8568e4-715a-4515-9869-2da2954b8475/hero_coffee_pour_1771436903945.png"
+                        src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1600&q=80"
                         alt="Coffee Background"
                         className="w-full h-full object-cover opacity-60"
                     />
