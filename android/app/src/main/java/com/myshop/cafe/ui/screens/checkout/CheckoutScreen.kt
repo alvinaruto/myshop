@@ -33,9 +33,22 @@ import com.myshop.cafe.ui.theme.*
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalContext
+import android.content.Intent
+import android.net.Uri
+import android.widget.Toast
+import android.content.ClipboardManager
+import android.content.ClipData
+import android.content.Context
 import androidx.compose.ui.window.Dialog
 import com.myshop.cafe.utils.KhqrUtil
+
+val TealPay = Color(0xFF1B8A9E)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,6 +63,15 @@ fun CheckoutScreen(
     val backgroundColor = DarkNavy
     val cardColor = CardDark
     val inputColor = InputDark
+    val context = LocalContext.current
+    val currentDeepLink = uiState.deepLinkUrl
+    
+    // Auto-launch deep link when KHQR dialog is shown for ACLEDA Mobile
+    LaunchedEffect(uiState.showKhqr, currentDeepLink) {
+        if (uiState.showKhqr && currentDeepLink != null) {
+            launchDeepLink(context, currentDeepLink, uiState.khqrString ?: "")
+        }
+    }
     
     // Handle success
     LaunchedEffect(uiState.successOrder) {
@@ -102,152 +124,127 @@ fun CheckoutScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            // Order Summary
-            OrderSummaryCard(
-                items = uiState.items,
-                total = uiState.totalPrice
+            // 1. Summary Section (Mockup Style)
+            SummaryCard(total = uiState.totalPrice)
+            
+            // 2. Choose Payment Methods Section
+            PaymentMethodSection(
+                selectedMethod = uiState.selectedPaymentMethod,
+                onMethodSelect = viewModel::setPaymentMethod
             )
-            
-            // Order Type
-            OrderTypeSection(
-                selectedType = uiState.orderType,
-                onTypeSelect = viewModel::setOrderType
-            )
-            
-            // Table Number (for dine-in)
-            if (uiState.orderType == OrderType.DINE_IN) {
-                OutlinedTextField(
-                    value = uiState.tableNumber,
-                    onValueChange = viewModel::setTableNumber,
-                    label = { Text(stringResource(R.string.table_number) + " *", color = TextGray) },
-                    placeholder = { Text(stringResource(R.string.table_number_hint), color = TextGray) },
-                    modifier = Modifier.fillMaxWidth(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = inputColor,
-                        unfocusedContainerColor = inputColor,
-                        focusedBorderColor = BrownLight,
-                        unfocusedBorderColor = Color.Transparent,
-                        focusedTextColor = TextLight,
-                        unfocusedTextColor = TextLight,
-                        cursorColor = BrownLight
-                    )
-                )
-            }
-            
-            // Phone Number
-            Column {
+
+            // Table Number & Phone (Collapsible or simplified to keep focus on payment)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(cardColor, RoundedCornerShape(20.dp))
+                    .padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
                 Text(
-                    text = "Phone Number *",
+                    text = "Order Details",
                     style = MaterialTheme.typography.titleMedium,
-                    color = TextLight,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 8.dp)
+                    color = TextLight
                 )
+
+                if (uiState.orderType == OrderType.DINE_IN) {
+                    OutlinedTextField(
+                        value = uiState.tableNumber,
+                        onValueChange = viewModel::setTableNumber,
+                        label = { Text("Table Number *", color = TextGray) },
+                        modifier = Modifier.fillMaxWidth(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedContainerColor = inputColor,
+                            unfocusedContainerColor = inputColor,
+                            focusedBorderColor = BrownLight,
+                            unfocusedBorderColor = Color.Transparent,
+                            focusedTextColor = TextLight,
+                            unfocusedTextColor = TextLight
+                        )
+                    )
+                }
+
                 OutlinedTextField(
                     value = uiState.phoneNumber,
                     onValueChange = viewModel::setPhoneNumber,
-                    placeholder = { Text(stringResource(R.string.phone_number_hint), color = TextGray) },
+                    label = { Text("Phone Number *", color = TextGray) },
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                    shape = RoundedCornerShape(16.dp),
+                    shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedContainerColor = inputColor,
                         unfocusedContainerColor = inputColor,
                         focusedBorderColor = BrownLight,
                         unfocusedBorderColor = Color.Transparent,
                         focusedTextColor = TextLight,
-                        unfocusedTextColor = TextLight,
-                        cursorColor = BrownLight
+                        unfocusedTextColor = TextLight
                     )
                 )
             }
-            
-            // Customer Name
-            Column {
-                Text(
-                    text = "Name (Optional)",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = TextLight,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-                OutlinedTextField(
-                    value = uiState.customerName,
-                    onValueChange = viewModel::setCustomerName,
-                    placeholder = { Text(stringResource(R.string.customer_name_hint), color = TextGray) },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = inputColor,
-                        unfocusedContainerColor = inputColor,
-                        focusedBorderColor = BrownLight,
-                        unfocusedBorderColor = Color.Transparent,
-                        focusedTextColor = TextLight,
-                        unfocusedTextColor = TextLight,
-                        cursorColor = BrownLight
-                    )
-                )
-            }
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            // Place Order Button
-            BouncyButton(
-                onClick = viewModel::placeOrder,
+
+            // 3. Confirmation Checkbox
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp),
-                enabled = !uiState.isSubmitting,
-                containerColor = if (uiState.isSubmitting) TextGray else BrownLight,
-                shape = RoundedCornerShape(28.dp)
+                    .clickable { viewModel.setPaymentConfirmed(!uiState.isPaymentConfirmed) }
+                    .padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                if (uiState.isSubmitting) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
-                        color = Color.White,
-                        strokeWidth = 2.dp
+                Checkbox(
+                    checked = uiState.isPaymentConfirmed,
+                    onCheckedChange = { viewModel.setPaymentConfirmed(it) },
+                    colors = CheckboxDefaults.colors(
+                        checkedColor = BrownLight,
+                        uncheckedColor = TextGray,
+                        checkmarkColor = Color.White
                     )
-                } else {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = stringResource(R.string.place_order),
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp,
-                            color = Color.White
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Icon(Icons.Default.Send, contentDescription = null, tint = Color.White)
+                )
+                Text(
+                    text = "I hereby confirm this payment",
+                    color = TextLight,
+                    fontSize = 14.sp
+                )
+            }
+            
+            // 4. Action Buttons (Cancel and Pay Now)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                BouncyButton(
+                    onClick = onBackClick,
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(56.dp),
+                    containerColor = DarkNavyMedium,
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = null, modifier = Modifier.size(20.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Text("Cancel", fontWeight = FontWeight.Bold)
                     }
                 }
-            }
-            
-            // KHQR Button
-            BouncyButton(
-                onClick = { viewModel.showKhqr(true) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                enabled = !uiState.isSubmitting,
-                containerColor = Color.Red,
-                shape = RoundedCornerShape(28.dp)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
+
+                BouncyButton(
+                    onClick = viewModel::onPayNowClick,
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(56.dp),
+                    enabled = !uiState.isSubmitting,
+                    containerColor = if (uiState.isSubmitting) TextGray else TealPay,
+                    shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text(
-                        text = "Pay with KHQR",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp,
-                        color = Color.White
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = "🇰🇭", fontSize = 20.sp)
+                    if (uiState.isSubmitting) {
+                        CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White)
+                    } else {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text("Pay Now", fontWeight = FontWeight.Bold, color = Color.White)
+                        }
+                    }
                 }
             }
             
@@ -259,153 +256,180 @@ fun CheckoutScreen(
         KhqrPaymentDialog(
             khqrString = uiState.khqrString!!,
             amount = uiState.totalPrice,
+            deepLinkUrl = uiState.deepLinkUrl,
             onDismiss = { viewModel.showKhqr(false) }
         )
     }
 }
 
 @Composable
-private fun OrderSummaryCard(
-    items: List<com.myshop.cafe.data.models.CartItem>,
-    total: Double
-) {
+private fun SummaryCard(total: Double) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        color = CardDark
+        shape = RoundedCornerShape(24.dp),
+        color = Color(0xFF2D2F45)
     ) {
-        Column(modifier = Modifier.padding(20.dp)) {
+        Row(
+            modifier = Modifier
+                .padding(24.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        Icons.Default.ShoppingBag,
+                        contentDescription = null,
+                        tint = TextGray,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = "Summary",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = TextLight
+                    )
+                }
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = "Total amount to be paid",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = TextGray
+                )
+            }
             Text(
-                text = stringResource(R.string.order_summary),
+                text = "${String.format("%,.2f", if (total.isNaN()) 0.0 else total)} USD",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Black,
+                color = TextLight
+            )
+        }
+    }
+}
+
+@Composable
+private fun PaymentMethodSection(
+    selectedMethod: PaymentMethod,
+    onMethodSelect: (PaymentMethod) -> Unit
+) {
+    Column {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Default.People, contentDescription = null, tint = TextGray, modifier = Modifier.size(16.dp))
+            Spacer(Modifier.width(8.dp))
+            Text(
+                text = "Choose Payment Methods",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = TextLight
             )
+        }
+        
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            PaymentMethodItem(
+                method = PaymentMethod.ACLEDA_KHQR,
+                title = "ACLEDA KHQR",
+                subtitle = "Scan to pay with ACLEDA app or any bank apps",
+                icon = "QR",
+                iconColor = Color.Red,
+                isSelected = selectedMethod == PaymentMethod.ACLEDA_KHQR,
+                onClick = { onMethodSelect(PaymentMethod.ACLEDA_KHQR) }
+            )
             
-            Spacer(modifier = Modifier.height(16.dp))
+            PaymentMethodItem(
+                method = PaymentMethod.ACLEDA_MOBILE,
+                title = "ACLEDA mobile",
+                subtitle = "Pay with ACLEDA mobile",
+                icon = "APP",
+                iconColor = Color(0xFF0D47A1),
+                isSelected = selectedMethod == PaymentMethod.ACLEDA_MOBILE,
+                onClick = { onMethodSelect(PaymentMethod.ACLEDA_MOBILE) }
+            )
             
-            items.forEach { item ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = "${item.quantity}x ${item.menuItem.name}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = TextGrayLight,
-                        modifier = Modifier.weight(1f)
-                    )
-                    Text(
-                        text = if (item.totalPrice.isNaN()) "$0.00" else "$${String.format("%.2f", item.totalPrice)}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Medium,
-                        color = TextLight
-                    )
+            PaymentMethodItem(
+                method = PaymentMethod.ACLEDA_PAY,
+                title = "ACLEDA Pay",
+                subtitle = "ACLEDA Cards / Bank Account / ACLEDA mobile",
+                icon = "PAY",
+                iconColor = Color(0xFF0D47A1),
+                isSelected = selectedMethod == PaymentMethod.ACLEDA_PAY,
+                onClick = { onMethodSelect(PaymentMethod.ACLEDA_PAY) }
+            )
+            
+            PaymentMethodItem(
+                method = PaymentMethod.CARD,
+                title = "Credit / Debit Card",
+                subtitle = "VISA / MasterCard / JC B",
+                icon = "CARD",
+                iconColor = Color.Gray,
+                isSelected = selectedMethod == PaymentMethod.CARD,
+                onClick = { onMethodSelect(PaymentMethod.CARD) }
+            )
+        }
+    }
+}
+
+@Composable
+private fun PaymentMethodItem(
+    method: PaymentMethod,
+    title: String,
+    subtitle: String,
+    icon: String,
+    iconColor: Color,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    Surface(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        color = Color.White,
+        border = if (isSelected) BorderStroke(2.dp, BrownLight) else null
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(12.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Icon Placeholder
+            Surface(
+                modifier = Modifier.size(40.dp),
+                shape = RoundedCornerShape(8.dp),
+                color = iconColor.copy(alpha = 0.1f),
+                border = BorderStroke(1.dp, iconColor.copy(alpha = 0.2f))
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Text(icon, fontSize = 10.sp, fontWeight = FontWeight.Bold, color = iconColor)
                 }
             }
             
-            HorizontalDivider(
-                modifier = Modifier.padding(vertical = 16.dp),
-                color = DarkNavyMedium
-            )
+            Spacer(modifier = Modifier.width(16.dp))
             
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = stringResource(R.string.cart_total),
-                    style = MaterialTheme.typography.titleMedium,
+                    text = title,
+                    style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
-                    color = TextLight
+                    color = Color.Black
                 )
-                val displayTotal = if (total.isNaN()) 0.0 else total
                 Text(
-                    text = "$${String.format("%.2f", displayTotal)}",
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = BrownLight
+                    text = subtitle,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color.Gray
                 )
             }
-        }
-    }
-}
-
-@Composable
-private fun OrderTypeSection(
-    selectedType: OrderType,
-    onTypeSelect: (OrderType) -> Unit
-) {
-    Column {
-        Text(
-            text = stringResource(R.string.order_type),
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            color = TextLight
-        )
-        
-        Spacer(modifier = Modifier.height(12.dp))
-        
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            OrderTypeButton(
-                icon = Icons.Default.ShoppingBag,
-                label = stringResource(R.string.takeaway),
-                isSelected = selectedType == OrderType.TAKEAWAY,
-                onClick = { onTypeSelect(OrderType.TAKEAWAY) },
-                modifier = Modifier.weight(1f)
-            )
             
-            OrderTypeButton(
-                icon = Icons.Default.People,
-                label = stringResource(R.string.dine_in),
-                isSelected = selectedType == OrderType.DINE_IN,
-                onClick = { onTypeSelect(OrderType.DINE_IN) },
-                modifier = Modifier.weight(1f)
-            )
-        }
-    }
-}
-
-@Composable
-private fun OrderTypeButton(
-    icon: ImageVector,
-    label: String,
-    isSelected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Surface(
-        modifier = modifier
-            .clickable(onClick = onClick)
-            .border(
-                width = 2.dp,
-                color = if (isSelected) BrownLight else DarkNavyMedium,
-                shape = RoundedCornerShape(16.dp)
-            ),
-        shape = RoundedCornerShape(16.dp),
-        color = if (isSelected) CardDarkElevated else CardDark
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                modifier = Modifier.size(28.dp),
-                tint = if (isSelected) BrownLight else TextGray
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = label,
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Medium,
-                color = if (isSelected) TextLight else TextGray
+            RadioButton(
+                selected = isSelected,
+                onClick = onClick,
+                colors = RadioButtonDefaults.colors(
+                    selectedColor = BrownLight,
+                    unselectedColor = Color.LightGray
+                )
             )
         }
     }
@@ -576,12 +600,16 @@ fun OrderSuccessScreen(
     }
 }
 
+val BakongRed = Color(0xFFE1232E)
+
 @Composable
 fun KhqrPaymentDialog(
     khqrString: String,
     amount: Double,
+    deepLinkUrl: String? = null,
     onDismiss: () -> Unit
 ) {
+    val context = LocalContext.current
     val bitmap = remember(khqrString) {
         KhqrUtil.generateQrBitmap(khqrString, 800)
     }
@@ -592,81 +620,210 @@ fun KhqrPaymentDialog(
                 .fillMaxWidth()
                 .padding(16.dp),
             shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White)
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
         ) {
             Column(
-                modifier = Modifier.padding(24.dp),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Header
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier.padding(bottom = 16.dp)
+                // Official Red Header
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(BakongRed)
+                        .padding(vertical = 16.dp),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Surface(
-                        color = Color.Red,
-                        shape = RoundedCornerShape(50),
-                        modifier = Modifier.size(32.dp)
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Text("🇰🇭", fontSize = 16.sp)
-                        }
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "KHQR Payment",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black
+                        text = "KHQR",
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Black,
+                        color = Color.White,
+                        fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
                     )
                 }
 
-                Text(
-                    text = "$${String.format("%.2f", amount)}",
-                    style = MaterialTheme.typography.headlineLarge,
-                    fontWeight = FontWeight.Black,
-                    color = Color.Red
-                )
-                
-                Text(
-                    text = "Alvin Cafe",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Gray
-                )
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "MY SHOP",
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Gray,
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+                    
+                    Text(
+                        text = "$${String.format("%.2f", amount)}",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Black,
+                        color = Color.Black
+                    )
 
-                Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
 
-                // QR Code
-                if (bitmap != null) {
-                    androidx.compose.foundation.Image(
-                        bitmap = bitmap.asImageBitmap(),
-                        contentDescription = "KHQR Code",
+                    // QR Code with border
+                    Surface(
                         modifier = Modifier
                             .fillMaxWidth()
                             .aspectRatio(1f)
+                            .padding(8.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        border = BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.5f)),
+                        color = Color.White
+                    ) {
+                        if (bitmap != null) {
+                            androidx.compose.foundation.Image(
+                                bitmap = bitmap.asImageBitmap(),
+                                contentDescription = "KHQR Code",
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(16.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                            )
+                        } else {
+                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                CircularProgressIndicator(color = BakongRed)
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    Text(
+                        text = "Scan to pay with Bakong\nor any mobile banking app",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Gray,
+                        textAlign = TextAlign.Center,
+                        lineHeight = 16.sp
                     )
-                }
+                    
+                    Spacer(modifier = Modifier.height(32.dp))
+                    
+                    if (deepLinkUrl != null) {
+                        Text(
+                            text = "Auto-opening ACLEDA...\nIf it fails, tap 'Copy KHQR' and use 'Paste QR' in the app.",
+                            fontSize = 12.sp,
+                            color = Color.Gray,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                        BouncyButton(
+                            onClick = {
+                                launchDeepLink(context, deepLinkUrl, khqrString)
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(50.dp)
+                                .padding(bottom = 8.dp),
+                            containerColor = Color(0xFF0D47A1), // ACLEDA Blue
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text("Open ACLEDA Mobile", color = Color.White, fontWeight = FontWeight.Bold)
+                        }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                        BouncyButton(
+                            onClick = {
+                                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                val clip = ClipData.newPlainText("KHQR Data", khqrString)
+                                clipboard.setPrimaryClip(clip)
+                                Toast.makeText(context, "KHQR Copied! Paste it in ACLEDA app.", Toast.LENGTH_SHORT).show()
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(50.dp)
+                                .padding(bottom = 8.dp),
+                            containerColor = Color(0xFFE3F2FD), // Light Blue
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text("Copy KHQR to Paste", color = Color(0xFF0D47A1), fontWeight = FontWeight.Bold)
+                        }
+                    }
 
-                Text(
-                    text = "Scan with Bakong, ACLEDA, ABA or any KHQR supported app",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray,
-                    textAlign = TextAlign.Center
-                )
-                
-                Spacer(modifier = Modifier.height(24.dp))
-                
-                Button(
-                    onClick = onDismiss,
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray)
-                ) {
-                    Text("Cancel", color = Color.Black)
+                    BouncyButton(
+                        onClick = onDismiss,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp),
+                        containerColor = Color.LightGray.copy(alpha = 0.3f),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text("Cancel", color = Color.Gray, fontWeight = FontWeight.Bold)
+                    }
                 }
             }
         }
+    }
+}
+
+private fun launchDeepLink(context: android.content.Context, deepLinkUrl: String, khqrString: String) {
+    val encodedKhqr = java.net.URLEncoder.encode(khqrString, "UTF-8")
+    val schemes = listOf(
+        deepLinkUrl, // Primary
+        "acledamobile://khqr/pay?qr=$encodedKhqr",
+        "acledamobile://pay/khqr?qr=$encodedKhqr",
+        "acledamobile://scan/khqr?qr=$encodedKhqr",
+        "acledabankqr://khqr/pay?qr=$encodedKhqr",
+        "acledabankqr://pay/khqr?qr=$encodedKhqr",
+        "acledabankqr://scan/khqr?qr=$encodedKhqr",
+        "acledabankqr://qr?data=$encodedKhqr",
+        "acledabankqr://pay?qr=$encodedKhqr",
+        "acledamobile://qr?data=$encodedKhqr",
+        "acledamobile://pay?qr=$encodedKhqr",
+        "acledabank://khqr/scan?qr=$encodedKhqr",
+        "acleda://khqr/scan?qr=$encodedKhqr",
+        "acledaplay://khqr/scan?qr=$encodedKhqr"
+    )
+
+    var launched = false
+    
+    // 1. Try schemes first with Extras
+    for (scheme in schemes) {
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(scheme))
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            
+            // Add "Swiss Army Knife" Extras - pass data in every possible way
+            intent.putExtra("qr", khqrString)
+            intent.putExtra("khqr", khqrString)
+            intent.putExtra("data", khqrString)
+            intent.putExtra("payload", khqrString)
+            intent.putExtra("deep_link_value", khqrString)
+            
+            context.startActivity(intent)
+            launched = true
+            break
+        } catch (e: Exception) {
+            // Try next scheme
+        }
+    }
+
+    // 2. Fallback: Launch by Package Name if schemes failed
+    if (!launched) {
+        val packages = listOf("com.domain.acledabankqr", "com.acledabank.mobile")
+        for (pkg in packages) {
+            try {
+                val intent = context.packageManager.getLaunchIntentForPackage(pkg)
+                if (intent != null) {
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    // Pass extras here too
+                    intent.putExtra("qr", khqrString)
+                    intent.putExtra("khqr", khqrString)
+                    intent.putExtra("data", khqrString) 
+                    context.startActivity(intent)
+                    launched = true
+                    break
+                }
+            } catch (e: Exception) {
+                // Try next package
+            }
+        }
+    }
+
+    if (!launched) {
+        Toast.makeText(context, "ACLEDA Mobile app not found or could not be opened.", Toast.LENGTH_LONG).show()
     }
 }

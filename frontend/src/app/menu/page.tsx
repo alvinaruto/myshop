@@ -1186,67 +1186,25 @@ export default function CustomerMenuPage() {
             )}
 
             {/* Footer */}
-            <footer className="bg-gradient-to-br from-amber-950 via-stone-900 to-amber-900 text-white">
-                <div className="container mx-auto px-4 py-16">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+            <footer className="bg-espresso text-white py-24 border-t border-gold/10">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-16">
                         {/* Brand */}
-                        <div className="text-center md:text-left">
-                            <div className="flex items-center gap-4 justify-center md:justify-start mb-6">
-                                <div className="w-14 h-14 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center">
-                                    <FiCoffee className="w-7 h-7 text-white" />
-                                </div>
-                                <div>
-                                    <h3 className="text-2xl font-black">
-                                        <span className="text-amber-400">my</span>Shop Coffee
-                                    </h3>
-                                    <p className="text-amber-300/60 text-sm">កាហ្វេ myShop</p>
-                                </div>
-                            </div>
-                            <p className="text-amber-200/60">
-                                Crafting perfect moments, one cup at a time.
-                            </p>
-                        </div>
-
-                        {/* Hours */}
-                        <div className="text-center">
-                            <h4 className="font-bold mb-4 flex items-center gap-2 justify-center text-lg">
-                                <FiClock className="w-5 h-5 text-amber-400" /> Opening Hours
-                            </h4>
-                            <p className="text-amber-200/80">Monday - Sunday</p>
-                            <p className="text-2xl font-black text-amber-400 mt-1">6:00 AM - 10:00 PM</p>
-                        </div>
-
-                        {/* Contact */}
-                        <div className="text-center md:text-right">
-                            <h4 className="font-bold mb-4 flex items-center gap-2 justify-center md:justify-end text-lg">
-                                <FiMapPin className="w-5 h-5 text-amber-400" /> Find Us
-                            </h4>
-                            <p className="text-amber-200/80 mb-4">
-                                Phnom Penh, Cambodia
-                            </p>
-                            <div className="flex gap-3 justify-center md:justify-end">
-                                <a href="#" className="w-12 h-12 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition">
-                                    <FiFacebook className="w-5 h-5" />
-                                </a>
-                                <a href="#" className="w-12 h-12 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition">
-                                    <FiInstagram className="w-5 h-5" />
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="border-t border-white/10 mt-12 pt-8 text-center">
-                        <p className="text-amber-200/40 text-sm flex items-center justify-center gap-1">
-                            Made with <FiHeart className="w-4 h-4 text-red-400" /> in Cambodia
-                        </p>
-                        <Link href="/order-status" className="text-amber-400 hover:text-amber-300 text-sm mt-3 inline-block font-medium">
-                            Check Order Status →
-                        </Link>
                     </div>
                 </div>
-            </footer>
 
-            <style jsx>{`
+                <div className="border-t border-white/10 mt-12 pt-8 text-center">
+                    <p className="text-amber-200/40 text-sm flex items-center justify-center gap-1">
+                        Made with <FiHeart className="w-4 h-4 text-red-400" /> in Cambodia
+                    </p>
+                    <Link href="/order-status" className="text-amber-400 hover:text-amber-300 text-sm mt-3 inline-block font-medium">
+                        Check Order Status →
+                    </Link>
+                </div>
+        </div>
+            </footer >
+
+        <style jsx>{`
                 @keyframes slide-in-right {
                     from {
                         transform: translateX(100%);
@@ -1259,6 +1217,6 @@ export default function CustomerMenuPage() {
                     animation: slide-in-right 0.3s ease-out;
                 }
             `}</style>
-        </div>
+        </div >
     );
 }

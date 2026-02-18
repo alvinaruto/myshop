@@ -27,6 +27,15 @@ android {
         buildConfigField("String", "BASE_URL", "\"https://myshop-ten-ruby.vercel.app/api/\"")
     }
 
+    splits {
+        abi {
+            isEnable = false
+            reset()
+            include("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
+            isUniversalApk = true
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false

@@ -17,7 +17,15 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.isActive
 import com.myshop.cafe.utils.KhqrUtil
+import java.net.URLEncoder
 import javax.inject.Inject
+
+enum class PaymentMethod {
+    ACLEDA_KHQR,
+    ACLEDA_MOBILE,
+    ACLEDA_PAY,
+    CARD
+}
 
 data class CheckoutUiState(
     val items: List<CartItem> = emptyList(),
@@ -31,7 +39,10 @@ data class CheckoutUiState(
     val successOrder: Order? = null,
     val showKhqr: Boolean = false,
     val khqrString: String? = null,
-    val paymentMd5: String? = null
+    val paymentMd5: String? = null,
+    val selectedPaymentMethod: PaymentMethod = PaymentMethod.ACLEDA_KHQR,
+    val isPaymentConfirmed: Boolean = false,
+    val deepLinkUrl: String? = null
 )
 
 @HiltViewModel
@@ -88,6 +99,14 @@ class CheckoutViewModel @Inject constructor(
     fun setCustomerName(customerName: String) {
         _uiState.value = _uiState.value.copy(customerName = customerName)
     }
+
+    fun setPaymentMethod(method: PaymentMethod) {
+        _uiState.value = _uiState.value.copy(selectedPaymentMethod = method)
+    }
+
+    fun setPaymentConfirmed(confirmed: Boolean) {
+        _uiState.value = _uiState.value.copy(isPaymentConfirmed = confirmed)
+    }
     
     fun clearError() {
         _uiState.value = _uiState.value.copy(error = null)
@@ -113,7 +132,11 @@ class CheckoutViewModel @Inject constructor(
             _uiState.value = state.copy(
                 showKhqr = true,
                 khqrString = khqr,
-                paymentMd5 = md5
+                paymentMd5 = md5,
+                deepLinkUrl = if (state.selectedPaymentMethod == PaymentMethod.ACLEDA_MOBILE) {
+                    val encodedKhqr = URLEncoder.encode(khqr, "UTF-8")
+                    "acledamobile://khqr/scan?qr=$encodedKhqr"
+                } else null
             )
             
             // Start polling
@@ -122,9 +145,38 @@ class CheckoutViewModel @Inject constructor(
             _uiState.value = state.copy(
                 showKhqr = false,
                 khqrString = null,
-                paymentMd5 = null
+                paymentMd5 = null,
+                deepLinkUrl = null
             )
             stopPolling()
+        }
+    }
+
+    fun onPayNowClick() {
+        val state = _uiState.value
+        
+        if (state.phoneNumber.isBlank()) {
+            _uiState.value = state.copy(error = "Please enter your phone number")
+            return
+        }
+
+        if (state.orderType == OrderType.DINE_IN && state.tableNumber.isBlank()) {
+            _uiState.value = state.copy(error = "Please enter your table number")
+            return
+        }
+
+        if (!state.isPaymentConfirmed) {
+            _uiState.value = state.copy(error = "Please confirm the payment by checking the box")
+            return
+        }
+
+        when (state.selectedPaymentMethod) {
+            PaymentMethod.ACLEDA_KHQR, PaymentMethod.ACLEDA_MOBILE -> {
+                showKhqr(true)
+            }
+            else -> {
+                _uiState.value = state.copy(error = "Payment method not yet supported. Please use KHQR.")
+            }
         }
     }
     

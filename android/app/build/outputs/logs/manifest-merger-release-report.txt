@@ -1,9 +1,9 @@
 -- Merging decision tree log ---
 manifest
-ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:2:1-33:12
-INJECTED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:2:1-33:12
-INJECTED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:2:1-33:12
-INJECTED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:2:1-33:12
+ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:2:1-46:12
+INJECTED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:2:1-46:12
+INJECTED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:2:1-46:12
+INJECTED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:2:1-46:12
 MERGED from [com.google.android.material:material:1.11.0] /Users/alvin/.gradle/caches/transforms-3/8c0d4d8b14c6b1eeb8e2bdfb7d50ebd1/transformed/material-1.11.0/AndroidManifest.xml:17:1-24:12
 MERGED from [androidx.constraintlayout:constraintlayout:2.0.1] /Users/alvin/.gradle/caches/transforms-3/622ae411556479ac0970bcff18b88c98/transformed/constraintlayout-2.0.1/AndroidManifest.xml:2:1-11:12
 MERGED from [io.coil-kt:coil-compose:2.5.0] /Users/alvin/.gradle/caches/transforms-3/b6f90b961751a17cd46f4e79407b7078/transformed/coil-compose-2.5.0/AndroidManifest.xml:2:1-7:12
@@ -107,9 +107,31 @@ uses-permission#android.permission.ACCESS_NETWORK_STATE
 ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:6:5-79
 	android:name
 		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:6:22-76
+queries
+ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:8:5-19:15
+package#com.domain.acledabankqr
+ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:9:9-59
+	android:name
+		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:9:18-56
+package#com.acledabank.mobile
+ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:10:9-57
+	android:name
+		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:10:18-54
+intent#action:name:android.intent.action.VIEW+data:scheme:acledamobile
+ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:11:9-14:18
+action#android.intent.action.VIEW
+ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:12:13-65
+	android:name
+		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:12:21-62
+data
+ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:13:13-51
+	android:scheme
+		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:13:19-48
+intent#action:name:android.intent.action.VIEW+data:scheme:acledabankqr
+ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:15:9-18:18
 application
-ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:8:5-31:19
-INJECTED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:8:5-31:19
+ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:21:5-44:19
+INJECTED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:21:5-44:19
 MERGED from [com.google.android.material:material:1.11.0] /Users/alvin/.gradle/caches/transforms-3/8c0d4d8b14c6b1eeb8e2bdfb7d50ebd1/transformed/material-1.11.0/AndroidManifest.xml:22:5-20
 MERGED from [com.google.android.material:material:1.11.0] /Users/alvin/.gradle/caches/transforms-3/8c0d4d8b14c6b1eeb8e2bdfb7d50ebd1/transformed/material-1.11.0/AndroidManifest.xml:22:5-20
 MERGED from [androidx.constraintlayout:constraintlayout:2.0.1] /Users/alvin/.gradle/caches/transforms-3/622ae411556479ac0970bcff18b88c98/transformed/constraintlayout-2.0.1/AndroidManifest.xml:9:5-20
@@ -131,47 +153,47 @@ MERGED from [androidx.startup:startup-runtime:1.1.1] /Users/alvin/.gradle/caches
 	android:appComponentFactory
 		ADDED from [androidx.core:core:1.12.0] /Users/alvin/.gradle/caches/transforms-3/3b0fcb85eb2f7897d09d340b22c4f7cb/transformed/core-1.12.0/AndroidManifest.xml:28:18-86
 	android:supportsRtl
-		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:16:9-35
+		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:29:9-35
 	android:label
-		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:14:9-41
+		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:27:9-41
 	android:fullBackupContent
-		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:12:9-54
+		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:25:9-54
 	android:roundIcon
-		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:15:9-54
+		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:28:9-54
 	tools:targetApi
-		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:19:9-29
+		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:32:9-29
 	android:icon
-		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:13:9-43
+		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:26:9-43
 	android:allowBackup
-		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:10:9-35
+		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:23:9-35
 	android:theme
-		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:17:9-48
+		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:30:9-48
 	android:dataExtractionRules
-		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:11:9-65
+		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:24:9-65
 	android:usesCleartextTraffic
-		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:18:9-44
+		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:31:9-44
 	android:name
-		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:9:9-42
+		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:22:9-42
 activity#com.myshop.cafe.MainActivity
-ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:21:9-30:20
+ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:34:9-43:20
 	android:label
-		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:24:13-45
+		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:37:13-45
 	android:exported
-		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:23:13-36
+		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:36:13-36
 	android:theme
-		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:25:13-52
+		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:38:13-52
 	android:name
-		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:22:13-41
+		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:35:13-41
 intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
-ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:26:13-29:29
+ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:39:13-42:29
 action#android.intent.action.MAIN
-ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:27:17-69
+ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:40:17-69
 	android:name
-		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:27:25-66
+		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:40:25-66
 category#android.intent.category.LAUNCHER
-ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:28:17-77
+ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:41:17-77
 	android:name
-		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:28:27-74
+		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:41:27-74
 uses-sdk
 INJECTED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml
