@@ -20,6 +20,21 @@ module.exports = {
                     900: '#312e81',
                     950: '#1e1b4b'
                 },
+                espresso: {
+                    DEFAULT: '#1a0f0a',
+                    light: '#2d1b12',
+                    dark: '#0e0805',
+                },
+                gold: {
+                    DEFAULT: '#c19a6b',
+                    light: '#d4b794',
+                    dark: '#a87d42',
+                },
+                cream: {
+                    DEFAULT: '#f5f5dc',
+                    light: '#fafaf0',
+                    dark: '#ebebd0',
+                },
                 success: {
                     500: '#22c55e',
                     600: '#16a34a'
@@ -34,7 +49,8 @@ module.exports = {
                 }
             },
             fontFamily: {
-                sans: ['Inter', 'Kantumruy Pro', 'sans-serif'],
+                sans: ['Montserrat', 'Inter', 'Kantumruy Pro', 'sans-serif'],
+                serif: ['Playfair Display', 'serif'],
                 khmer: ['Kantumruy Pro', 'Noto Sans Khmer', 'sans-serif']
             }
         },

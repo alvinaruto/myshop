@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { FiCoffee, FiMapPin, FiClock, FiPhone, FiInstagram, FiFacebook, FiWifi, FiHeart, FiShoppingCart, FiPlus, FiMinus, FiX, FiCheck, FiSend, FiPackage, FiUsers, FiShield, FiLock, FiArrowLeft } from 'react-icons/fi';
+import { FiCoffee, FiMapPin, FiClock, FiPhone, FiInstagram, FiFacebook, FiWifi, FiHeart, FiShoppingCart, FiPlus, FiMinus, FiX, FiCheck, FiSend, FiPackage, FiUsers, FiShield, FiLock, FiArrowLeft, FiSearch } from 'react-icons/fi';
 import toast, { Toaster } from 'react-hot-toast';
 import { QRCodeSVG } from 'qrcode.react';
 import { KHQR } from '@/components/KHQR';
 import { generateKHQR, DEFAULT_KHQR_CONFIG, formatPrice } from '@/lib/khqr.util';
+import { CoffeeCard } from '@/components/CoffeeCard';
 
 interface MenuItem {
     id: string;
@@ -47,28 +48,70 @@ interface CartItem {
 }
 
 
-// Coffee placeholder images from Unsplash
+// Premium Coffee & Drink Images from Unsplash
 const coffeeImages: Record<string, string> = {
-    coffee: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400&h=300&fit=crop',
-    latte: 'https://images.unsplash.com/photo-1570968915860-54d5c301fa9f?w=400&h=300&fit=crop',
-    espresso: 'https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?w=400&h=300&fit=crop',
-    cappuccino: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=400&h=300&fit=crop',
-    mocha: 'https://images.unsplash.com/photo-1578314675249-a6910f80cc4e?w=400&h=300&fit=crop',
-    americano: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400&h=300&fit=crop',
-    tea: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&h=300&fit=crop',
-    matcha: 'https://images.unsplash.com/photo-1515823064-d6e0c85d9d15?w=400&h=300&fit=crop',
-    smoothie: 'https://images.unsplash.com/photo-1505252585461-04db1eb84625?w=400&h=300&fit=crop',
-    juice: 'https://images.unsplash.com/photo-1534353473418-4cfa6c56fd38?w=400&h=300&fit=crop',
-    pastry: 'https://images.unsplash.com/photo-1517433670267-08bbd4be890f?w=400&h=300&fit=crop',
-    cake: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&h=300&fit=crop',
-    croissant: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=400&h=300&fit=crop',
-    sandwich: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=400&h=300&fit=crop',
-    food: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=300&fit=crop',
-    dessert: 'https://images.unsplash.com/photo-1551024506-0bccd828d307?w=400&h=300&fit=crop',
-    chocolate: 'https://images.unsplash.com/photo-1542990253-0b7dc279e46a?w=400&h=300&fit=crop',
-    iced: 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400&h=300&fit=crop',
-    frappe: 'https://images.unsplash.com/photo-1592663527359-cf6642f54cff?w=400&h=300&fit=crop',
-    default: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=300&fit=crop',
+    // Hot Coffee Specialties
+    'espresso': '/Users/alvin/.gemini/antigravity/brain/8d8568e4-715a-4515-9869-2da2954b8475/espresso_hot_v2_1771437610910.png',
+    'americano': 'https://images.unsplash.com/photo-1551030173-122adbb01f3a?w=800&q=80',
+    'cappuccino': 'https://images.unsplash.com/photo-1541167760496-16295558ad5c?w=800&q=80',
+    'latte': 'https://images.unsplash.com/photo-1536935338218-9bca6d274f3b?w=800&q=80',
+    'mocha': 'https://images.unsplash.com/photo-1578314675249-a6910f80cc4e?w=800&q=80',
+    'flat white': 'https://images.unsplash.com/photo-1577968897966-3d4325b36b61?w=800&q=80',
+    'vanilla latte': 'https://images.unsplash.com/photo-1595434066389-99c30150fc9a?w=800&q=80',
+    'caramel latte': 'https://images.unsplash.com/photo-1553909489-eb2175ad3f3f?w=800&q=80',
+    'matcha latte': 'https://images.unsplash.com/photo-1515823064-d6e0c85d9d15?w=800&q=80',
+    'hot chocolate': 'https://images.unsplash.com/photo-1544787210-2213d64adac3?w=800&q=80',
+
+    // Iced Coffee Specialties
+    'khmer iced coffee': 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=800&q=80',
+    'iced latte': 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=800&q=80',
+    'iced mocha': 'https://images.unsplash.com/photo-1499961024600-ad094db305cc?w=800&q=80',
+    'iced americano': 'https://images.unsplash.com/photo-1517701550927-30cf4bb1dba5?w=800&q=80',
+    'coconut coffee': 'https://images.unsplash.com/photo-1559496417-e7f25cb247f3?w=800&q=80',
+    'cold brew': 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=800&q=80',
+    'macchiato': 'https://images.unsplash.com/photo-1485808191679-5f6333af3741?w=800&q=80',
+    'vietnamese': 'https://images.unsplash.com/photo-1551030173-122adbb01f3a?w=800&q=80',
+    'palm sugar': 'https://images.unsplash.com/photo-1594631252845-ff2047ff317a?w=800&q=80',
+    'salted cream': 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=800&q=80',
+
+    // Blended / Frappes
+    'frappe': 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=800&q=80',
+    'java chip': 'https://images.unsplash.com/photo-1544145945-f904253db0ad?w=800&q=80',
+    'oreo': 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=800&q=80',
+    'taro': 'https://images.unsplash.com/photo-1628522338002-3ff94b130e92?w=800&q=80',
+
+    // Teas
+    'thai milk tea': 'https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=800&q=80',
+    'milk tea': 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=800&q=80',
+    'iced tea': 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=800&q=80',
+    'lemon tea': 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=800&q=80',
+    'peach tea': 'https://images.unsplash.com/photo-1597318181409-cf64d0b5d8a2?w=800&q=80',
+    'passion fruit': 'https://images.unsplash.com/photo-1584444262846-e2716db1294b?w=800&q=80',
+    'green tea': 'https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?w=800&q=80',
+    'jasmine': 'https://images.unsplash.com/photo-1594631252845-ff2047ff317a?w=800&q=80',
+
+    // Smoothies & Juices
+    'mango': 'https://images.unsplash.com/photo-1537640538966-79f369b41e8f?w=800&q=80',
+    'strawberry': 'https://images.unsplash.com/photo-1543644009-1d407101859b?w=800&q=80',
+    'banana': 'https://images.unsplash.com/photo-1481349518771-2005b9565124?w=800&q=80',
+    'berry': 'https://images.unsplash.com/photo-1505252585461-04db1eb84625?w=800&q=80',
+    'dragon fruit': 'https://images.unsplash.com/photo-1628522338002-3ff94b130e92?w=800&q=80',
+    'smoothie': 'https://images.unsplash.com/photo-1505252585461-04db1eb84625?w=800&q=80',
+    'juice': 'https://images.unsplash.com/photo-1534353473418-4cfa6c56fd38?w=800&q=80',
+    'avocado': 'https://images.unsplash.com/photo-1519163219899-21d2bb723b3e?w=800&q=80',
+    'coconut': 'https://images.unsplash.com/photo-1563288461-e179738092ec?w=800&q=80',
+    'lemonade': 'https://images.unsplash.com/photo-1523677011737-cee4117e7faf?w=800&q=80',
+
+    // Food
+    'croissant': 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=800&q=80',
+    'pastry': 'https://images.unsplash.com/photo-1517433670267-08bbd4be890f?w=800&q=80',
+    'cake': 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=800&q=80',
+    'brownie': 'https://images.unsplash.com/photo-1542990253-0b7dc279e46a?w=800&q=80',
+    'sandwich': 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=800&q=80',
+    'banana bread': 'https://images.unsplash.com/photo-1601000405234-ee563456860d?w=800&q=80',
+    'waffle': 'https://images.unsplash.com/photo-1541288097308-7b8e3f5f5901?w=800&q=80',
+
+    'default': 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&q=80',
 };
 
 const getImageForItem = (item: MenuItem, categoryIcon?: string): string => {
@@ -482,92 +525,56 @@ export default function CustomerMenuPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-stone-100 via-amber-50 to-orange-50">
+        <div className="min-h-screen bg-cream font-sans selection:bg-gold/30">
             <Toaster position="top-center" />
 
-            {/* Hero Header */}
-            <header className="relative bg-gradient-to-br from-amber-950 via-stone-900 to-amber-900 text-white overflow-hidden">
-                {/* Decorative coffee beans pattern */}
-                <div className="absolute inset-0 opacity-5">
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.2)_1px,transparent_1px)] bg-[length:30px_30px]" />
+            {/* Premium Menu Hero */}
+            <header className="relative bg-espresso overflow-hidden">
+                {/* Background Image with Overlay */}
+                <div className="absolute inset-0 z-0">
+                    <img
+                        src="/Users/alvin/.gemini/antigravity/brain/8d8568e4-715a-4515-9869-2da2954b8475/hero_coffee_pour_1771436903945.png"
+                        alt="Menu Background"
+                        className="w-full h-full object-cover opacity-40 blur-[2px] scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-b from-espresso/80 via-espresso to-espresso" />
                 </div>
 
-                {/* Ambient glow */}
-                <div className="absolute top-0 right-1/4 w-96 h-96 bg-amber-500/20 rounded-full blur-3xl" />
-                <div className="absolute bottom-0 left-1/4 w-80 h-80 bg-orange-500/10 rounded-full blur-3xl" />
-
-                <div className="relative container mx-auto px-4 py-16 sm:py-24">
+                <div className="relative z-10 container mx-auto px-4 py-20 sm:py-32">
                     <div className="flex flex-col items-center text-center">
-                        {/* Logo */}
-                        <div className="w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center mb-6 shadow-2xl shadow-amber-500/30">
-                            <FiCoffee className="w-12 h-12 sm:w-16 sm:h-16 text-white" />
-                        </div>
+                        {/* Elegant Badge */}
+                        <div className="w-px h-12 bg-gold/50 mb-6" />
+                        <span className="font-serif text-xs tracking-[0.5em] uppercase text-gold mb-4">
+                            Brew & Bean
+                        </span>
 
-                        {/* Brand Name */}
-                        <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black mb-2 tracking-tight">
-                            <span className="text-amber-400">my</span>Shop
+                        <h1 className="font-serif text-5xl sm:text-7xl font-black text-white mb-6 tracking-tight">
+                            The <span className="text-gold italic">Coffee Menu</span>
                         </h1>
-                        <p className="text-2xl sm:text-3xl text-amber-300 font-light tracking-[0.2em] uppercase mb-2">Coffee</p>
-                        <p className="text-lg text-amber-200/80">កាហ្វេ myShop</p>
 
-                        {/* Tagline */}
-                        <p className="mt-6 text-amber-100/60 max-w-md text-center text-lg">
-                            Artisan coffee crafted with passion
+                        <p className="font-sans text-cream/60 max-w-md text-lg italic leading-relaxed">
+                            Discover our curated selection of artisan coffees, pastries, and treats.
                         </p>
 
-                        {/* CTA */}
-                        <Link
-                            href="/order-status"
-                            className="mt-8 px-8 py-3 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full font-bold text-white hover:from-amber-600 hover:to-orange-600 transition-all shadow-lg shadow-amber-500/30"
-                        >
-                            Check Order Status →
-                        </Link>
+                        <div className="w-px h-12 bg-gold/50 mt-10" />
                     </div>
-                </div>
-
-                {/* Wave decoration */}
-                <div className="absolute bottom-0 left-0 right-0">
-                    <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 67.5C1200 75 1320 75 1380 75L1440 75V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="#f5f5f4" />
-                    </svg>
                 </div>
             </header>
 
-            {/* Quick Info Bar */}
-            <div className="bg-stone-100 border-b border-stone-200">
-                <div className="container mx-auto px-4 py-4">
-                    <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-12 text-sm text-stone-600">
-                        <div className="flex items-center gap-2">
-                            <FiClock className="w-4 h-4 text-amber-600" />
-                            <span className="font-medium">6:00 AM - 10:00 PM</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <FiWifi className="w-4 h-4 text-amber-600" />
-                            <span className="font-medium">Free WiFi</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <FiPhone className="w-4 h-4 text-amber-600" />
-                            <span className="font-medium">012 345 678</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Category Tabs */}
+            {/* Sticky Navigation / Category Filter */}
             {categories.length > 0 && (
-                <nav className="sticky top-0 z-40 bg-white/95 backdrop-blur-lg shadow-sm border-b border-stone-200">
+                <nav className="sticky top-0 z-40 bg-espresso/95 backdrop-blur-xl border-y border-gold/10">
                     <div className="container mx-auto px-4">
-                        <div className="flex overflow-x-auto gap-2 py-4" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                        <div className="flex overflow-x-auto gap-4 py-2 sm:py-4 scrollbar-hide justify-center items-center">
                             {categories.map((cat) => (
                                 <button
                                     key={cat.id}
                                     onClick={() => setActiveCategory(cat.id)}
-                                    className={`flex-shrink-0 px-5 py-2.5 rounded-full font-semibold transition-all ${activeCategory === cat.id
-                                        ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/30'
-                                        : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
+                                    className={`flex-shrink-0 px-6 py-2 rounded-full font-serif text-sm font-bold uppercase tracking-widest transition-all duration-300 ${activeCategory === cat.id
+                                        ? 'bg-gold text-espresso shadow-lg'
+                                        : 'text-gold/50 hover:text-gold'
                                         }`}
                                 >
-                                    <span className="mr-2">{getCategoryIcon(cat.icon)}</span>
                                     {cat.name}
                                 </button>
                             ))}
@@ -576,8 +583,33 @@ export default function CustomerMenuPage() {
                 </nav>
             )}
 
+            {/* Quick Info & Search Bar */}
+            <div className="bg-espresso-light border-b border-gold/5 py-6">
+                <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div className="flex items-center gap-8 text-gold/40 text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em]">
+                        <div className="flex items-center gap-2">
+                            <FiClock className="text-gold" />
+                            <span>07:00 AM - 10:00 PM</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <FiWifi className="text-gold" />
+                            <span>High-speed WiFi</span>
+                        </div>
+                    </div>
+
+                    <div className="relative w-full max-w-sm">
+                        <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gold/30" />
+                        <input
+                            type="text"
+                            placeholder="Search our menu..."
+                            className="w-full bg-espresso border border-gold/10 text-cream pl-12 pr-4 py-2.5 rounded-full text-sm focus:outline-none focus:border-gold/30 transition-all font-sans"
+                        />
+                    </div>
+                </div>
+            </div>
+
             {/* Menu Content */}
-            <main className="container mx-auto px-4 py-12 pb-32">
+            <main className="container mx-auto px-4 py-20 pb-40">
                 {categories.length === 0 ? (
                     <div className="text-center py-20">
                         <FiCoffee className="w-20 h-20 mx-auto text-amber-300 mb-4" />
@@ -600,77 +632,21 @@ export default function CustomerMenuPage() {
                                 )}
                             </div>
 
-                            {/* Items Grid */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                            {/* Items Grid using CoffeeCard */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-12">
                                 {category.items.map((item) => (
-                                    <div
+                                    <CoffeeCard
                                         key={item.id}
+                                        item={{
+                                            ...item,
+                                            image_url: getImageForItem(item, category.icon)
+                                        }}
                                         onClick={() => { setSelectedItem(item); setSelectedSize('small'); }}
-                                        className="group bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all cursor-pointer overflow-hidden border border-stone-100 hover:border-amber-200"
-                                    >
-                                        {/* Image */}
-                                        <div className="aspect-[4/3] relative overflow-hidden">
-                                            <img
-                                                src={getImageForItem(item, category.icon)}
-                                                alt={item.name}
-                                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                                            />
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                                            {!item.is_available && (
-                                                <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                                                    <span className="bg-red-500 text-white px-4 py-2 rounded-full font-bold">
-                                                        Sold Out
-                                                    </span>
-                                                </div>
-                                            )}
-                                            {/* Quick add button */}
-                                            {item.is_available && (
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        addToCart(item, 'small');
-                                                    }}
-                                                    className="absolute bottom-3 right-3 w-10 h-10 bg-amber-500 hover:bg-amber-600 text-white rounded-full flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0"
-                                                >
-                                                    <FiPlus className="w-5 h-5" />
-                                                </button>
-                                            )}
-                                        </div>
-
-                                        {/* Content */}
-                                        <div className="p-5">
-                                            <div className="flex justify-between items-start mb-2">
-                                                <div className="flex-1">
-                                                    <h3 className="font-bold text-stone-900 text-lg group-hover:text-amber-600 transition">
-                                                        {item.name}
-                                                    </h3>
-                                                    {item.name_kh && (
-                                                        <p className="text-stone-400 text-sm">{item.name_kh}</p>
-                                                    )}
-                                                </div>
-                                                <div className="text-right ml-3">
-                                                    <p className="text-xl font-black text-amber-600">
-                                                        {formatPrice(item.base_price)}
-                                                    </p>
-                                                    {item.has_sizes && item.price_large && (
-                                                        <p className="text-xs text-stone-400">
-                                                            up to {formatPrice(item.price_large)}
-                                                        </p>
-                                                    )}
-                                                </div>
-                                            </div>
-                                            {item.description && (
-                                                <p className="text-stone-500 text-sm overflow-hidden" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{item.description}</p>
-                                            )}
-                                            {item.has_sizes && (
-                                                <div className="mt-4 flex gap-2">
-                                                    <span className="px-3 py-1 bg-amber-50 text-amber-700 rounded-lg text-xs font-bold">S</span>
-                                                    <span className="px-3 py-1 bg-amber-50 text-amber-700 rounded-lg text-xs font-bold">M</span>
-                                                    <span className="px-3 py-1 bg-amber-50 text-amber-700 rounded-lg text-xs font-bold">L</span>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
+                                        onAdd={(e) => {
+                                            e.stopPropagation();
+                                            addToCart(item, 'small');
+                                        }}
+                                    />
                                 ))}
                             </div>
                         </section>

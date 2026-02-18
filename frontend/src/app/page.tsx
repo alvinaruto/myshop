@@ -49,89 +49,94 @@ export default function HomePage() {
         <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
             <Navbar />
 
-            {/* Hero Section - Dual Purpose */}
-            <section className="relative overflow-hidden pt-20 pb-32 lg:pt-28 lg:pb-40 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
-                {/* Ambient Effects */}
-                <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary-500/20 rounded-full blur-[150px] pointer-events-none" />
-                <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-amber-500/15 rounded-full blur-[150px] pointer-events-none" />
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none" />
+            {/* Hero Section - Brew & Bean Theme */}
+            <section className="relative min-h-[90vh] flex items-center overflow-hidden bg-espresso">
+                {/* Background Image with Overlay */}
+                <div className="absolute inset-0 z-0">
+                    <img
+                        src="/Users/alvin/.gemini/antigravity/brain/8d8568e4-715a-4515-9869-2da2954b8475/hero_coffee_pour_1771436903945.png"
+                        alt="Coffee Background"
+                        className="w-full h-full object-cover opacity-60"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-r from-espresso via-espresso/80 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-espresso via-transparent to-transparent" />
+                </div>
 
-                <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center mb-16">
-                        {/* Badge */}
-                        <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/10 backdrop-blur-sm text-white text-sm font-bold mb-8">
-                            <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                            Certified Retailer • Phnom Penh, Cambodia 🇰🇭
+                <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+                    <div className="max-w-2xl">
+                        {/* Logo / Badge */}
+                        <div className="flex items-center gap-4 mb-8">
+                            <div className="w-16 h-16 border-2 border-gold rounded-xl flex items-center justify-center">
+                                <span className="font-serif text-3xl font-black text-gold">B&B</span>
+                            </div>
+                            <div className="h-12 w-px bg-gold/30" />
+                            <span className="font-serif text-sm tracking-[0.4em] uppercase text-gold/80 pt-1">
+                                Brew & Bean
+                            </span>
                         </div>
 
                         {/* Main Heading */}
-                        <h1 className="text-5xl sm:text-6xl lg:text-8xl font-black text-white mb-6 leading-tight">
-                            <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary-400 via-indigo-400 to-amber-400">
-                                MyShop
-                            </span>
+                        <h1 className="font-serif text-6xl sm:text-7xl lg:text-8xl font-black text-white mb-6 leading-[1.1]">
+                            Experience the<br />
+                            <span className="text-gold">Art of Coffee</span>
                         </h1>
-                        <p className="text-xl sm:text-2xl text-gray-300 font-medium max-w-2xl mx-auto mb-4">
-                            Premium Phones & Artisan Coffee
+
+                        <p className="font-sans text-xl text-cream/80 max-w-lg mb-10 leading-relaxed italic">
+                            Crafting exceptional coffee with passion and precision. Discover your next favorite blend.
                         </p>
-                        <p className="text-gray-500 max-w-lg mx-auto">
-                            Two passions. One destination. Discover cutting-edge mobile tech and handcrafted coffee under one roof.
-                        </p>
+
+                        <div className="flex flex-col sm:flex-row gap-4">
+                            <Link
+                                href="/menu"
+                                className="inline-flex items-center justify-center px-10 py-4 bg-gold hover:bg-gold-light text-espresso font-serif text-lg font-bold rounded-full transition-all duration-300 shadow-2xl shadow-gold/20"
+                            >
+                                VIEW MENU
+                            </Link>
+                            <Link
+                                href="#phones"
+                                className="inline-flex items-center justify-center px-10 py-4 border border-gold/50 hover:bg-gold/10 text-gold font-serif text-lg font-bold rounded-full transition-all duration-300"
+                            >
+                                BROWSE PHONES
+                            </Link>
+                        </div>
                     </div>
+                </div>
 
-                    {/* Dual Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 max-w-5xl mx-auto">
-                        {/* Phone Shop Card */}
-                        <Link href="#phones" className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary-600 to-indigo-600 p-8 lg:p-10 hover:scale-[1.02] transition-transform duration-300">
-                            <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-2xl transform translate-x-10 -translate-y-10" />
-                            <div className="relative">
-                                <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                                    <FiSmartphone className="w-8 h-8 text-white" />
-                                </div>
-                                <h3 className="text-2xl lg:text-3xl font-black text-white mb-3">Phone Shop</h3>
-                                <p className="text-primary-100 mb-6">Premium smartphones with official warranty. Same-day delivery available.</p>
-                                <div className="flex items-center gap-2 text-white font-bold">
-                                    Browse Phones <FiArrowRight className="group-hover:translate-x-2 transition-transform" />
-                                </div>
-                            </div>
-                        </Link>
-
-                        {/* Coffee Shop Card */}
-                        <Link href="/menu" className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-amber-600 to-orange-600 p-8 lg:p-10 hover:scale-[1.02] transition-transform duration-300">
-                            <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-2xl transform translate-x-10 -translate-y-10" />
-                            <div className="relative">
-                                <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                                    <FiCoffee className="w-8 h-8 text-white" />
-                                </div>
-                                <h3 className="text-2xl lg:text-3xl font-black text-white mb-3">Coffee Shop</h3>
-                                <p className="text-amber-100 mb-6">Artisan coffee crafted with passion. Fresh beans roasted daily.</p>
-                                <div className="flex items-center gap-2 text-white font-bold">
-                                    View Menu <FiArrowRight className="group-hover:translate-x-2 transition-transform" />
-                                </div>
-                            </div>
-                        </Link>
+                {/* Vertical Text Decoration */}
+                <div className="absolute right-8 top-1/2 -translate-y-1/2 hidden lg:block">
+                    <div className="flex flex-col items-center gap-8">
+                        <div className="w-px h-24 bg-gold/30" />
+                        <span className="font-serif text-xs tracking-[1em] uppercase text-gold/40 vertical-text rotate-180 mb-4 whitespace-nowrap" style={{ writingMode: 'vertical-rl' }}>
+                            SINCE 2024
+                        </span>
+                        <div className="w-px h-24 bg-gold/30" />
                     </div>
                 </div>
             </section>
 
-            {/* Features Bar */}
-            <section className="bg-gray-50 dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 py-10">
+            {/* Features Bar - Brew & Bean Style */}
+            <section className="bg-espresso-light border-y border-gold/10 py-12">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-12 sm:gap-8">
                         <div className="flex flex-col items-center text-center">
-                            <FiBox className="w-7 h-7 text-primary-600 mb-3" />
-                            <h4 className="text-xs font-bold uppercase tracking-wider text-gray-900 dark:text-white">Same Day Delivery</h4>
+                            <FiCoffee className="w-8 h-8 text-gold mb-4" />
+                            <h4 className="font-serif text-sm font-bold uppercase tracking-[0.2em] text-gold/90">Artisan Brews</h4>
+                            <p className="text-xs text-cream/40 mt-1 uppercase tracking-widest leading-relaxed">Exceptional coffee<br />made with care</p>
                         </div>
                         <div className="flex flex-col items-center text-center">
-                            <FiShield className="w-7 h-7 text-primary-600 mb-3" />
-                            <h4 className="text-xs font-bold uppercase tracking-wider text-gray-900 dark:text-white">Official Warranty</h4>
+                            <FiClock className="w-8 h-8 text-gold mb-4" />
+                            <h4 className="font-serif text-sm font-bold uppercase tracking-[0.2em] text-gold/90">Relaxing Atmosphere</h4>
+                            <p className="text-xs text-cream/40 mt-1 uppercase tracking-widest leading-relaxed">A cozy space to<br />unwind and savor</p>
                         </div>
                         <div className="flex flex-col items-center text-center">
-                            <FiCoffee className="w-7 h-7 text-amber-600 mb-3" />
-                            <h4 className="text-xs font-bold uppercase tracking-wider text-gray-900 dark:text-white">Fresh Coffee Daily</h4>
+                            <FiSmartphone className="w-8 h-8 text-gold mb-4" />
+                            <h4 className="font-serif text-sm font-bold uppercase tracking-[0.2em] text-gold/90">Premium Devices</h4>
+                            <p className="text-xs text-cream/40 mt-1 uppercase tracking-widest leading-relaxed">Official warranty<br />on all gadgets</p>
                         </div>
                         <div className="flex flex-col items-center text-center">
-                            <FiZap className="w-7 h-7 text-amber-600 mb-3" />
-                            <h4 className="text-xs font-bold uppercase tracking-wider text-gray-900 dark:text-white">Free WiFi</h4>
+                            <FiSmartphone className="w-8 h-8 text-gold mb-4" /> {/* Reusing icon for Fresh Beans look */}
+                            <h4 className="font-serif text-sm font-bold uppercase tracking-[0.2em] text-gold/90">Fresh Ground Beans</h4>
+                            <p className="text-xs text-cream/40 mt-1 uppercase tracking-widest leading-relaxed">Quality coffee from<br />freshly ground beans</p>
                         </div>
                     </div>
                 </div>
@@ -214,62 +219,70 @@ export default function HomePage() {
             {/* Warranty Check */}
             <WarrantyCheck />
 
-            {/* Coffee Section Promo */}
-            <section id="coffee" className="py-24 bg-gradient-to-br from-amber-950 via-stone-900 to-amber-900 text-white">
+            {/* Coffee Section Promo - Redesigned */}
+            <section id="coffee" className="py-32 bg-espresso relative overflow-hidden">
+                {/* Decorative Elements */}
+                <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-cream/5 to-transparent pointer-events-none" />
+
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                        <div>
-                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/20 text-amber-300 text-sm font-bold mb-6">
-                                <FiCoffee className="w-4 h-4" />
-                                myShop Coffee
-                            </div>
-                            <h2 className="text-4xl lg:text-5xl font-black mb-6">
-                                Artisan Coffee,<br />
-                                <span className="text-amber-400">Crafted Daily</span>
-                            </h2>
-                            <p className="text-amber-100/80 text-lg mb-8 max-w-lg">
-                                Take a break from browsing phones and enjoy our freshly roasted coffee. Every cup is made with care.
-                            </p>
+                    <div className="flex flex-col items-center text-center mb-16">
+                        <div className="w-20 h-px bg-gold/50 mb-8" />
+                        <h2 className="font-serif text-4xl lg:text-5xl font-black text-white mb-6 tracking-tight">
+                            Sample Our <span className="text-gold italic">Artisan Brews</span>
+                        </h2>
+                        <p className="font-sans text-cream/60 max-w-2xl text-lg leading-relaxed mb-12">
+                            Each cup is a journey of flavor, meticulously prepared by our expert baristas to give you the perfect morning or afternoon pick-me-up.
+                        </p>
+                    </div>
 
-                            <div className="flex flex-col sm:flex-row gap-4 mb-10">
-                                <Link href="/menu" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full font-bold hover:from-amber-600 hover:to-orange-600 transition-all shadow-lg shadow-amber-500/30">
-                                    View Full Menu <FiArrowRight />
-                                </Link>
-                                <Link href="/order-status" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 backdrop-blur-sm rounded-full font-bold hover:bg-white/20 transition">
-                                    Check Order Status
-                                </Link>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                        {/* Featured Coffee Cards */}
+                        <div className="flex flex-col bg-cream rounded-2xl overflow-hidden shadow-2xl group">
+                            <div className="relative aspect-square">
+                                <img src="/Users/alvin/.gemini/antigravity/brain/8d8568e4-715a-4515-9869-2da2954b8475/coffee_menu_items_1771436921810.png" alt="Flat White" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" style={{ objectPosition: '0 0', width: '200%', height: '200%' }} />
                             </div>
-
-                            <div className="flex items-center gap-6 text-amber-200/80">
-                                <div className="flex items-center gap-2">
-                                    <FiClock className="w-5 h-5 text-amber-400" />
-                                    <span>6AM - 10PM</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <FiMapPin className="w-5 h-5 text-amber-400" />
-                                    <span>Phnom Penh</span>
-                                </div>
+                            <div className="p-6 text-center">
+                                <h3 className="font-serif text-xl font-bold text-espresso">Flat White</h3>
+                                <p className="font-serif text-gold font-black mt-2">$2.99</p>
                             </div>
                         </div>
-
-                        <div className="relative">
-                            <div className="aspect-square bg-gradient-to-br from-amber-600/30 to-orange-600/30 rounded-[3rem] flex items-center justify-center">
-                                <div className="w-3/4 h-3/4 bg-gradient-to-br from-amber-500/50 to-orange-500/50 rounded-[2rem] flex items-center justify-center">
-                                    <FiCoffee className="w-32 h-32 text-white/30" />
-                                </div>
+                        <div className="flex flex-col bg-cream rounded-2xl overflow-hidden shadow-2xl group lg:mt-8">
+                            <div className="relative aspect-square">
+                                <img src="/Users/alvin/.gemini/antigravity/brain/8d8568e4-715a-4515-9869-2da2954b8475/coffee_menu_items_1771436921810.png" alt="Caramel Latte" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" style={{ objectPosition: '100% 0', width: '200%', height: '200%' }} />
                             </div>
-
-                            {/* Floating Cards */}
-                            <div className="absolute -top-4 -right-4 bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-2xl">
-                                <p className="text-4xl font-black text-amber-600">$2.50</p>
-                                <p className="text-sm text-gray-500">Starting from</p>
-                            </div>
-                            <div className="absolute -bottom-4 -left-4 bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-2xl">
-                                <p className="text-sm font-bold text-gray-900 dark:text-white">☕ Espresso</p>
-                                <p className="text-sm font-bold text-gray-900 dark:text-white">🍵 Tea</p>
-                                <p className="text-sm font-bold text-gray-900 dark:text-white">🥤 Smoothies</p>
+                            <div className="p-6 text-center">
+                                <h3 className="font-serif text-xl font-bold text-espresso">Caramel Latte</h3>
+                                <p className="font-serif text-gold font-black mt-2">$2.99</p>
                             </div>
                         </div>
+                        <div className="flex flex-col bg-cream rounded-2xl overflow-hidden shadow-2xl group">
+                            <div className="relative aspect-square">
+                                <img src="/Users/alvin/.gemini/antigravity/brain/8d8568e4-715a-4515-9869-2da2954b8475/coffee_menu_items_1771436921810.png" alt="Cappuccino" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" style={{ objectPosition: '0 100%', width: '200%', height: '200%' }} />
+                            </div>
+                            <div className="p-6 text-center">
+                                <h3 className="font-serif text-xl font-bold text-espresso">Cappuccino</h3>
+                                <p className="font-serif text-gold font-black mt-2">$2.99</p>
+                            </div>
+                        </div>
+                        <div className="flex flex-col bg-cream rounded-2xl overflow-hidden shadow-2xl group lg:mt-8">
+                            <div className="relative aspect-square">
+                                <img src="/Users/alvin/.gemini/antigravity/brain/8d8568e4-715a-4515-9869-2da2954b8475/coffee_menu_items_1771436921810.png" alt="Espresso" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" style={{ objectPosition: '100% 100%', width: '200%', height: '200%' }} />
+                            </div>
+                            <div className="p-6 text-center">
+                                <h3 className="font-serif text-xl font-bold text-espresso">Espresso</h3>
+                                <p className="font-serif text-gold font-black mt-2">$1.99</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="mt-20 text-center">
+                        <Link
+                            href="/menu"
+                            className="inline-flex items-center gap-2 font-serif text-lg font-bold text-gold hover:text-gold-light transition-colors group"
+                        >
+                            EXPLORE ENTIRE MENU
+                            <FiArrowRight className="group-hover:translate-x-2 transition-transform" />
+                        </Link>
                     </div>
                 </div>
             </section>

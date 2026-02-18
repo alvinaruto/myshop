@@ -30,3 +30,10 @@ npm-debug.log*
 
 # Coverage
 coverage/
+
+# Android
+android/app/build/
+android/.gradle/
+*.class
+*.apk
+*.aar

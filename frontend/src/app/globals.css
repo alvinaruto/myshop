@@ -1,25 +1,24 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Kantumruy+Pro:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;600;700&family=Kantumruy+Pro:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --foreground: #0a0a0a;
-  --background: #f8fafc;
-  --primary: #4f46e5;
+  --foreground: #1a0f0a;
+  --background: #f5f5dc;
+  --primary: #c19a6b;
+  --espresso: #1a0f0a;
+  --gold: #c19a6b;
+  --cream: #f5f5dc;
   --success: #22c55e;
   --warning: #f59e0b;
   --danger: #ef4444;
 }
 
-@media (prefers-color-scheme: dark) {
-  /* Only set variables if using system-level dark mode */
-}
-
 .dark {
-  --foreground: #f9fafb;
-  --background: #030712;
+  --foreground: #f5f5dc;
+  --background: #1a0f0a;
 }
 
 * {
