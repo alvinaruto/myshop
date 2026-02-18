@@ -239,7 +239,7 @@ export default function HomePage() {
                         {/* Featured Coffee Cards */}
                         <div className="flex flex-col bg-cream rounded-2xl overflow-hidden shadow-2xl group">
                             <div className="relative aspect-square">
-                                <img src="/Users/alvin/.gemini/antigravity/brain/8d8568e4-715a-4515-9869-2da2954b8475/coffee_menu_items_1771436921810.png" alt="Flat White" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" style={{ objectPosition: '0 0', width: '200%', height: '200%' }} />
+                                <img src="https://images.unsplash.com/photo-1577968897966-3d4325b36b61?w=800&q=80" alt="Flat White" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                             </div>
                             <div className="p-6 text-center">
                                 <h3 className="font-serif text-xl font-bold text-espresso">Flat White</h3>
@@ -248,7 +248,7 @@ export default function HomePage() {
                         </div>
                         <div className="flex flex-col bg-cream rounded-2xl overflow-hidden shadow-2xl group lg:mt-8">
                             <div className="relative aspect-square">
-                                <img src="/Users/alvin/.gemini/antigravity/brain/8d8568e4-715a-4515-9869-2da2954b8475/coffee_menu_items_1771436921810.png" alt="Caramel Latte" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" style={{ objectPosition: '100% 0', width: '200%', height: '200%' }} />
+                                <img src="https://images.unsplash.com/photo-1553909489-eb2175ad3f3f?w=800&q=80" alt="Caramel Latte" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                             </div>
                             <div className="p-6 text-center">
                                 <h3 className="font-serif text-xl font-bold text-espresso">Caramel Latte</h3>
@@ -257,7 +257,7 @@ export default function HomePage() {
                         </div>
                         <div className="flex flex-col bg-cream rounded-2xl overflow-hidden shadow-2xl group">
                             <div className="relative aspect-square">
-                                <img src="/Users/alvin/.gemini/antigravity/brain/8d8568e4-715a-4515-9869-2da2954b8475/coffee_menu_items_1771436921810.png" alt="Cappuccino" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" style={{ objectPosition: '0 100%', width: '200%', height: '200%' }} />
+                                <img src="https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=800&q=80" alt="Cappuccino" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                             </div>
                             <div className="p-6 text-center">
                                 <h3 className="font-serif text-xl font-bold text-espresso">Cappuccino</h3>
@@ -266,7 +266,7 @@ export default function HomePage() {
                         </div>
                         <div className="flex flex-col bg-cream rounded-2xl overflow-hidden shadow-2xl group lg:mt-8">
                             <div className="relative aspect-square">
-                                <img src="/Users/alvin/.gemini/antigravity/brain/8d8568e4-715a-4515-9869-2da2954b8475/coffee_menu_items_1771436921810.png" alt="Espresso" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" style={{ objectPosition: '100% 100%', width: '200%', height: '200%' }} />
+                                <img src="https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?w=800&q=80" alt="Espresso" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                             </div>
                             <div className="p-6 text-center">
                                 <h3 className="font-serif text-xl font-bold text-espresso">Espresso</h3>
