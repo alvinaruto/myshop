@@ -79,7 +79,7 @@ const coffeeImages: Record<string, string> = {
     'chocolate frappe': '/images/coffee/chocolate_frappe.png',
     'coffee frappe': '/images/coffee/coffee_frappe.png',
     'java chip': '/images/coffee/java_chip_frappe.png',
-    'oreo': 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=800&q=80',
+    'oreo': '/images/coffee/chocolate_frappe.png', // Temporary fallback
     'taro': 'https://images.unsplash.com/photo-1628522338002-3ff94b130e92?w=800&q=80',
     'frappe': '/images/coffee/coffee_frappe.png',
 
@@ -94,14 +94,14 @@ const coffeeImages: Record<string, string> = {
     'jasmine': 'https://images.unsplash.com/photo-1594631252845-ff2047ff317a?w=800&q=80',
 
     // Smoothies & Juices
-    'mango': 'https://images.unsplash.com/photo-1537640538966-79f369b41e8f?w=800&q=80',
+    'mango': '/images/coffee/mango_smoothie.png',
     'strawberry': 'https://images.unsplash.com/photo-1543644009-1d407101859b?w=800&q=80',
     'banana': 'https://images.unsplash.com/photo-1481349518771-2005b9565124?w=800&q=80',
     'berry': 'https://images.unsplash.com/photo-1553530666-ba11a7da3888?w=800&q=80',
-    'dragon fruit': 'https://images.unsplash.com/photo-1628522338002-3ff94b130e92?w=800&q=80',
-    'smoothie': 'https://images.unsplash.com/photo-1505252585461-04db1eb84625?w=800&q=80',
+    'dragon fruit': '/images/coffee/dragon_fruit_smoothie.png',
+    'smoothie': '/images/coffee/mango_smoothie.png',
     'juice': 'https://images.unsplash.com/photo-1534353473418-4cfa6c56fd38?w=800&q=80',
-    'avocado': 'https://images.unsplash.com/photo-1519163219899-21d2bb723b3e?w=800&q=80',
+    'avocado': '/images/coffee/avocado_smoothie.png',
     'coconut': 'https://images.unsplash.com/photo-1563288461-e179738092ec?w=800&q=80',
     'lemonade': 'https://images.unsplash.com/photo-1523677011737-cee4117e7faf?w=800&q=80',
 
