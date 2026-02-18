@@ -51,10 +51,10 @@ interface CartItem {
 // Premium Coffee & Drink Images from Unsplash
 const coffeeImages: Record<string, string> = {
     // Hot Coffee Specialties
-    'espresso': 'https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?w=800&q=80',
+    'espresso': '/images/coffee/espresso.png',
     'americano': 'https://images.unsplash.com/photo-1551030173-122adbb01f3a?w=800&q=80',
     'cappuccino': 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=800&q=80',
-    'latte': 'https://images.unsplash.com/photo-1536935338218-9bca6d274f3b?w=800&q=80',
+    'latte': '/images/coffee/iced_latte.png',
     'mocha': 'https://images.unsplash.com/photo-1578314675249-a6910f80cc4e?w=800&q=80',
     'flat white': 'https://images.unsplash.com/photo-1577968897966-3d4325b36b61?w=800&q=80',
     'vanilla latte': 'https://images.unsplash.com/photo-1595434066389-99c30150fc9a?w=800&q=80',
@@ -63,10 +63,10 @@ const coffeeImages: Record<string, string> = {
     'hot chocolate': 'https://images.unsplash.com/photo-1544787210-2213d64adac3?w=800&q=80',
 
     // Iced Coffee Specialties
-    'khmer iced coffee': 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=800&q=80',
-    'iced latte': 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=800&q=80',
+    'khmer iced coffee': '/images/coffee/iced_latte.png',
+    'iced latte': '/images/coffee/iced_latte.png',
     'iced mocha': 'https://images.unsplash.com/photo-1499961024600-ad094db305cc?w=800&q=80',
-    'iced americano': 'https://images.unsplash.com/photo-1517701550927-30cf4bb1dba5?w=800&q=80',
+    'iced americano': '/images/coffee/iced_latte.png',
     'coconut coffee': 'https://images.unsplash.com/photo-1559496417-e7f25cb247f3?w=800&q=80',
     'cold brew': 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=800&q=80',
     'macchiato': 'https://images.unsplash.com/photo-1485808191679-5f6333af3741?w=800&q=80',
