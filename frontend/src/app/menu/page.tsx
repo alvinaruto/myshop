@@ -97,7 +97,7 @@ const coffeeImages: Record<string, string> = {
     'mango': 'https://images.unsplash.com/photo-1537640538966-79f369b41e8f?w=800&q=80',
     'strawberry': 'https://images.unsplash.com/photo-1543644009-1d407101859b?w=800&q=80',
     'banana': 'https://images.unsplash.com/photo-1481349518771-2005b9565124?w=800&q=80',
-    'berry': 'https://images.unsplash.com/photo-1505252585461-04db1eb84625?w=800&q=80',
+    'berry': 'https://images.unsplash.com/photo-1553530666-ba11a7da3888?w=800&q=80',
     'dragon fruit': 'https://images.unsplash.com/photo-1628522338002-3ff94b130e92?w=800&q=80',
     'smoothie': 'https://images.unsplash.com/photo-1505252585461-04db1eb84625?w=800&q=80',
     'juice': 'https://images.unsplash.com/photo-1534353473418-4cfa6c56fd38?w=800&q=80',
