@@ -1,49 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import axios from 'axios';
 import Link from 'next/link';
 import { Navbar } from '@/components/Navbar';
-import { ProductCard } from '@/components/ProductCard';
-import { WarrantyCheck } from '@/components/WarrantyCheck';
-import { ProductQuickView } from '@/components/ProductQuickView';
-import { FiSearch, FiFilter, FiLoader, FiArrowRight, FiSmartphone, FiShield, FiZap, FiBox, FiCoffee, FiClock, FiMapPin, FiHeart } from 'react-icons/fi';
-
-const API_URL = '/api';
+import { FiCoffee, FiClock, FiMapPin, FiHeart, FiArrowRight } from 'react-icons/fi';
 
 export default function HomePage() {
-    const [products, setProducts] = useState<any[]>([]);
-    const [categories, setCategories] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [search, setSearch] = useState('');
-    const [selectedCategory, setSelectedCategory] = useState('all');
-    const [selectedProduct, setSelectedProduct] = useState<any>(null);
-
-    useEffect(() => {
-        const fetchData = async () => {
-            setLoading(true);
-            try {
-                const [prodRes, catRes] = await Promise.all([
-                    axios.get(`${API_URL}/public/products?limit=50`),
-                    axios.get(`${API_URL}/public/categories`)
-                ]);
-                setProducts(prodRes.data.data.products);
-                setCategories(catRes.data.data);
-            } catch (error) {
-                console.error('Failed to load catalog:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchData();
-    }, []);
-
-    const filteredProducts = products.filter(p => {
-        const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) ||
-            p.sku.toLowerCase().includes(search.toLowerCase());
-        const matchesCategory = selectedCategory === 'all' || p.category_id === selectedCategory;
-        return matchesSearch && matchesCategory;
-    });
 
     return (
         <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
