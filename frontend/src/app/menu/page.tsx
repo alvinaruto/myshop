@@ -48,73 +48,73 @@ interface CartItem {
 }
 
 
-// Premium Coffee & Drink Images from Unsplash
+// Local Coffee & Drink Images
 const coffeeImages: Record<string, string> = {
     // Hot Coffee Specialties
     'espresso': '/images/coffee/espresso.png',
-    'americano': 'https://images.unsplash.com/photo-1551030173-122adbb01f3a?w=800&q=80',
-    'cappuccino': 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=800&q=80',
+    'americano': '/images/coffee/hot_americano.png',
+    'cappuccino': '/images/coffee/cappuccino.png',
     'latte': '/images/coffee/hot_latte.png',
-    'mocha': 'https://images.unsplash.com/photo-1578314675249-a6910f80cc4e?w=800&q=80',
+    'mocha': '/images/coffee/hot_mocha.png',
     'flat white': '/images/coffee/hot_latte.png',
-    'vanilla latte': 'https://images.unsplash.com/photo-1595434066389-99c30150fc9a?w=800&q=80',
-    'caramel latte': 'https://images.unsplash.com/photo-1553909489-eb2175ad3f3f?w=800&q=80',
+    'vanilla latte': '/images/coffee/vanilla_latte.png',
+    'caramel latte': '/images/coffee/caramel_latte.png',
     'matcha latte': '/images/coffee/hot_matcha.png',
     'hot chocolate': '/images/coffee/hot_chocolate.png',
 
     // Iced Coffee Specialties
     'khmer iced coffee': '/images/coffee/iced_latte.png',
     'iced latte': '/images/coffee/iced_latte.png',
-    'iced mocha': 'https://images.unsplash.com/photo-1499961024600-ad094db305cc?w=800&q=80',
+    'iced mocha': '/images/coffee/iced_mocha.png',
     'iced americano': '/images/coffee/iced_americano.png',
     'coconut coffee': '/images/coffee/coconut_coffee.png',
     'cold brew': '/images/coffee/cold_brew.png',
-    'macchiato': 'https://images.unsplash.com/photo-1485808191679-5f6333af3741?w=800&q=80',
-    'vietnamese': 'https://images.unsplash.com/photo-1551030173-122adbb01f3a?w=800&q=80',
-    'palm sugar': 'https://images.unsplash.com/photo-1594631252845-ff2047ff317a?w=800&q=80',
-    'salted cream': 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=800&q=80',
+    'macchiato': '/images/coffee/caramel_latte.png',
+    'vietnamese': '/images/coffee/iced_latte.png',
+    'palm sugar': '/images/coffee/cold_brew.png',
+    'salted cream': '/images/coffee/salted_cream_coffee.png',
 
     // Blended / Frappes
     'caramel frappe': '/images/coffee/caramel_frappe.png',
     'chocolate frappe': '/images/coffee/chocolate_frappe.png',
     'coffee frappe': '/images/coffee/coffee_frappe.png',
     'java chip': '/images/coffee/java_chip_frappe.png',
-    'oreo': '/images/coffee/chocolate_frappe.png', // Temporary fallback
-    'taro': 'https://images.unsplash.com/photo-1628522338002-3ff94b130e92?w=800&q=80',
+    'oreo': '/images/coffee/chocolate_frappe.png',
+    'taro': '/images/coffee/java_chip_frappe.png',
     'frappe': '/images/coffee/coffee_frappe.png',
 
     // Teas
-    'thai milk tea': 'https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=800&q=80',
-    'milk tea': 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=800&q=80',
-    'iced tea': 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=800&q=80',
-    'lemon tea': 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=800&q=80',
-    'peach tea': 'https://images.unsplash.com/photo-1597318181409-cf64d0b5d8a2?w=800&q=80',
-    'passion fruit': 'https://images.unsplash.com/photo-1584444262846-e2716db1294b?w=800&q=80',
-    'green tea': 'https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?w=800&q=80',
-    'jasmine': 'https://images.unsplash.com/photo-1594631252845-ff2047ff317a?w=800&q=80',
+    'thai milk tea': '/images/coffee/iced_latte.png',
+    'milk tea': '/images/coffee/iced_latte.png',
+    'iced tea': '/images/coffee/iced_americano.png',
+    'lemon tea': '/images/coffee/iced_americano.png',
+    'peach tea': '/images/coffee/iced_americano.png',
+    'passion fruit': '/images/coffee/dragon_fruit_smoothie.png',
+    'green tea': '/images/coffee/hot_matcha.png',
+    'jasmine': '/images/coffee/hot_matcha.png',
 
     // Smoothies & Juices
     'mango': '/images/coffee/mango_smoothie.png',
-    'strawberry': 'https://images.unsplash.com/photo-1543644009-1d407101859b?w=800&q=80',
-    'banana': 'https://images.unsplash.com/photo-1481349518771-2005b9565124?w=800&q=80',
-    'berry': 'https://images.unsplash.com/photo-1553530666-ba11a7da3888?w=800&q=80',
+    'strawberry': '/images/coffee/dragon_fruit_smoothie.png',
+    'banana': '/images/coffee/mango_smoothie.png',
+    'berry': '/images/coffee/dragon_fruit_smoothie.png',
     'dragon fruit': '/images/coffee/dragon_fruit_smoothie.png',
     'smoothie': '/images/coffee/mango_smoothie.png',
-    'juice': 'https://images.unsplash.com/photo-1534353473418-4cfa6c56fd38?w=800&q=80',
+    'juice': '/images/coffee/mango_smoothie.png',
     'avocado': '/images/coffee/avocado_smoothie.png',
-    'coconut': 'https://images.unsplash.com/photo-1563288461-e179738092ec?w=800&q=80',
-    'lemonade': 'https://images.unsplash.com/photo-1523677011737-cee4117e7faf?w=800&q=80',
+    'coconut': '/images/coffee/coconut_coffee.png',
+    'lemonade': '/images/coffee/mango_smoothie.png',
 
     // Food
-    'croissant': 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=800&q=80',
-    'pastry': 'https://images.unsplash.com/photo-1517433670267-08bbd4be890f?w=800&q=80',
-    'cake': 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=800&q=80',
-    'brownie': 'https://images.unsplash.com/photo-1542990253-0b7dc279e46a?w=800&q=80',
-    'sandwich': 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=800&q=80',
-    'banana bread': 'https://images.unsplash.com/photo-1601000405234-ee563456860d?w=800&q=80',
-    'waffle': 'https://images.unsplash.com/photo-1541288097308-7b8e3f5f5901?w=800&q=80',
+    'croissant': '/images/coffee/espresso.png',
+    'pastry': '/images/coffee/espresso.png',
+    'cake': '/images/coffee/hot_chocolate.png',
+    'brownie': '/images/coffee/hot_chocolate.png',
+    'sandwich': '/images/coffee/espresso.png',
+    'banana bread': '/images/coffee/espresso.png',
+    'waffle': '/images/coffee/espresso.png',
 
-    'default': 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&q=80',
+    'default': '/images/coffee/espresso.png',
 };
 
 const getImageForItem = (item: MenuItem, categoryIcon?: string): string => {
@@ -536,7 +536,7 @@ export default function CustomerMenuPage() {
                 {/* Background Image with Overlay */}
                 <div className="absolute inset-0 z-0">
                     <img
-                        src="/Users/alvin/.gemini/antigravity/brain/8d8568e4-715a-4515-9869-2da2954b8475/hero_coffee_pour_1771436903945.png"
+                        src="/images/coffee/hero.png"
                         alt="Menu Background"
                         className="w-full h-full object-cover opacity-40 blur-[2px] scale-105"
                     />
