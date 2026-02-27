@@ -63,15 +63,15 @@ const coffeeImages: Record<string, string> = {
     'hot chocolate': '/images/coffee/hot_chocolate.png',
 
     // Iced Coffee Specialties
-    'khmer iced coffee': '/images/coffee/iced_latte.png',
+    'khmer iced coffee': '/images/coffee/khmer_iced_coffee_unique.png',
     'iced latte': '/images/coffee/iced_latte.png',
     'iced mocha': '/images/coffee/iced_mocha.png',
     'iced americano': '/images/coffee/iced_americano.png',
     'coconut coffee': '/images/coffee/coconut_coffee.png',
     'cold brew': '/images/coffee/cold_brew.png',
-    'macchiato': '/images/coffee/caramel_latte.png',
-    'vietnamese': '/images/coffee/iced_latte.png',
-    'palm sugar': '/images/coffee/cold_brew.png',
+    'macchiato': '/images/coffee/macchiato.png',
+    'vietnamese': '/images/coffee/vietnamese_coffee.png',
+    'palm sugar': '/images/coffee/palm_sugar_coffee.png',
     'salted cream': '/images/coffee/salted_cream_coffee.png',
 
     // Blended / Frappes
@@ -84,8 +84,8 @@ const coffeeImages: Record<string, string> = {
     'frappe': '/images/coffee/coffee_frappe.png',
 
     // Teas
-    'thai milk tea': '/images/coffee/iced_latte.png',
-    'milk tea': '/images/coffee/iced_latte.png',
+    'thai milk tea': '/images/coffee/thai_milk_tea.png',
+    'milk tea': '/images/coffee/milk_tea.png',
     'iced tea': '/images/coffee/iced_americano.png',
     'lemon tea': '/images/coffee/iced_americano.png',
     'peach tea': '/images/coffee/iced_americano.png',
