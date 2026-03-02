@@ -56,7 +56,7 @@ const coffeeImages: Record<string, string> = {
     'cappuccino': '/images/coffee/cappuccino.png',
     'latte': '/images/coffee/hot_latte.png',
     'mocha': '/images/coffee/hot_mocha.png',
-    'flat white': '/images/coffee/hot_latte.png',
+    'flat white': '/images/coffee/flat_white.png',
     'vanilla latte': '/images/coffee/vanilla_latte.png',
     'caramel latte': '/images/coffee/caramel_latte.png',
     'matcha latte': '/images/coffee/hot_matcha.png',
@@ -79,46 +79,47 @@ const coffeeImages: Record<string, string> = {
     'chocolate frappe': '/images/coffee/chocolate_frappe.png',
     'coffee frappe': '/images/coffee/coffee_frappe.png',
     'java chip': '/images/coffee/java_chip_frappe.png',
-    'oreo': '/images/coffee/chocolate_frappe.png',
-    'taro': '/images/coffee/java_chip_frappe.png',
+    'oreo': '/images/coffee/oreo_frappe.png',
+    'taro': '/images/coffee/taro_frappe.png',
     'frappe': '/images/coffee/coffee_frappe.png',
 
     // Teas
     'thai milk tea': '/images/coffee/thai_milk_tea.png',
     'milk tea': '/images/coffee/milk_tea.png',
-    'iced tea': '/images/coffee/iced_americano.png',
-    'lemon tea': '/images/coffee/iced_americano.png',
-    'peach tea': '/images/coffee/iced_americano.png',
-    'passion fruit': '/images/coffee/dragon_fruit_smoothie.png',
+    'iced tea': '/images/coffee/iced_tea.png',
+    'lemon tea': '/images/coffee/lemon_tea.png',
+    'peach tea': '/images/coffee/peach_tea.png',
+    'passion fruit': '/images/coffee/passion_fruit_tea.png',
     'green tea': '/images/coffee/hot_matcha.png',
-    'jasmine': '/images/coffee/hot_matcha.png',
+    'jasmine': '/images/coffee/jasmine_tea.png',
 
     // Smoothies & Juices
     'mango': '/images/coffee/mango_smoothie.png',
-    'strawberry': '/images/coffee/dragon_fruit_smoothie.png',
-    'banana': '/images/coffee/mango_smoothie.png',
-    'berry': '/images/coffee/dragon_fruit_smoothie.png',
+    'strawberry': '/images/coffee/strawberry_smoothie.png',
+    'banana': '/images/coffee/banana_smoothie.png',
+    'berry': '/images/coffee/berry_smoothie.png',
     'dragon fruit': '/images/coffee/dragon_fruit_smoothie.png',
     'smoothie': '/images/coffee/mango_smoothie.png',
-    'juice': '/images/coffee/mango_smoothie.png',
+    'juice': '/images/coffee/orange_juice.png',
     'avocado': '/images/coffee/avocado_smoothie.png',
     'coconut': '/images/coffee/coconut_coffee.png',
-    'lemonade': '/images/coffee/mango_smoothie.png',
+    'lemonade': '/images/coffee/lemonade.png',
 
     // Food
-    'croissant': '/images/coffee/espresso.png',
-    'pastry': '/images/coffee/espresso.png',
+    'croissant': '/images/coffee/croissant.png',
+    'pastry': '/images/coffee/pastry.png',
     'cake': '/images/coffee/hot_chocolate.png',
     'brownie': '/images/coffee/hot_chocolate.png',
-    'sandwich': '/images/coffee/espresso.png',
-    'banana bread': '/images/coffee/espresso.png',
-    'waffle': '/images/coffee/espresso.png',
+    'sandwich': '/images/coffee/sandwich.png',
+    'banana bread': '/images/coffee/croissant.png',
+    'waffle': '/images/coffee/waffle.png',
 
     'default': '/images/coffee/espresso.png',
 };
 
 const getImageForItem = (item: MenuItem, categoryIcon?: string): string => {
-    if (item.image_url) return item.image_url;
+    // Only use image_url if it's a local path (not an external URL)
+    if (item.image_url && !item.image_url.startsWith('http')) return item.image_url;
 
     // Try to match item name with coffee images
     const nameLower = item.name.toLowerCase();
