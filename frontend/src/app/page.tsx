@@ -151,7 +151,7 @@ export default function HomePage() {
                         <div className="coffee-card flex flex-col bg-cream rounded-2xl overflow-hidden shadow-2xl group reveal-up delay-100">
                             <div className="relative aspect-square overflow-hidden">
                                 <img
-                                    src="https://images.unsplash.com/photo-1577968897966-3d4325b36b61?w=800&q=80"
+                                    src="/images/coffee/flat_white.png"
                                     alt="Flat White"
                                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
                                 />
@@ -165,7 +165,7 @@ export default function HomePage() {
                         <div className="coffee-card flex flex-col bg-cream rounded-2xl overflow-hidden shadow-2xl group lg:mt-8 reveal-up delay-200">
                             <div className="relative aspect-square overflow-hidden">
                                 <img
-                                    src="https://images.unsplash.com/photo-1553909489-eb2175ad3f3f?w=800&q=80"
+                                    src="/images/coffee/caramel_latte.png"
                                     alt="Caramel Latte"
                                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
                                 />
@@ -179,7 +179,7 @@ export default function HomePage() {
                         <div className="coffee-card flex flex-col bg-cream rounded-2xl overflow-hidden shadow-2xl group reveal-up delay-300">
                             <div className="relative aspect-square overflow-hidden">
                                 <img
-                                    src="https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=800&q=80"
+                                    src="/images/coffee/cappuccino.png"
                                     alt="Cappuccino"
                                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
                                 />
@@ -193,7 +193,7 @@ export default function HomePage() {
                         <div className="coffee-card flex flex-col bg-cream rounded-2xl overflow-hidden shadow-2xl group lg:mt-8 reveal-up delay-400">
                             <div className="relative aspect-square overflow-hidden">
                                 <img
-                                    src="https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?w=800&q=80"
+                                    src="/images/coffee/espresso.png"
                                     alt="Espresso"
                                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
                                 />
