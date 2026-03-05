@@ -58,25 +58,25 @@ export const CoffeeCard = ({ item, onClick, onAdd }: CoffeeCardProps) => {
             </div>
 
             {/* Content Section */}
-            <div className="p-6 bg-cream flex flex-col flex-1">
+            <div className="p-5 bg-espresso-light flex flex-col flex-1 border-t border-white/5">
                 <div className="flex justify-between items-start gap-4 mb-2">
                     <div className="flex-1">
-                        <h3 className="font-serif text-xl text-espresso font-bold group-hover:text-gold-dark transition-colors duration-300">
+                        <h3 className="font-serif text-lg text-amber-100 font-bold group-hover:text-gold transition-colors duration-300 leading-snug">
                             {item.name}
                         </h3>
                         {item.name_kh && (
-                            <p className="text-espresso/60 text-sm font-khmer mt-0.5">{item.name_kh}</p>
+                            <p className="text-gold/50 text-xs font-khmer mt-0.5">{item.name_kh}</p>
                         )}
                     </div>
-                    <div className="text-right">
-                        <p className="font-serif text-lg font-black text-espresso">
+                    <div className="text-right shrink-0">
+                        <p className="font-serif text-base font-black text-gold">
                             {formatPrice(item.base_price)}
                         </p>
                     </div>
                 </div>
 
                 {item.description && (
-                    <p className="text-espresso/70 text-sm line-clamp-2 mt-2 leading-relaxed italic">
+                    <p className="text-amber-100/40 text-xs line-clamp-2 mt-1 leading-relaxed italic">
                         {item.description}
                     </p>
                 )}
@@ -86,7 +86,7 @@ export const CoffeeCard = ({ item, onClick, onAdd }: CoffeeCardProps) => {
                     {item.has_sizes && (
                         <div className="flex gap-1.5">
                             {['S', 'M', 'L'].map(size => (
-                                <span key={size} className="w-6 h-6 flex items-center justify-center rounded-md border border-espresso/10 text-[10px] font-bold text-espresso/40">
+                                <span key={size} className="w-6 h-6 flex items-center justify-center rounded-md border border-gold/20 text-[10px] font-bold text-gold/40">
                                     {size}
                                 </span>
                             ))}

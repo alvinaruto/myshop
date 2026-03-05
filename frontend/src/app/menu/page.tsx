@@ -549,7 +549,7 @@ export default function CustomerMenuPage() {
     }
 
     return (
-        <div className="min-h-screen bg-cream font-sans selection:bg-gold/30">
+        <div className="min-h-screen bg-espresso font-sans selection:bg-gold/30">
 
 
             {/* Premium Menu Hero */}
@@ -635,12 +635,12 @@ export default function CustomerMenuPage() {
             </div>
 
             {/* Menu Content */}
-            <main className="container mx-auto px-4 py-20 pb-40">
+            <main className="container mx-auto px-4 py-16 pb-40">
                 {categories.length === 0 ? (
                     <div className="text-center py-20">
-                        <FiCoffee className="w-20 h-20 mx-auto text-amber-300 mb-4" />
-                        <h2 className="text-2xl font-bold text-stone-800 mb-2">Menu Coming Soon</h2>
-                        <p className="text-stone-500">We&apos;re preparing something special for you!</p>
+                        <FiCoffee className="w-20 h-20 mx-auto text-gold/30 mb-6" />
+                        <h2 className="text-2xl font-bold text-amber-100 mb-2 font-serif">Menu Coming Soon</h2>
+                        <p className="text-amber-100/40">We&apos;re preparing something special for you!</p>
                     </div>
                 ) : searchQuery.trim() ? (
                     // Search Results View — shows items across all categories
@@ -657,13 +657,15 @@ export default function CustomerMenuPage() {
                         );
                         return results.length === 0 ? (
                             <div className="text-center py-20">
-                                <FiSearch className="w-16 h-16 mx-auto text-gold/20 mb-4" />
-                                <h2 className="text-2xl font-bold text-stone-700 mb-2">No results for &ldquo;{searchQuery}&rdquo;</h2>
-                                <p className="text-stone-500">Try a different keyword or browse the categories above.</p>
+                                <FiSearch className="w-16 h-16 mx-auto text-gold/20 mb-6" />
+                                <h2 className="text-2xl font-bold text-amber-100 mb-2 font-serif">No results for &ldquo;{searchQuery}&rdquo;</h2>
+                                <p className="text-amber-100/40 text-sm">Try a different keyword or browse the categories above.</p>
                             </div>
                         ) : (
                             <div>
-                                <p className="text-stone-500 text-sm mb-8">{results.length} result{results.length !== 1 ? 's' : ''} for &ldquo;{searchQuery}&rdquo;</p>
+                                <p className="text-amber-100/40 text-xs uppercase tracking-[0.2em] font-bold mb-8">
+                                    {results.length} result{results.length !== 1 ? 's' : ''} for &ldquo;{searchQuery}&rdquo;
+                                </p>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-12">
                                     {results.map(({ item, category }) => (
                                         <CoffeeCard
@@ -691,12 +693,18 @@ export default function CustomerMenuPage() {
                             className={`mb-16 ${activeCategory === category.id ? '' : 'hidden'}`}
                         >
                             {/* Category Header */}
-                            <div className="text-center mb-10">
-                                <span className="text-6xl mb-4 block">{getCategoryIcon(category.icon)}</span>
-                                <h2 className="text-4xl font-black text-stone-900 tracking-tight">{category.name}</h2>
+                            <div className="text-center mb-12">
+                                {/* Decorative line */}
+                                <div className="flex items-center justify-center gap-4 mb-6">
+                                    <div className="h-px w-20 bg-gradient-to-r from-transparent to-gold/40" />
+                                    <span className="text-5xl">{getCategoryIcon(category.icon)}</span>
+                                    <div className="h-px w-20 bg-gradient-to-l from-transparent to-gold/40" />
+                                </div>
+                                <h2 className="font-serif text-4xl sm:text-5xl font-black text-amber-100 tracking-tight">{category.name}</h2>
                                 {category.name_kh && (
-                                    <p className="text-amber-600 text-lg mt-1">{category.name_kh}</p>
+                                    <p className="text-gold/70 text-base mt-2 font-khmer tracking-wide">{category.name_kh}</p>
                                 )}
+                                <div className="w-12 h-0.5 bg-gold/40 mx-auto mt-4" />
                             </div>
 
                             {/* Items Grid using CoffeeCard */}
@@ -777,8 +785,8 @@ export default function CustomerMenuPage() {
                                                     key={sz}
                                                     onClick={() => setSelectedSize(sz)}
                                                     className={`text-center p-4 rounded-2xl border-2 transition-all duration-200 ${isActive
-                                                            ? 'border-amber-500 bg-amber-500/15 shadow-lg shadow-amber-500/10'
-                                                            : 'border-white/10 bg-white/5 hover:border-amber-500/40 hover:bg-white/10'
+                                                        ? 'border-amber-500 bg-amber-500/15 shadow-lg shadow-amber-500/10'
+                                                        : 'border-white/10 bg-white/5 hover:border-amber-500/40 hover:bg-white/10'
                                                         }`}
                                                 >
                                                     <p className={`text-2xl font-black ${isActive ? 'text-amber-400' : 'text-amber-100/60'}`}>{label}</p>
