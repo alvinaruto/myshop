@@ -24,6 +24,8 @@ import com.myshop.cafe.ui.screens.menu.MenuViewModel;
 import com.myshop.cafe.ui.screens.menu.MenuViewModel_HiltModules_KeyModule_ProvideFactory;
 import com.myshop.cafe.ui.screens.orderstatus.OrderStatusViewModel;
 import com.myshop.cafe.ui.screens.orderstatus.OrderStatusViewModel_HiltModules_KeyModule_ProvideFactory;
+import com.myshop.cafe.ui.screens.profile.OrderHistoryViewModel;
+import com.myshop.cafe.ui.screens.profile.OrderHistoryViewModel_HiltModules_KeyModule_ProvideFactory;
 import com.myshop.cafe.ui.screens.profile.ProfileViewModel;
 import com.myshop.cafe.ui.screens.profile.ProfileViewModel_HiltModules_KeyModule_ProvideFactory;
 import dagger.hilt.android.ActivityRetainedLifecycle;
@@ -385,7 +387,7 @@ public final class DaggerMyShopApplication_HiltComponents_SingletonC {
 
     @Override
     public Set<String> getViewModelKeys() {
-      return SetBuilder.<String>newSetBuilder(6).add(CartViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(CheckoutViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(LoginViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(MenuViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(OrderStatusViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(ProfileViewModel_HiltModules_KeyModule_ProvideFactory.provide()).build();
+      return SetBuilder.<String>newSetBuilder(7).add(CartViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(CheckoutViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(LoginViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(MenuViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(OrderHistoryViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(OrderStatusViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(ProfileViewModel_HiltModules_KeyModule_ProvideFactory.provide()).build();
     }
 
     @Override
@@ -419,6 +421,8 @@ public final class DaggerMyShopApplication_HiltComponents_SingletonC {
 
     private Provider<MenuViewModel> menuViewModelProvider;
 
+    private Provider<OrderHistoryViewModel> orderHistoryViewModelProvider;
+
     private Provider<OrderStatusViewModel> orderStatusViewModelProvider;
 
     private Provider<ProfileViewModel> profileViewModelProvider;
@@ -440,13 +444,14 @@ public final class DaggerMyShopApplication_HiltComponents_SingletonC {
       this.checkoutViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 1);
       this.loginViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 2);
       this.menuViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 3);
-      this.orderStatusViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 4);
-      this.profileViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 5);
+      this.orderHistoryViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 4);
+      this.orderStatusViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 5);
+      this.profileViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 6);
     }
 
     @Override
     public Map<String, javax.inject.Provider<ViewModel>> getHiltViewModelMap() {
-      return MapBuilder.<String, javax.inject.Provider<ViewModel>>newMapBuilder(6).put("com.myshop.cafe.ui.screens.cart.CartViewModel", ((Provider) cartViewModelProvider)).put("com.myshop.cafe.ui.screens.checkout.CheckoutViewModel", ((Provider) checkoutViewModelProvider)).put("com.myshop.cafe.ui.screens.auth.LoginViewModel", ((Provider) loginViewModelProvider)).put("com.myshop.cafe.ui.screens.menu.MenuViewModel", ((Provider) menuViewModelProvider)).put("com.myshop.cafe.ui.screens.orderstatus.OrderStatusViewModel", ((Provider) orderStatusViewModelProvider)).put("com.myshop.cafe.ui.screens.profile.ProfileViewModel", ((Provider) profileViewModelProvider)).build();
+      return MapBuilder.<String, javax.inject.Provider<ViewModel>>newMapBuilder(7).put("com.myshop.cafe.ui.screens.cart.CartViewModel", ((Provider) cartViewModelProvider)).put("com.myshop.cafe.ui.screens.checkout.CheckoutViewModel", ((Provider) checkoutViewModelProvider)).put("com.myshop.cafe.ui.screens.auth.LoginViewModel", ((Provider) loginViewModelProvider)).put("com.myshop.cafe.ui.screens.menu.MenuViewModel", ((Provider) menuViewModelProvider)).put("com.myshop.cafe.ui.screens.profile.OrderHistoryViewModel", ((Provider) orderHistoryViewModelProvider)).put("com.myshop.cafe.ui.screens.orderstatus.OrderStatusViewModel", ((Provider) orderStatusViewModelProvider)).put("com.myshop.cafe.ui.screens.profile.ProfileViewModel", ((Provider) profileViewModelProvider)).build();
     }
 
     @Override
@@ -487,10 +492,13 @@ public final class DaggerMyShopApplication_HiltComponents_SingletonC {
           case 3: // com.myshop.cafe.ui.screens.menu.MenuViewModel 
           return (T) new MenuViewModel(singletonCImpl.menuRepositoryProvider.get(), singletonCImpl.cartRepositoryProvider.get());
 
-          case 4: // com.myshop.cafe.ui.screens.orderstatus.OrderStatusViewModel 
+          case 4: // com.myshop.cafe.ui.screens.profile.OrderHistoryViewModel 
+          return (T) new OrderHistoryViewModel(singletonCImpl.orderRepositoryProvider.get(), singletonCImpl.userRepositoryProvider.get());
+
+          case 5: // com.myshop.cafe.ui.screens.orderstatus.OrderStatusViewModel 
           return (T) new OrderStatusViewModel(singletonCImpl.orderRepositoryProvider.get());
 
-          case 5: // com.myshop.cafe.ui.screens.profile.ProfileViewModel 
+          case 6: // com.myshop.cafe.ui.screens.profile.ProfileViewModel 
           return (T) new ProfileViewModel(singletonCImpl.userRepositoryProvider.get());
 
           default: throw new AssertionError(id);

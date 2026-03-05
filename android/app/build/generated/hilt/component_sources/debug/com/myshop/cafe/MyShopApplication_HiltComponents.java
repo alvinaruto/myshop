@@ -6,6 +6,7 @@ import com.myshop.cafe.ui.screens.cart.CartViewModel_HiltModules;
 import com.myshop.cafe.ui.screens.checkout.CheckoutViewModel_HiltModules;
 import com.myshop.cafe.ui.screens.menu.MenuViewModel_HiltModules;
 import com.myshop.cafe.ui.screens.orderstatus.OrderStatusViewModel_HiltModules;
+import com.myshop.cafe.ui.screens.profile.OrderHistoryViewModel_HiltModules;
 import com.myshop.cafe.ui.screens.profile.ProfileViewModel_HiltModules;
 import dagger.Binds;
 import dagger.Component;
@@ -166,6 +167,7 @@ public final class MyShopApplication_HiltComponents {
           MenuViewModel_HiltModules.KeyModule.class,
           ActivityCBuilderModule.class,
           ViewModelCBuilderModule.class,
+          OrderHistoryViewModel_HiltModules.KeyModule.class,
           OrderStatusViewModel_HiltModules.KeyModule.class,
           ProfileViewModel_HiltModules.KeyModule.class
       }
@@ -208,6 +210,7 @@ public final class MyShopApplication_HiltComponents {
           HiltWrapper_HiltViewModelFactory_ViewModelModule.class,
           LoginViewModel_HiltModules.BindsModule.class,
           MenuViewModel_HiltModules.BindsModule.class,
+          OrderHistoryViewModel_HiltModules.BindsModule.class,
           OrderStatusViewModel_HiltModules.BindsModule.class,
           ProfileViewModel_HiltModules.BindsModule.class
       }

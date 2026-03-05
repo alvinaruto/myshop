@@ -691,18 +691,85 @@ fun ItemDetailSheet(
 
 // Helper function to get appropriate coffee image based on name
 fun getCoffeeImageUrl(name: String): String {
+    val baseUrl = "https://myshop-ten-ruby.vercel.app"
+    val coffeeImages = mapOf(
+        "espresso" to "/images/coffee/espresso.png",
+        "americano" to "/images/coffee/hot_americano.png",
+        "cappuccino" to "/images/coffee/cappuccino.png",
+        "latte" to "/images/coffee/hot_latte.png",
+        "mocha" to "/images/coffee/hot_mocha.png",
+        "flat white" to "/images/coffee/flat_white.png",
+        "vanilla latte" to "/images/coffee/vanilla_latte.png",
+        "caramel latte" to "/images/coffee/caramel_latte.png",
+        "matcha latte" to "/images/coffee/hot_matcha.png",
+        "hot chocolate" to "/images/coffee/hot_chocolate.png",
+        "khmer iced coffee" to "/images/coffee/khmer_iced_coffee_unique.png",
+        "iced latte" to "/images/coffee/iced_latte.png",
+        "iced mocha" to "/images/coffee/iced_mocha.png",
+        "iced americano" to "/images/coffee/iced_americano.png",
+        "coconut coffee" to "/images/coffee/coconut_coffee.png",
+        "cold brew" to "/images/coffee/cold_brew.png",
+        "macchiato" to "/images/coffee/macchiato.png",
+        "vietnamese" to "/images/coffee/vietnamese_coffee.png",
+        "palm sugar" to "/images/coffee/palm_sugar_coffee.png",
+        "salted cream" to "/images/coffee/salted_cream_coffee.png",
+        "matcha frappe" to "/images/coffee/matcha_frappe.png",
+        "caramel frappe" to "/images/coffee/caramel_frappe.png",
+        "chocolate frappe" to "/images/coffee/chocolate_frappe.png",
+        "coffee frappe" to "/images/coffee/coffee_frappe.png",
+        "mocha frappe" to "/images/coffee/mocha_frappe.png",
+        "java chip" to "/images/coffee/java_chip_frappe.png",
+        "oreo" to "/images/coffee/oreo_frappe.png",
+        "taro frappe" to "/images/coffee/taro_frappe.png",
+        "frappe" to "/images/coffee/generic_frappe.png",
+        "thai milk tea" to "/images/coffee/thai_milk_tea.png",
+        "brown sugar milk tea" to "/images/coffee/brown_sugar_milk_tea.png",
+        "taro milk tea" to "/images/coffee/taro_milk_tea.png",
+        "milk tea" to "/images/coffee/milk_tea.png",
+        "iced tea" to "/images/coffee/iced_tea.png",
+        "lemon tea" to "/images/coffee/lemon_tea.png",
+        "peach tea" to "/images/coffee/peach_tea.png",
+        "passion fruit tea" to "/images/coffee/passion_fruit_tea.png",
+        "passion fruit" to "/images/coffee/passion_fruit_juice.png",
+        "green tea latte" to "/images/coffee/green_tea_latte.png",
+        "green tea" to "/images/coffee/green_tea.png",
+        "jasmine" to "/images/coffee/jasmine_tea.png",
+        "passion fruit smoothie" to "/images/coffee/passion_fruit_smoothie.png",
+        "mixed berry" to "/images/coffee/mixed_berry_smoothie.png",
+        "mango" to "/images/coffee/mango_smoothie.png",
+        "strawberry" to "/images/coffee/strawberry_smoothie.png",
+        "banana smoothie" to "/images/coffee/banana_smoothie.png",
+        "avocado" to "/images/coffee/avocado_smoothie.png",
+        "dragon fruit" to "/images/coffee/dragon_fruit_smoothie.png",
+        "fresh coconut" to "/images/coffee/fresh_coconut.png",
+        "sugar cane" to "/images/coffee/sugar_cane_juice.png",
+        "fresh orange" to "/images/coffee/orange_juice.png",
+        "lemonade" to "/images/coffee/lemonade.png",
+        "iced chocolate" to "/images/coffee/iced_chocolate.png",
+        "palm juice" to "/images/coffee/palm_juice.png",
+        "orange juice" to "/images/coffee/orange_juice.png",
+        "chocolate croissant" to "/images/coffee/chocolate_croissant.png",
+        "croissant" to "/images/coffee/croissant.png",
+        "banana bread" to "/images/coffee/banana_bread.png",
+        "cheese cake" to "/images/coffee/cheese_cake.png",
+        "cheesecake" to "/images/coffee/cheese_cake.png",
+        "brownie" to "/images/coffee/chocolate_brownie.png",
+        "chicken sandwich" to "/images/coffee/chicken_sandwich.png",
+        "tuna sandwich" to "/images/coffee/tuna_sandwich.png",
+        "sandwich" to "/images/coffee/sandwich.png",
+        "waffle" to "/images/coffee/waffle.png",
+        "pastry" to "/images/coffee/pastry.png",
+        "default" to "/images/coffee/default_drink.png"
+    )
+
     val nameLower = name.lowercase()
-    return when {
-        nameLower.contains("espresso") -> "https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?w=400"
-        nameLower.contains("latte") -> "https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400"
-        nameLower.contains("cappuccino") -> "https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=400"
-        nameLower.contains("mocha") -> "https://images.unsplash.com/photo-1578314675249-a6910f80cc4e?w=400"
-        nameLower.contains("americano") -> "https://images.unsplash.com/photo-1521302080334-4bebac2763a6?w=400"
-        nameLower.contains("macchiato") -> "https://images.unsplash.com/photo-1485808191679-5f86510681a2?w=400"
-        nameLower.contains("tea") -> "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400"
-        nameLower.contains("chocolate") -> "https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?w=400"
-        nameLower.contains("frappe") || nameLower.contains("frappuccino") -> "https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400"
-        nameLower.contains("cold") || nameLower.contains("iced") -> "https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?w=400"
-        else -> "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400"
+    val sortedKeys = coffeeImages.keys.sortedByDescending { it.length }
+
+    for (key in sortedKeys) {
+        if (nameLower.contains(key)) {
+            return baseUrl + coffeeImages[key]
+        }
     }
+    
+    return baseUrl + coffeeImages["default"]
 }
