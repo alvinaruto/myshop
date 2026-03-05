@@ -487,7 +487,7 @@ public final class DaggerMyShopApplication_HiltComponents_SingletonC {
           return (T) new CheckoutViewModel(singletonCImpl.cartRepositoryProvider.get(), singletonCImpl.orderRepositoryProvider.get(), singletonCImpl.userRepositoryProvider.get());
 
           case 2: // com.myshop.cafe.ui.screens.auth.LoginViewModel 
-          return (T) new LoginViewModel(singletonCImpl.userRepositoryProvider.get(), singletonCImpl.provideApiServiceProvider.get());
+          return (T) new LoginViewModel(singletonCImpl.userRepositoryProvider.get(), singletonCImpl.provideApiServiceProvider.get(), ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
 
           case 3: // com.myshop.cafe.ui.screens.menu.MenuViewModel 
           return (T) new MenuViewModel(singletonCImpl.menuRepositoryProvider.get(), singletonCImpl.cartRepositoryProvider.get());

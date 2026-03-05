@@ -1,11 +1,14 @@
 package com.myshop.cafe.ui.screens.auth;
 
+import android.content.ClipboardManager;
+import android.content.Context;
 import androidx.lifecycle.ViewModel;
 import com.myshop.cafe.data.api.ApiService;
 import com.myshop.cafe.data.models.RequestOtpRequest;
 import com.myshop.cafe.data.models.VerifyOtpRequest;
 import com.myshop.cafe.data.repository.UserRepository;
 import dagger.hilt.android.lifecycle.HiltViewModel;
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import kotlinx.coroutines.flow.StateFlow;
 import javax.inject.Inject;
 

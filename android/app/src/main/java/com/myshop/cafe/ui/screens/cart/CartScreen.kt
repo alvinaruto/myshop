@@ -24,7 +24,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -212,14 +211,7 @@ private fun CartItemCard(
                     fontSize = 15.sp
                 )
                 
-                // Delivery fee text
-                Text(
-                    text = "Delivery fee US $3",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = BrownLight,
-                    fontSize = 11.sp,
-                    textDecoration = TextDecoration.Underline
-                )
+
             }
             
             // Quantity and Delete Column

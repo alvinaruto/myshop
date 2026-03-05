@@ -1,5 +1,7 @@
 package com.myshop.cafe.ui.screens.auth
 
+import android.content.ClipboardManager
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.myshop.cafe.data.api.ApiService
@@ -7,6 +9,7 @@ import com.myshop.cafe.data.models.RequestOtpRequest
 import com.myshop.cafe.data.models.VerifyOtpRequest
 import com.myshop.cafe.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,7 +30,8 @@ data class LoginUiState(
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val userRepository: UserRepository,
-    private val apiService: ApiService
+    private val apiService: ApiService,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUiState())
@@ -39,7 +43,27 @@ class LoginViewModel @Inject constructor(
 
     fun onOtpCodeChange(otp: String) {
         if (otp.length <= 6) {
-            _uiState.value = _uiState.value.copy(otpCode = otp)
+            _uiState.value = _uiState.value.copy(otpCode = otp, error = null)
+            // Auto-submit when all 6 digits are entered
+            if (otp.length == 6) {
+                verifyOtp()
+            }
+        }
+    }
+
+    /** Reads clipboard and auto-fills OTP if a 6-digit numeric code is found */
+    fun autoFillOtpFromClipboard() {
+        try {
+            val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            val text = clipboard.primaryClip?.getItemAt(0)?.text?.toString() ?: return
+            // Extract first 6-digit sequence from clipboard text (handles "Your OTP is 123456")
+            val otpMatch = Regex("\\b(\\d{6})\\b").find(text)
+            val otp = otpMatch?.groupValues?.get(1) ?: return
+            if (otp.length == 6) {
+                onOtpCodeChange(otp)
+            }
+        } catch (e: Exception) {
+            // Silently ignore clipboard errors
         }
     }
 

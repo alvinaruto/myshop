@@ -12,6 +12,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ContentPaste
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.*
@@ -30,7 +31,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import android.content.Intent
 import android.net.Uri
 import com.myshop.cafe.ui.theme.*
@@ -127,16 +131,55 @@ fun LoginScreen(
                             }
                         )
                     } else {
-                        // OTP Code Input & Telegram Warning
+                        // OTP Code Input, Paste Button & Telegram Warning
+                        val lifecycleOwner = LocalLifecycleOwner.current
+
+                        // Auto-check clipboard whenever screen resumes (e.g., user comes back from Telegram)
+                        DisposableEffect(lifecycleOwner) {
+                            val observer = LifecycleEventObserver { _, event ->
+                                if (event == Lifecycle.Event.ON_RESUME) {
+                                    viewModel.autoFillOtpFromClipboard()
+                                }
+                            }
+                            lifecycleOwner.lifecycle.addObserver(observer)
+                            onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+                        }
+
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             OtpInputField(
                                 otpCode = uiState.otpCode,
-                                onOtpCodeChange = viewModel::onOtpCodeChange
+                                onOtpCodeChange = viewModel::onOtpCodeChange,
+                                isLoading = uiState.isLoading
                             )
-                            
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            // Paste from Notification button
+                            OutlinedButton(
+                                onClick = { viewModel.autoFillOtpFromClipboard() },
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    contentColor = BrownLight
+                                ),
+                                border = androidx.compose.foundation.BorderStroke(1.dp, BrownLight.copy(alpha = 0.5f))
+                            ) {
+                                Icon(
+                                    Icons.Default.ContentPaste,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    "Paste Code from Notification",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
+
                             if (!uiState.isTelegramLinked) {
                                 val context = LocalContext.current
-                                Spacer(modifier = Modifier.height(24.dp))
+                                Spacer(modifier = Modifier.height(16.dp))
                                 Card(
                                     colors = CardDefaults.cardColors(containerColor = BrownLight.copy(alpha = 0.1f)),
                                     shape = RoundedCornerShape(12.dp),
@@ -223,7 +266,8 @@ fun LoginScreen(
 @Composable
 fun OtpInputField(
     otpCode: String,
-    onOtpCodeChange: (String) -> Unit
+    onOtpCodeChange: (String) -> Unit,
+    isLoading: Boolean = false
 ) {
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -248,10 +292,11 @@ fun OtpInputField(
         BasicTextField(
             value = otpCode,
             onValueChange = {
-                if (it.length <= 6 && it.all { char -> char.isDigit() }) {
+                if (it.length <= 6 && it.all { char -> char.isDigit() } && !isLoading) {
                     onOtpCodeChange(it)
                 }
             },
+            enabled = !isLoading,
             modifier = Modifier
                 .fillMaxWidth()
                 .focusRequester(focusRequester),
@@ -263,50 +308,86 @@ fun OtpInputField(
                 onDone = { keyboardController?.hide() }
             ),
             decorationBox = { innerTextField ->
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    repeat(6) { index ->
-                        val char = when {
-                            index < otpCode.length -> otpCode[index].toString()
-                            else -> ""
-                        }
-                        val isFocused = index == otpCode.length
-
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(56.dp)
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(if (isFocused) BrownLight.copy(alpha = 0.1f) else InputDark)
-                                .border(
-                                    width = if (isFocused) 1.dp else 0.dp,
-                                    color = if (isFocused) BrownLight else Color.Transparent,
-                                    shape = RoundedCornerShape(12.dp)
-                                ),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = char,
-                                style = MaterialTheme.typography.headlineSmall,
-                                color = if (char.isNotEmpty()) TextLight else TextGray.copy(alpha = 0.3f),
-                                fontWeight = FontWeight.Bold
-                            )
-                            
-                            // Caret for focused box
-                            if (isFocused) {
-                                Box(
-                                    modifier = Modifier
-                                        .width(2.dp)
-                                        .height(24.dp)
-                                        .background(BrownLight)
+                if (isLoading) {
+                    // Show loading shimmer on OTP boxes while verifying
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        repeat(6) {
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(56.dp)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(BrownLight.copy(alpha = 0.3f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(20.dp),
+                                    color = BrownLight,
+                                    strokeWidth = 2.dp
                                 )
                             }
                         }
                     }
+                } else {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        repeat(6) { index ->
+                            val char = when {
+                                index < otpCode.length -> otpCode[index].toString()
+                                else -> ""
+                            }
+                            val isFocused = index == otpCode.length
+                            val isFilled = index < otpCode.length
+
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(56.dp)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(
+                                        when {
+                                            isFilled -> BrownLight.copy(alpha = 0.15f)
+                                            isFocused -> BrownLight.copy(alpha = 0.08f)
+                                            else -> InputDark
+                                        }
+                                    )
+                                    .border(
+                                        width = if (isFocused || isFilled) 1.5.dp else 0.dp,
+                                        color = when {
+                                            isFilled -> BrownLight
+                                            isFocused -> BrownLight.copy(alpha = 0.6f)
+                                            else -> Color.Transparent
+                                        },
+                                        shape = RoundedCornerShape(12.dp)
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = char,
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    color = if (char.isNotEmpty()) TextLight else TextGray.copy(alpha = 0.3f),
+                                    fontWeight = FontWeight.Bold
+                                )
+
+                                // Caret for focused empty box
+                                if (isFocused && char.isEmpty()) {
+                                    Box(
+                                        modifier = Modifier
+                                            .width(2.dp)
+                                            .height(24.dp)
+                                            .background(BrownLight)
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
-                // Need to include innerTextField() so Compose matches the BasicTextField call properly
+                // Hidden inner text field
                 Box(Modifier.size(0.dp)) {
                     innerTextField()
                 }
