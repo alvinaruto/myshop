@@ -139,6 +139,7 @@ fun LoginScreen(
                             val observer = LifecycleEventObserver { _, event ->
                                 if (event == Lifecycle.Event.ON_RESUME) {
                                     viewModel.autoFillOtpFromClipboard()
+                                    viewModel.checkNotificationServiceStatus()
                                 }
                             }
                             lifecycleOwner.lifecycle.addObserver(observer)
@@ -154,30 +155,72 @@ fun LoginScreen(
 
                             Spacer(modifier = Modifier.height(16.dp))
 
-                            // Paste from Notification button
-                            OutlinedButton(
-                                onClick = { viewModel.autoFillOtpFromClipboard() },
-                                modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(12.dp),
-                                colors = ButtonDefaults.outlinedButtonColors(
-                                    contentColor = BrownLight
-                                ),
-                                border = androidx.compose.foundation.BorderStroke(1.dp, BrownLight.copy(alpha = 0.5f))
-                            ) {
-                                Icon(
-                                    Icons.Default.ContentPaste,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    "Paste Code from Notification",
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Medium
-                                )
-                            }
+                                // Paste from Notification button fallback
+                                OutlinedButton(
+                                    onClick = { viewModel.autoFillOtpFromClipboard() },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = ButtonDefaults.outlinedButtonColors(
+                                        contentColor = if (uiState.isNotificationServiceEnabled) TextGray else BrownLight
+                                    ),
+                                    border = androidx.compose.foundation.BorderStroke(
+                                        1.dp, 
+                                        if (uiState.isNotificationServiceEnabled) TextGray.copy(alpha = 0.3f) else BrownLight.copy(alpha = 0.5f)
+                                    )
+                                ) {
+                                    Icon(
+                                        Icons.Default.ContentPaste,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        "Paste Code Manually",
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                }
 
-                            if (!uiState.isTelegramLinked) {
+                                if (!uiState.isNotificationServiceEnabled) {
+                                    val context = LocalContext.current
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    Card(
+                                        colors = CardDefaults.cardColors(containerColor = BrownLight.copy(alpha = 0.1f)),
+                                        shape = RoundedCornerShape(12.dp),
+                                        modifier = Modifier.fillMaxWidth().clickable {
+                                            val intent = Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS")
+                                            context.startActivity(intent)
+                                        }
+                                    ) {
+                                        Row(
+                                            modifier = Modifier.padding(16.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Lock,
+                                                contentDescription = null,
+                                                tint = BrownLight,
+                                                modifier = Modifier.size(20.dp)
+                                            )
+                                            Spacer(modifier = Modifier.width(12.dp))
+                                            Column {
+                                                Text(
+                                                    text = "Enable Auto-Fill OTP",
+                                                    color = BrownLight,
+                                                    fontWeight = FontWeight.Bold,
+                                                    fontSize = 14.sp
+                                                )
+                                                Text(
+                                                    text = "Tap to enable notification access for automatic OTP capture.",
+                                                    color = TextGray,
+                                                    fontSize = 12.sp
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if (!uiState.isTelegramLinked) {
                                 val context = LocalContext.current
                                 Spacer(modifier = Modifier.height(16.dp))
                                 Card(

@@ -8,11 +8,10 @@ import com.myshop.cafe.data.api.ApiService
 import com.myshop.cafe.data.models.RequestOtpRequest
 import com.myshop.cafe.data.models.VerifyOtpRequest
 import com.myshop.cafe.data.repository.UserRepository
+import com.myshop.cafe.services.OtpDetectionRegistry
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -24,7 +23,8 @@ data class LoginUiState(
     val error: String? = null,
     val isLoginSuccess: Boolean = false,
     val isTelegramLinked: Boolean = true,
-    val botUrl: String? = null
+    val botUrl: String? = null,
+    val isNotificationServiceEnabled: Boolean = true
 )
 
 @HiltViewModel
@@ -36,6 +36,30 @@ class LoginViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
+
+    init {
+        observeNotificationOtp()
+        checkNotificationServiceStatus()
+    }
+
+    private fun observeNotificationOtp() {
+        viewModelScope.launch {
+            OtpDetectionRegistry.detectedOtp.collect { otp ->
+                if (otp != null && _uiState.value.isOtpSent) {
+                    onOtpCodeChange(otp)
+                    OtpDetectionRegistry.clear()
+                }
+            }
+        }
+    }
+
+    fun checkNotificationServiceStatus() {
+        val enabled = android.provider.Settings.Secure.getString(
+            context.contentResolver,
+            "enabled_notification_listeners"
+        )?.contains(context.packageName) ?: false
+        _uiState.value = _uiState.value.copy(isNotificationServiceEnabled = enabled)
+    }
 
     fun onPhoneNumberChange(phone: String) {
         _uiState.value = _uiState.value.copy(phoneNumber = phone)
