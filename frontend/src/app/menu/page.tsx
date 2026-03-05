@@ -176,6 +176,7 @@ export default function CustomerMenuPage() {
     const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
     const [selectedSize, setSelectedSize] = useState<'small' | 'medium' | 'large'>('small');
     const [error, setError] = useState<string | null>(null);
+    const [searchQuery, setSearchQuery] = useState('');
 
     // Cart state
     const [cart, setCart] = useState<CartItem[]>([]);
@@ -624,6 +625,8 @@ export default function CustomerMenuPage() {
                         <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gold/30" />
                         <input
                             type="text"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="Search our menu..."
                             className="w-full bg-espresso border border-gold/10 text-cream pl-12 pr-4 py-2.5 rounded-full text-sm focus:outline-none focus:border-gold/30 transition-all font-sans"
                         />
@@ -639,6 +642,47 @@ export default function CustomerMenuPage() {
                         <h2 className="text-2xl font-bold text-stone-800 mb-2">Menu Coming Soon</h2>
                         <p className="text-stone-500">We&apos;re preparing something special for you!</p>
                     </div>
+                ) : searchQuery.trim() ? (
+                    // Search Results View — shows items across all categories
+                    (() => {
+                        const q = searchQuery.trim().toLowerCase();
+                        const results = categories.flatMap(cat =>
+                            cat.items
+                                .filter(item =>
+                                    item.name.toLowerCase().includes(q) ||
+                                    (item.name_kh || '').toLowerCase().includes(q) ||
+                                    (item.description || '').toLowerCase().includes(q)
+                                )
+                                .map(item => ({ item, category: cat }))
+                        );
+                        return results.length === 0 ? (
+                            <div className="text-center py-20">
+                                <FiSearch className="w-16 h-16 mx-auto text-gold/20 mb-4" />
+                                <h2 className="text-2xl font-bold text-stone-700 mb-2">No results for &ldquo;{searchQuery}&rdquo;</h2>
+                                <p className="text-stone-500">Try a different keyword or browse the categories above.</p>
+                            </div>
+                        ) : (
+                            <div>
+                                <p className="text-stone-500 text-sm mb-8">{results.length} result{results.length !== 1 ? 's' : ''} for &ldquo;{searchQuery}&rdquo;</p>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-12">
+                                    {results.map(({ item, category }) => (
+                                        <CoffeeCard
+                                            key={item.id}
+                                            item={{
+                                                ...item,
+                                                image_url: getImageForItem(item, category.icon)
+                                            }}
+                                            onClick={() => { setSelectedItem(item); setSelectedSize('small'); }}
+                                            onAdd={(e) => {
+                                                e.stopPropagation();
+                                                addToCart(item, 'small');
+                                            }}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        );
+                    })()
                 ) : (
                     categories.map((category) => (
                         <section
