@@ -129,6 +129,7 @@ const coffeeImages: Record<string, string> = {
     'sandwich': '/images/coffee/sandwich.png',
     'waffle': '/images/coffee/waffle.png',
     'pastry': '/images/coffee/pastry.png',
+    'hazelnut latte': '/images/coffee/default_drink.png',
 
     'default': '/images/coffee/default_drink.png',
 };
@@ -137,9 +138,11 @@ const getImageForItem = (item: MenuItem, categoryIcon?: string): string => {
     // Only use image_url if it's a local path (not an external URL)
     if (item.image_url && !item.image_url.startsWith('http')) return item.image_url;
 
-    // Try to match item name with coffee images
+    // Try to match item name with coffee images (specific matches first)
     const nameLower = item.name.toLowerCase();
-    for (const key of Object.keys(coffeeImages)) {
+    const sortedKeys = Object.keys(coffeeImages).sort((a, b) => b.length - a.length);
+
+    for (const key of sortedKeys) {
         if (nameLower.includes(key)) {
             return coffeeImages[key];
         }
