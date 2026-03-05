@@ -94,7 +94,7 @@ const coffeeImages: Record<string, string> = {
     'lemon tea': '/images/coffee/lemon_tea.png',
     'peach tea': '/images/coffee/peach_tea.png',
     'passion fruit tea': '/images/coffee/passion_fruit_tea.png',
-    'passion fruit': '/images/coffee/passion_fruit_tea.png',
+    'passion fruit': '/images/coffee/passion_fruit_juice.png',
     'green tea latte': '/images/coffee/green_tea_latte.png',
     'green tea': '/images/coffee/green_tea.png',
     'jasmine': '/images/coffee/jasmine_tea.png',
@@ -116,7 +116,6 @@ const coffeeImages: Record<string, string> = {
     'iced chocolate': '/images/coffee/iced_chocolate.png',
     'palm juice': '/images/coffee/palm_juice.png',
     'orange juice': '/images/coffee/orange_juice.png',
-    'juice': '/images/coffee/orange_juice.png',
 
     // Food
     'chocolate croissant': '/images/coffee/chocolate_croissant.png',
