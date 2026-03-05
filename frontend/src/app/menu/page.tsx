@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { FiCoffee, FiMapPin, FiClock, FiPhone, FiInstagram, FiFacebook, FiWifi, FiHeart, FiShoppingCart, FiPlus, FiMinus, FiX, FiCheck, FiSend, FiPackage, FiUsers, FiShield, FiLock, FiArrowLeft, FiSearch } from 'react-icons/fi';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import { QRCodeSVG } from 'qrcode.react';
 import { KHQR } from '@/components/KHQR';
 import { generateKHQR, DEFAULT_KHQR_CONFIG, formatPrice } from '@/lib/khqr.util';
@@ -550,7 +550,7 @@ export default function CustomerMenuPage() {
 
     return (
         <div className="min-h-screen bg-cream font-sans selection:bg-gold/30">
-            <Toaster position="top-center" />
+
 
             {/* Premium Menu Hero */}
             <header className="relative bg-espresso overflow-hidden">
@@ -721,11 +721,15 @@ export default function CustomerMenuPage() {
                 )}
             </main>
 
-            {/* Item Detail Modal */}
+            {/* Item Detail Modal — dark espresso theme */}
             {selectedItem && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70" onClick={() => setSelectedItem(null)}>
+                <div
+                    className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-black/80 backdrop-blur-sm"
+                    onClick={() => setSelectedItem(null)}
+                >
                     <div
-                        className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden"
+                        className="relative w-full max-w-lg rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl border border-white/10"
+                        style={{ background: 'linear-gradient(145deg, #1a1006 0%, #0f0a04 100%)' }}
                         onClick={(e) => e.stopPropagation()}
                     >
                         {/* Image */}
@@ -735,67 +739,70 @@ export default function CustomerMenuPage() {
                                 alt={selectedItem.name}
                                 className="w-full h-full object-cover"
                             />
+                            {/* Gold gradient overlay at bottom of image */}
+                            <div className="absolute inset-0 bg-gradient-to-t from-[#0f0a04] via-transparent to-transparent" />
                             <button
                                 onClick={() => setSelectedItem(null)}
-                                className="absolute top-4 right-4 w-10 h-10 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center transition"
+                                className="absolute top-4 right-4 w-10 h-10 bg-black/60 hover:bg-black/80 backdrop-blur-sm text-white rounded-full flex items-center justify-center transition border border-white/10"
                             >
                                 <FiX className="w-5 h-5" />
                             </button>
                         </div>
 
                         {/* Content */}
-                        <div className="p-8">
-                            <h3 className="text-3xl font-black text-stone-900 mb-1">{selectedItem.name}</h3>
+                        <div className="p-6 sm:p-8">
+                            <h3 className="text-3xl font-black text-amber-100 mb-1 font-serif">{selectedItem.name}</h3>
                             {selectedItem.name_kh && (
-                                <p className="text-amber-600 text-lg mb-4">{selectedItem.name_kh}</p>
+                                <p className="text-amber-500/80 text-base mb-3 font-khmer">{selectedItem.name_kh}</p>
                             )}
                             {selectedItem.description && (
-                                <p className="text-stone-500 mb-6">{selectedItem.description}</p>
+                                <p className="text-amber-100/50 text-sm mb-6 leading-relaxed italic">{selectedItem.description}</p>
                             )}
 
                             {/* Sizes */}
                             {selectedItem.has_sizes && (
                                 <div className="space-y-3 mb-6">
-                                    <p className="text-sm font-bold text-stone-700 uppercase tracking-wider">Select Size</p>
-                                    <div className="grid grid-cols-3 gap-4">
-                                        <button
-                                            onClick={() => setSelectedSize('small')}
-                                            className={`text-center p-4 rounded-2xl border-2 transition ${selectedSize === 'small' ? 'border-amber-500 bg-amber-50' : 'border-transparent bg-stone-50 hover:border-amber-300'}`}
-                                        >
-                                            <p className="text-2xl font-black text-amber-600">S</p>
-                                            <p className="text-sm text-stone-600 font-medium mt-1">{formatPrice(selectedItem.base_price)}</p>
-                                        </button>
-                                        <button
-                                            onClick={() => setSelectedSize('medium')}
-                                            className={`text-center p-4 rounded-2xl border-2 transition ${selectedSize === 'medium' ? 'border-amber-500 bg-amber-50' : 'border-transparent bg-stone-50 hover:border-amber-300'}`}
-                                        >
-                                            <p className="text-2xl font-black text-amber-600">M</p>
-                                            <p className="text-sm text-stone-600 font-medium mt-1">{formatPrice(selectedItem.price_medium || parseFloat(String(selectedItem.base_price)) + 0.5)}</p>
-                                        </button>
-                                        <button
-                                            onClick={() => setSelectedSize('large')}
-                                            className={`text-center p-4 rounded-2xl border-2 transition ${selectedSize === 'large' ? 'border-amber-500 bg-amber-50' : 'border-transparent bg-stone-50 hover:border-amber-300'}`}
-                                        >
-                                            <p className="text-2xl font-black text-amber-600">L</p>
-                                            <p className="text-sm text-stone-600 font-medium mt-1">{formatPrice(selectedItem.price_large || parseFloat(String(selectedItem.base_price)) + 1)}</p>
-                                        </button>
+                                    <p className="text-xs font-bold text-amber-400/60 uppercase tracking-[0.2em]">Select Size</p>
+                                    <div className="grid grid-cols-3 gap-3">
+                                        {(['small', 'medium', 'large'] as const).map((sz, i) => {
+                                            const label = ['S', 'M', 'L'][i];
+                                            const price = i === 0
+                                                ? selectedItem.base_price
+                                                : i === 1
+                                                    ? (selectedItem.price_medium || parseFloat(String(selectedItem.base_price)) + 0.5)
+                                                    : (selectedItem.price_large || parseFloat(String(selectedItem.base_price)) + 1);
+                                            const isActive = selectedSize === sz;
+                                            return (
+                                                <button
+                                                    key={sz}
+                                                    onClick={() => setSelectedSize(sz)}
+                                                    className={`text-center p-4 rounded-2xl border-2 transition-all duration-200 ${isActive
+                                                            ? 'border-amber-500 bg-amber-500/15 shadow-lg shadow-amber-500/10'
+                                                            : 'border-white/10 bg-white/5 hover:border-amber-500/40 hover:bg-white/10'
+                                                        }`}
+                                                >
+                                                    <p className={`text-2xl font-black ${isActive ? 'text-amber-400' : 'text-amber-100/60'}`}>{label}</p>
+                                                    <p className={`text-sm font-medium mt-1 ${isActive ? 'text-amber-300' : 'text-amber-100/40'}`}>{formatPrice(price)}</p>
+                                                </button>
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             )}
 
                             {!selectedItem.has_sizes && (
-                                <div className="text-center p-6 bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl mb-6">
-                                    <p className="text-4xl font-black text-amber-600">{formatPrice(selectedItem.base_price)}</p>
+                                <div className="text-center p-5 bg-amber-500/10 border border-amber-500/20 rounded-2xl mb-6">
+                                    <p className="text-4xl font-black text-amber-400">{formatPrice(selectedItem.base_price)}</p>
                                 </div>
                             )}
 
                             <button
                                 onClick={() => addToCart(selectedItem, selectedSize)}
                                 disabled={!selectedItem.is_available}
-                                className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold py-4 rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-espresso font-bold py-4 rounded-xl transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 active:scale-[0.98]"
                             >
                                 <FiShoppingCart className="w-5 h-5" />
-                                Add to Cart - {formatPrice(getItemPrice(selectedItem, selectedSize))}
+                                Add to Cart — {formatPrice(getItemPrice(selectedItem, selectedSize))}
                             </button>
                         </div>
                     </div>
@@ -821,48 +828,55 @@ export default function CustomerMenuPage() {
                 <div className="fixed inset-0 z-50 flex justify-end" onClick={() => setCartOpen(false)}>
                     <div className="absolute inset-0 bg-black/50" />
                     <div
-                        className="relative w-full max-w-md bg-white h-full overflow-auto animate-slide-in-right"
+                        className="relative w-full max-w-md h-full overflow-auto animate-slide-in-right border-l border-white/5"
+                        style={{ background: 'linear-gradient(180deg, #1a1006 0%, #0f0a04 100%)' }}
                         onClick={(e) => e.stopPropagation()}
                     >
                         {/* Cart Header */}
-                        <div className="sticky top-0 bg-white border-b border-stone-200 px-6 py-4 flex items-center justify-between">
-                            <h2 className="text-xl font-bold text-stone-900">Your Cart</h2>
-                            <button onClick={() => setCartOpen(false)} className="p-2 hover:bg-stone-100 rounded-full">
+                        <div className="sticky top-0 border-b border-white/10 px-6 py-4 flex items-center justify-between backdrop-blur-sm" style={{ background: 'rgba(15,10,4,0.9)' }}>
+                            <h2 className="text-xl font-bold text-amber-100 font-serif">Your Cart</h2>
+                            <button onClick={() => setCartOpen(false)} className="p-2 hover:bg-white/10 rounded-full text-amber-100/60 hover:text-amber-100 transition">
                                 <FiX className="w-5 h-5" />
                             </button>
                         </div>
 
                         {/* Cart Items */}
                         <div className="p-6 space-y-4">
+                            {cart.length === 0 && (
+                                <div className="text-center py-16">
+                                    <FiShoppingCart className="w-14 h-14 mx-auto text-amber-500/20 mb-4" />
+                                    <p className="text-amber-100/40 text-sm">No items yet.<br />Browse the menu and add your favourites!</p>
+                                </div>
+                            )}
                             {cart.map((item) => (
-                                <div key={item.id} className="flex gap-4 bg-stone-50 rounded-xl p-4">
+                                <div key={item.id} className="flex gap-4 bg-white/5 border border-white/10 rounded-2xl p-4">
                                     <img
                                         src={getImageForItem(item.menuItem)}
                                         alt={item.menuItem.name}
-                                        className="w-20 h-20 rounded-lg object-cover"
+                                        className="w-20 h-20 rounded-xl object-cover"
                                     />
                                     <div className="flex-1">
-                                        <h3 className="font-bold text-stone-900">{item.menuItem.name}</h3>
-                                        <p className="text-sm text-stone-500">Size: {item.size.toUpperCase()}</p>
-                                        <p className="text-amber-600 font-bold">{formatPrice(getItemPrice(item.menuItem, item.size))}</p>
+                                        <h3 className="font-bold text-amber-100">{item.menuItem.name}</h3>
+                                        <p className="text-xs text-amber-100/40 uppercase tracking-wider mt-0.5">Size: {item.size.toUpperCase()}</p>
+                                        <p className="text-amber-400 font-bold mt-1">{formatPrice(getItemPrice(item.menuItem, item.size))}</p>
                                     </div>
                                     <div className="flex flex-col items-end gap-2">
-                                        <button onClick={() => removeFromCart(item.id)} className="text-red-500 hover:text-red-600">
+                                        <button onClick={() => removeFromCart(item.id)} className="text-red-400/60 hover:text-red-400 transition">
                                             <FiX className="w-4 h-4" />
                                         </button>
                                         <div className="flex items-center gap-2">
                                             <button
                                                 onClick={() => updateCartQuantity(item.id, -1)}
-                                                className="w-8 h-8 bg-stone-200 hover:bg-stone-300 rounded-full flex items-center justify-center"
+                                                className="w-8 h-8 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-amber-100 transition"
                                             >
-                                                <FiMinus className="w-4 h-4" />
+                                                <FiMinus className="w-3 h-3" />
                                             </button>
-                                            <span className="font-bold w-6 text-center">{item.quantity}</span>
+                                            <span className="font-bold w-6 text-center text-amber-100">{item.quantity}</span>
                                             <button
                                                 onClick={() => updateCartQuantity(item.id, 1)}
-                                                className="w-8 h-8 bg-amber-500 hover:bg-amber-600 text-white rounded-full flex items-center justify-center"
+                                                className="w-8 h-8 bg-amber-500 hover:bg-amber-400 text-espresso rounded-full flex items-center justify-center transition"
                                             >
-                                                <FiPlus className="w-4 h-4" />
+                                                <FiPlus className="w-3 h-3" />
                                             </button>
                                         </div>
                                     </div>
@@ -871,24 +885,32 @@ export default function CustomerMenuPage() {
                         </div>
 
                         {/* Cart Footer */}
-                        <div className="sticky bottom-0 bg-white border-t border-stone-200 p-6 space-y-4">
-                            <div className="flex justify-between text-lg">
-                                <span className="font-medium text-stone-600">Total</span>
-                                <span className="font-black text-2xl text-amber-600">{formatPrice(cartTotal)}</span>
+                        <div className="sticky bottom-0 border-t border-white/10 p-6 space-y-3" style={{ background: 'linear-gradient(145deg, #1a1006 0%, #0f0a04 100%)' }}>
+                            <div className="flex justify-between items-center">
+                                <span className="font-medium text-amber-100/60 text-sm uppercase tracking-wider">Total</span>
+                                <span className="font-black text-2xl text-amber-400">{formatPrice(cartTotal)}</span>
                             </div>
-                            <button
-                                onClick={openCheckout}
-                                className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold py-4 rounded-xl transition flex items-center justify-center gap-2"
-                            >
-                                <FiSend className="w-5 h-5" />
-                                Proceed to Checkout
-                            </button>
-                            <button
-                                onClick={clearCart}
-                                className="w-full text-stone-500 hover:text-stone-700 font-medium py-2"
-                            >
-                                Clear Cart
-                            </button>
+                            {cart.length === 0 ? (
+                                <div className="text-center py-3">
+                                    <p className="text-amber-100/40 text-sm">Your cart is empty. Add some drinks! ☕</p>
+                                </div>
+                            ) : (
+                                <button
+                                    onClick={openCheckout}
+                                    className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-espresso font-bold py-4 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 active:scale-[0.98]"
+                                >
+                                    <FiSend className="w-5 h-5" />
+                                    Proceed to Checkout
+                                </button>
+                            )}
+                            {cart.length > 0 && (
+                                <button
+                                    onClick={clearCart}
+                                    className="w-full text-amber-100/30 hover:text-amber-100/60 font-medium py-2 text-sm transition-colors"
+                                >
+                                    Clear Cart
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>
