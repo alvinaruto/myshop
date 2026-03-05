@@ -83,7 +83,7 @@ const coffeeImages: Record<string, string> = {
     'java chip': '/images/coffee/java_chip_frappe.png',
     'oreo': '/images/coffee/oreo_frappe.png',
     'taro frappe': '/images/coffee/taro_frappe.png',
-    'frappe': '/images/coffee/coffee_frappe.png',
+    'frappe': '/images/coffee/generic_frappe.png',
 
     // Teas
     'thai milk tea': '/images/coffee/thai_milk_tea.png',
@@ -95,7 +95,6 @@ const coffeeImages: Record<string, string> = {
     'peach tea': '/images/coffee/peach_tea.png',
     'passion fruit tea': '/images/coffee/passion_fruit_tea.png',
     'passion fruit': '/images/coffee/passion_fruit_tea.png',
-    'hot green tea': '/images/coffee/green_tea.png',
     'green tea latte': '/images/coffee/green_tea_latte.png',
     'green tea': '/images/coffee/green_tea.png',
     'jasmine': '/images/coffee/jasmine_tea.png',
@@ -125,7 +124,6 @@ const coffeeImages: Record<string, string> = {
     'banana bread': '/images/coffee/banana_bread.png',
     'cheese cake': '/images/coffee/cheese_cake.png',
     'cheesecake': '/images/coffee/cheese_cake.png',
-    'chocolate brownie': '/images/coffee/chocolate_brownie.png',
     'brownie': '/images/coffee/chocolate_brownie.png',
     'chicken sandwich': '/images/coffee/chicken_sandwich.png',
     'tuna sandwich': '/images/coffee/tuna_sandwich.png',
@@ -133,7 +131,7 @@ const coffeeImages: Record<string, string> = {
     'waffle': '/images/coffee/waffle.png',
     'pastry': '/images/coffee/pastry.png',
 
-    'default': '/images/coffee/espresso.png',
+    'default': '/images/coffee/default_drink.png',
 };
 
 const getImageForItem = (item: MenuItem, categoryIcon?: string): string => {
