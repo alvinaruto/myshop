@@ -154,7 +154,13 @@ class CheckoutViewModel @Inject constructor(
 
     fun onPayNowClick() {
         val state = _uiState.value
-        
+
+        // Guard: cart must not be empty
+        if (state.items.isEmpty()) {
+            _uiState.value = state.copy(error = "Your cart is empty. Please add items before paying.")
+            return
+        }
+
         if (state.phoneNumber.isBlank()) {
             _uiState.value = state.copy(error = "Please enter your phone number")
             return

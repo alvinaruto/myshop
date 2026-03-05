@@ -22,9 +22,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -286,13 +288,18 @@ fun CategorySection(
                     color = if (isSelected) BrownLight else TextGray,
                     fontSize = 16.sp
                 )
-                
+
                 Spacer(modifier = Modifier.height(8.dp))
-                
-                // Underline indicator
+
+                // Animated underline dot
+                val dotWidth by animateDpAsState(
+                    targetValue = if (isSelected) 6.dp else 0.dp,
+                    animationSpec = spring(dampingRatio = 0.6f, stiffness = Spring.StiffnessMedium),
+                    label = "categoryDot"
+                )
                 Box(
                     modifier = Modifier
-                        .width(if (isSelected) 6.dp else 0.dp)
+                        .width(dotWidth)
                         .height(6.dp)
                         .clip(CircleShape)
                         .background(if (isSelected) BrownLight else Color.Transparent)
@@ -330,113 +337,132 @@ fun ProductCard(
     onQuickAdd: () -> Unit
 ) {
     val cardWidth = 160.dp
-    
-    Surface(
-        modifier = Modifier
-            .width(cardWidth)
-            .bouncyClick { onItemClick() },
-        shape = RoundedCornerShape(20.dp),
-        color = CardDark
+    val context = LocalContext.current
+
+    // Entrance animation
+    var visible by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { visible = true }
+
+    AnimatedVisibility(
+        visible = visible,
+        enter = fadeIn(animationSpec = tween(300)) + slideInVertically(
+            initialOffsetY = { it / 4 },
+            animationSpec = spring(dampingRatio = 0.75f, stiffness = Spring.StiffnessMedium)
+        )
     ) {
-        Column(
-            modifier = Modifier.padding(12.dp)
+        Surface(
+            modifier = Modifier
+                .width(cardWidth)
+                .bouncyClick { onItemClick() },
+            shape = RoundedCornerShape(20.dp),
+            color = CardDark
         ) {
-            // Image with Rating Badge
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(130.dp)
+            Column(
+                modifier = Modifier.padding(12.dp)
             ) {
-                AsyncImage(
-                    model = item.imageUrl ?: getCoffeeImageUrl(item.name),
-                    contentDescription = item.name,
-                    contentScale = ContentScale.Crop,
+                // Image with Rating Badge
+                Box(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .clip(RoundedCornerShape(16.dp))
-                )
-                
-                // Rating Badge
-                Surface(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(8.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    color = Color.Black.copy(alpha = 0.6f)
+                        .fillMaxWidth()
+                        .height(130.dp)
                 ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(3.dp)
+                    AsyncImage(
+                        model = item.imageUrl ?: getCoffeeImageUrl(item.name),
+                        contentDescription = item.name,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(RoundedCornerShape(16.dp))
+                    )
+
+                    // Rating Badge
+                    Surface(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(8.dp),
+                        shape = RoundedCornerShape(8.dp),
+                        color = Color.Black.copy(alpha = 0.6f)
                     ) {
-                        Icon(
-                            imageVector = Icons.Filled.Star,
-                            contentDescription = null,
-                            tint = StarGold,
-                            modifier = Modifier.size(12.dp)
-                        )
-                        Text(
-                            text = "4.5",
-                            color = Color.White,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.SemiBold
-                        )
+                        Row(
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(3.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Star,
+                                contentDescription = null,
+                                tint = StarGold,
+                                modifier = Modifier.size(12.dp)
+                            )
+                            Text(
+                                text = "4.5",
+                                color = Color.White,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
                     }
                 }
-            }
-            
-            Spacer(modifier = Modifier.height(12.dp))
-            
-            // Product Name
-            Text(
-                text = item.name,
-                style = MaterialTheme.typography.titleMedium,
-                color = TextLight,
-                fontWeight = FontWeight.Bold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                fontSize = 15.sp
-            )
-            
-            // Subtitle
-            Text(
-                text = item.description?.take(20) ?: "with Oat Milk",
-                style = MaterialTheme.typography.bodySmall,
-                color = TextGray,
-                maxLines = 1,
-                fontSize = 12.sp
-            )
-            
-            Spacer(modifier = Modifier.height(12.dp))
-            
-            // Price and Add Button Row
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+
+                Spacer(modifier = Modifier.height(12.dp))
+
                 Text(
-                    text = "$${String.format("%.2f", item.basePrice)}",
+                    text = item.name,
                     style = MaterialTheme.typography.titleMedium,
                     color = TextLight,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    fontSize = 15.sp
                 )
-                
-                Surface(
-                    shape = RoundedCornerShape(10.dp),
-                    color = BrownLight,
-                    modifier = Modifier
-                        .size(32.dp)
-                        .bouncyClick { onQuickAdd() }
+
+                Text(
+                    text = item.description?.take(20) ?: "with Oat Milk",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = TextGray,
+                    maxLines = 1,
+                    fontSize = 12.sp
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "Add",
-                            tint = Color.White,
-                            modifier = Modifier.size(18.dp)
-                        )
+                    Text(
+                        text = "$${String.format("%.2f", item.basePrice)}",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = TextLight,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
+                    )
+
+                    Surface(
+                        shape = RoundedCornerShape(10.dp),
+                        color = BrownLight,
+                        modifier = Modifier
+                            .size(32.dp)
+                            .bouncyClick {
+                                // Haptic feedback
+                                val haptics = context.getSystemService(android.content.Context.VIBRATOR_SERVICE) as? android.os.Vibrator
+                                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                                    haptics?.vibrate(android.os.VibrationEffect.createOneShot(40, android.os.VibrationEffect.DEFAULT_AMPLITUDE))
+                                } else {
+                                    haptics?.vibrate(40)
+                                }
+                                onQuickAdd()
+                            }
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = "Add",
+                                tint = Color.White,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
                     }
                 }
             }
@@ -446,6 +472,9 @@ fun ProductCard(
 
 @Composable
 fun SpecialForYouSection(items: List<MenuItem>) {
+    val featuredItem = items.maxByOrNull { it.basePrice } ?: items.firstOrNull()
+    if (featuredItem == null) return
+
     Column(
         modifier = Modifier.padding(horizontal = 24.dp)
     ) {
@@ -456,14 +485,13 @@ fun SpecialForYouSection(items: List<MenuItem>) {
             fontWeight = FontWeight.Bold,
             fontSize = 20.sp
         )
-        
+
         Spacer(modifier = Modifier.height(16.dp))
-        
-        // Special Card
+
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(130.dp),
+                .height(140.dp),
             shape = RoundedCornerShape(20.dp),
             color = CardDark
         ) {
@@ -471,39 +499,40 @@ fun SpecialForYouSection(items: List<MenuItem>) {
                 modifier = Modifier.padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Image
                 AsyncImage(
-                    model = items.firstOrNull()?.imageUrl 
-                        ?: "https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400",
-                    contentDescription = null,
+                    model = featuredItem.imageUrl ?: getCoffeeImageUrl(featuredItem.name),
+                    contentDescription = featuredItem.name,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .size(90.dp)
+                        .size(100.dp)
                         .clip(RoundedCornerShape(16.dp))
                 )
-                
+
                 Spacer(modifier = Modifier.width(16.dp))
-                
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
+
+                Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "Specially mixed and",
-                        style = MaterialTheme.typography.bodyMedium,
+                        text = featuredItem.name,
+                        style = MaterialTheme.typography.titleMedium,
                         color = TextLight,
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
                     )
+                    Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "brewed which you",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = TextLight,
-                        fontWeight = FontWeight.SemiBold
+                        text = featuredItem.description ?: "A must-try signature drink!",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = TextGray,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
                     )
+                    Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "must try!",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = TextLight,
-                        fontWeight = FontWeight.SemiBold
+                        text = "$${String.format("%.2f", featuredItem.basePrice)}",
+                        color = BrownLight,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
                     )
                 }
             }
@@ -511,15 +540,76 @@ fun SpecialForYouSection(items: List<MenuItem>) {
     }
 }
 
+// Shimmer helper
+@Composable
+fun ShimmerBrush(showShimmer: Boolean = true): Brush {
+    val shimmerColors = listOf(
+        Color.White.copy(alpha = 0.06f),
+        Color.White.copy(alpha = 0.14f),
+        Color.White.copy(alpha = 0.06f)
+    )
+    return if (showShimmer) {
+        val transition = rememberInfiniteTransition(label = "shimmer")
+        val translateAnim by transition.animateFloat(
+            initialValue = 0f,
+            targetValue = 1200f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(1000, easing = LinearEasing),
+                repeatMode = RepeatMode.Restart
+            ),
+            label = "shimmerTranslate"
+        )
+        Brush.linearGradient(
+            colors = shimmerColors,
+            start = Offset.Zero,
+            end = Offset(x = translateAnim, y = translateAnim)
+        )
+    } else {
+        Brush.linearGradient(
+            colors = listOf(Color.Transparent, Color.Transparent)
+        )
+    }
+}
+
 @Composable
 fun LoadingState() {
-    Box(
+    val shimmer = ShimmerBrush()
+    Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(DarkNavy),
-        contentAlignment = Alignment.Center
+            .background(DarkNavy)
+            .padding(horizontal = 24.dp)
+            .padding(top = 80.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        CircularProgressIndicator(color = BrownLight)
+        // Title skeleton
+        Box(modifier = Modifier.width(180.dp).height(28.dp).clip(RoundedCornerShape(8.dp)).background(shimmer))
+        Box(modifier = Modifier.width(240.dp).height(28.dp).clip(RoundedCornerShape(8.dp)).background(shimmer))
+
+        // Search bar skeleton
+        Box(modifier = Modifier.fillMaxWidth().height(52.dp).clip(RoundedCornerShape(16.dp)).background(shimmer))
+
+        // Category skeleton pills
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            repeat(4) {
+                Box(modifier = Modifier.width(70.dp).height(28.dp).clip(RoundedCornerShape(14.dp)).background(shimmer))
+            }
+        }
+
+        // Card skeleton row
+        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            repeat(2) {
+                Column(
+                    modifier = Modifier.width(160.dp).clip(RoundedCornerShape(20.dp)).background(shimmer).padding(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Box(modifier = Modifier.fillMaxWidth().height(120.dp).clip(RoundedCornerShape(16.dp)).background(shimmer))
+                    Box(modifier = Modifier.width(100.dp).height(16.dp).clip(RoundedCornerShape(4.dp)).background(shimmer))
+                    Box(modifier = Modifier.width(70.dp).height(12.dp).clip(RoundedCornerShape(4.dp)).background(shimmer))
+                    Box(modifier = Modifier.width(60.dp).height(16.dp).clip(RoundedCornerShape(4.dp)).background(shimmer))
+                }
+            }
+        }
     }
 }
 
