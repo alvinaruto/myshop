@@ -30,8 +30,13 @@ sealed class Screen(val route: String) {
     data object Cart : Screen("cart")
     data object Checkout : Screen("checkout")
     data object OrderStatus : Screen("order_status")
-    data object OrderSuccess : Screen("order_success/{orderNumber}") {
-        fun createRoute(orderNumber: String) = "order_success/$orderNumber"
+    data object OrderSuccess : Screen("order_success/{orderNumber}/{pointsEarned}/{totalPoints}/{tier}") {
+        fun createRoute(
+            orderNumber: String,
+            pointsEarned: Int = 0,
+            totalPoints: Int = 0,
+            tier: String = "bronze"
+        ) = "order_success/$orderNumber/$pointsEarned/$totalPoints/$tier"
     }
     data object Profile : Screen("profile")
     data object Login : Screen("login")
@@ -134,8 +139,10 @@ fun NavGraph(
             composable(Screen.Checkout.route) {
                 CheckoutScreen(
                     onBackClick = { navController.popBackStack() },
-                    onOrderSuccess = { orderNumber ->
-                        navController.navigate(Screen.OrderSuccess.createRoute(orderNumber)) {
+                    onOrderSuccess = { orderNumber, pointsEarned, totalPoints, tier ->
+                        navController.navigate(
+                            Screen.OrderSuccess.createRoute(orderNumber, pointsEarned, totalPoints, tier)
+                        ) {
                             popUpTo(Screen.Menu.route) { inclusive = false }
                         }
                     }
@@ -150,8 +157,14 @@ fun NavGraph(
             
             composable(Screen.OrderSuccess.route) { backStackEntry ->
                 val orderNumber = backStackEntry.arguments?.getString("orderNumber") ?: ""
+                val pointsEarned = backStackEntry.arguments?.getString("pointsEarned")?.toIntOrNull() ?: 0
+                val totalPoints = backStackEntry.arguments?.getString("totalPoints")?.toIntOrNull() ?: 0
+                val tier = backStackEntry.arguments?.getString("tier") ?: "bronze"
                 OrderSuccessContent(
                     orderNumber = orderNumber,
+                    pointsEarned = pointsEarned,
+                    totalPoints = totalPoints,
+                    tier = tier,
                     onTrackOrderClick = { navController.navigate(Screen.OrderStatus.route) },
                     onOrderMoreClick = {
                         navController.navigate(Screen.Menu.route) {
@@ -167,11 +180,17 @@ fun NavGraph(
 @Composable
 private fun OrderSuccessContent(
     orderNumber: String,
+    pointsEarned: Int = 0,
+    totalPoints: Int = 0,
+    tier: String = "bronze",
     onTrackOrderClick: () -> Unit,
     onOrderMoreClick: () -> Unit
 ) {
     com.myshop.cafe.ui.screens.checkout.OrderSuccessScreen(
         orderNumber = orderNumber,
+        pointsEarned = pointsEarned,
+        totalPoints = totalPoints,
+        tier = tier,
         onTrackOrderClick = onTrackOrderClick,
         onOrderMoreClick = onOrderMoreClick
     )

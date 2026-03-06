@@ -18,7 +18,7 @@ class OrderRepository @Inject constructor(
         items: List<CartItem>,
         orderType: OrderType,
         tableNumber: Int?
-    ): Result<Order> = withContext(Dispatchers.IO) {
+    ): Result<Pair<Order, OrderLoyalty?>> = withContext(Dispatchers.IO) {
         try {
             val request = CreateOrderRequest(
                 customerPhone = customerPhone,
@@ -36,7 +36,7 @@ class OrderRepository @Inject constructor(
             
             val response = apiService.createOrder(request)
             if (response.success && response.data != null) {
-                Result.success(response.data.order)
+                Result.success(Pair(response.data.order, response.data.loyalty))
             } else {
                 Result.failure(Exception(response.message ?: "Failed to place order"))
             }
@@ -44,6 +44,7 @@ class OrderRepository @Inject constructor(
             Result.failure(e)
         }
     }
+
     
     suspend fun getCustomerOrders(phone: String): Result<List<Order>> = withContext(Dispatchers.IO) {
         try {

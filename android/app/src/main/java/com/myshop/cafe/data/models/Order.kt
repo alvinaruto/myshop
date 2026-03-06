@@ -73,6 +73,7 @@ data class CreateOrderResponse(
 @Serializable
 data class CreateOrderData(
     val order: Order,
+    val loyalty: OrderLoyalty? = null,
     val message: String? = null
 )
 

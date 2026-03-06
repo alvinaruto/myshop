@@ -55,7 +55,7 @@ val TealPay = Color(0xFF1B8A9E)
 fun CheckoutScreen(
     viewModel: CheckoutViewModel = hiltViewModel(),
     onBackClick: () -> Unit,
-    onOrderSuccess: (String) -> Unit
+    onOrderSuccess: (orderNumber: String, pointsEarned: Int, totalPoints: Int, tier: String) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
     
@@ -76,7 +76,13 @@ fun CheckoutScreen(
     // Handle success
     LaunchedEffect(uiState.successOrder) {
         uiState.successOrder?.let { order ->
-            onOrderSuccess(order.orderNumber)
+            val loyalty = uiState.successLoyalty
+            onOrderSuccess(
+                order.orderNumber,
+                loyalty?.pointsEarned ?: 0,
+                loyalty?.totalPoints ?: 0,
+                loyalty?.tier ?: "bronze"
+            )
         }
     }
     
@@ -438,13 +444,41 @@ private fun PaymentMethodItem(
 @Composable
 fun OrderSuccessScreen(
     orderNumber: String,
+    pointsEarned: Int = 0,
+    totalPoints: Int = 0,
+    tier: String = "bronze",
     onTrackOrderClick: () -> Unit,
     onOrderMoreClick: () -> Unit
 ) {
     var showContent by remember { mutableStateOf(false) }
-    
-    LaunchedEffect(Unit) {
-        showContent = true
+    var showLoyalty by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) { showContent = true }
+    LaunchedEffect(showContent) {
+        if (showContent) {
+            kotlinx.coroutines.delay(600)
+            showLoyalty = true
+        }
+    }
+
+    // Tier-specific styling
+    val tierEmoji = when (tier) {
+        "platinum" -> "💎"
+        "gold" -> "🥇"
+        "silver" -> "🥈"
+        else -> "🥉"
+    }
+    val tierColor = when (tier) {
+        "platinum" -> Color(0xFF9C27B0)
+        "gold" -> Color(0xFFFFC107)
+        "silver" -> Color(0xFF9E9E9E)
+        else -> Color(0xFF8D6E63)
+    }
+    val tierGradientStart = when (tier) {
+        "platinum" -> Color(0xFF7B1FA2)
+        "gold" -> Color(0xFFF57F17)
+        "silver" -> Color(0xFF757575)
+        else -> Color(0xFF6D4C41)
     }
 
     Box(
@@ -460,139 +494,178 @@ fun OrderSuccessScreen(
                 animationSpec = BouncySpringIntOffset
             ) + fadeIn(animationSpec = spring(stiffness = Spring.StiffnessLow))
         ) {
-            Card(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(24.dp),
-                shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(containerColor = CardDark)
+                    .padding(24.dp)
+                    .verticalScroll(androidx.compose.foundation.rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(32.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                // ── Main success card ─────────────────────────────────────
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(24.dp),
+                    colors = CardDefaults.cardColors(containerColor = CardDark)
                 ) {
-                    // Success Icon with its own bouncy scale
-                    var iconVisible by remember { mutableStateOf(false) }
-                    LaunchedEffect(Unit) {
-                        kotlinx.coroutines.delay(200)
-                        iconVisible = true
-                    }
-                    
-                    AnimatedVisibility(
-                        visible = iconVisible,
-                        enter = scaleIn(
-                            initialScale = 0.5f,
-                            animationSpec = spring(
-                                dampingRatio = 0.5f,
-                                stiffness = Spring.StiffnessMediumLow
-                            )
-                        ) + fadeIn()
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Surface(
-                            modifier = Modifier.size(80.dp),
-                            shape = RoundedCornerShape(40.dp),
-                            color = Green600.copy(alpha = 0.2f)
+                        // Bouncy check icon
+                        var iconVisible by remember { mutableStateOf(false) }
+                        LaunchedEffect(Unit) {
+                            kotlinx.coroutines.delay(200)
+                            iconVisible = true
+                        }
+                        AnimatedVisibility(
+                            visible = iconVisible,
+                            enter = scaleIn(
+                                initialScale = 0.5f,
+                                animationSpec = spring(
+                                    dampingRatio = 0.5f,
+                                    stiffness = Spring.StiffnessMediumLow
+                                )
+                            ) + fadeIn()
                         ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Icon(
-                                    imageVector = Icons.Default.Check,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(40.dp),
-                                    tint = Green500
+                            Surface(
+                                modifier = Modifier.size(80.dp),
+                                shape = RoundedCornerShape(40.dp),
+                                color = Green600.copy(alpha = 0.2f)
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Icon(
+                                        imageVector = Icons.Default.Check,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(40.dp),
+                                        tint = Green500
+                                    )
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        Text(
+                            text = "Order Placed! ☕",
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = TextLight
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = stringResource(R.string.order_sent_to_kitchen),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = TextGray,
+                            textAlign = TextAlign.Center
+                        )
+
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        // Order Number banner
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp),
+                            color = BrownLight
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(20.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.order_number),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = Color.White.copy(alpha = 0.8f)
+                                )
+                                Text(
+                                    text = "#${orderNumber.split("-").lastOrNull() ?: orderNumber}",
+                                    style = MaterialTheme.typography.headlineMedium,
+                                    fontWeight = FontWeight.Black,
+                                    color = Color.White
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = stringResource(R.string.proceed_to_counter),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = TextGray,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+
+                // ── Loyalty points celebration card ───────────────────────
+                AnimatedVisibility(
+                    visible = showLoyalty && pointsEarned > 0,
+                    enter = slideInVertically(initialOffsetY = { it }) +
+                            fadeIn(animationSpec = spring(stiffness = Spring.StiffnessMediumLow))
+                ) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(20.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = tierGradientStart.copy(alpha = 0.15f)
+                        ),
+                        border = androidx.compose.foundation.BorderStroke(
+                            1.dp, tierColor.copy(alpha = 0.4f)
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(20.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            Text(text = tierEmoji, fontSize = 40.sp)
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "+$pointsEarned points earned!",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Black,
+                                    color = TextLight
+                                )
+                                Text(
+                                    text = "Total: $totalPoints pts  •  ${tier.replaceFirstChar { it.uppercase() }} Member",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = TextGray
                                 )
                             }
                         }
                     }
-                    
-                    Spacer(modifier = Modifier.height(24.dp))
-                    
-                    Text(
-                        text = stringResource(R.string.order_placed),
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = TextLight
-                    )
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    Text(
-                        text = stringResource(R.string.order_sent_to_kitchen),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = TextGray,
-                        textAlign = TextAlign.Center
-                    )
-                    
-                    Spacer(modifier = Modifier.height(24.dp))
-                    
-                    // Order Number
-                    Surface(
+                }
+
+                // ── Action buttons ───────────────────────────────────────
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    BouncyButton(
+                        onClick = onTrackOrderClick,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .bouncyClick(onClick = {}), // Add tactile feel even if just for show
-                        shape = RoundedCornerShape(16.dp),
-                        color = BrownLight
+                            .height(50.dp),
+                        containerColor = DarkNavyMedium,
+                        shape = RoundedCornerShape(12.dp)
                     ) {
-                        Column(
-                            modifier = Modifier.padding(24.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                text = stringResource(R.string.order_number),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = Color.White.copy(alpha = 0.8f)
-                            )
-                            Text(
-                                text = "#${orderNumber.split("-").lastOrNull() ?: orderNumber}",
-                                style = MaterialTheme.typography.headlineMedium,
-                                fontWeight = FontWeight.Black,
-                                color = Color.White
-                            )
-                        }
+                        Text(stringResource(R.string.track_order), color = TextLight)
                     }
-                    
-                    Spacer(modifier = Modifier.height(16.dp))
-                    
-                    Text(
-                        text = stringResource(R.string.proceed_to_counter),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = TextGray,
-                        textAlign = TextAlign.Center
-                    )
-                    
-                    Spacer(modifier = Modifier.height(24.dp))
-                    
-                    // Buttons with bouncy clicks
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    BouncyButton(
+                        onClick = onOrderMoreClick,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp),
+                        containerColor = BrownLight,
+                        shape = RoundedCornerShape(12.dp)
                     ) {
-                        BouncyButton(
-                            onClick = onTrackOrderClick,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(50.dp),
-                            containerColor = DarkNavyMedium,
-                            shape = RoundedCornerShape(12.dp)
-                        ) {
-                            Text(stringResource(R.string.track_order), color = TextLight)
-                        }
-                        
-                        BouncyButton(
-                            onClick = onOrderMoreClick,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(50.dp),
-                            containerColor = BrownLight,
-                            shape = RoundedCornerShape(12.dp)
-                        ) {
-                            Text(
-                                stringResource(R.string.order_more), 
-                                color = Color.White, 
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
+                        Text(
+                            stringResource(R.string.order_more),
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
             }

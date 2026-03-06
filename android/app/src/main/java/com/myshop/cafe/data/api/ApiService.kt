@@ -3,6 +3,7 @@ package com.myshop.cafe.data.api
 import com.myshop.cafe.data.models.*
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Query
 
@@ -31,6 +32,10 @@ interface ApiService {
     @GET("customer/orders")
     suspend fun getCustomerOrders(@Query("phone") phone: String): CustomerOrdersResponse
     
+    // Loyalty endpoint
+    @GET("customer/loyalty")
+    suspend fun getLoyalty(@Header("Authorization") auth: String): LoyaltyResponse
+
     // Order queue (for display)
     @GET("cafe/orders")
     suspend fun getOrdersQueue(
@@ -41,3 +46,4 @@ interface ApiService {
     @POST("sales/verify-khqr")
     suspend fun verifyKhqr(@Body request: VerifyKhqrRequest): VerifyKhqrResponse
 }
+

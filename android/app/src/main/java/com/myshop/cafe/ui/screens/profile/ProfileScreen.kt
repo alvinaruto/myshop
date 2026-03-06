@@ -17,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -33,6 +34,7 @@ fun ProfileScreen(
     onLogout: () -> Unit
 ) {
     val userSession by viewModel.userSession.collectAsState()
+    val loyalty by viewModel.loyalty.collectAsState()
     val context = androidx.compose.ui.platform.LocalContext.current
     
     // Removed featureLocked toast logic
@@ -119,7 +121,129 @@ fun ProfileScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // ── Loyalty Card ──────────────────────────────────────────────
+            loyalty?.let { ld ->
+                val tierEmoji = when (ld.tier) {
+                    "platinum" -> "💎"
+                    "gold" -> "🥇"
+                    "silver" -> "🥈"
+                    else -> "🥉"
+                }
+                val tierColor = when (ld.tier) {
+                    "platinum" -> Color(0xFF9C27B0)
+                    "gold" -> Color(0xFFFFC107)
+                    "silver" -> Color(0xFF9E9E9E)
+                    else -> Color(0xFF8D6E63)
+                }
+                val tierBg = when (ld.tier) {
+                    "platinum" -> Color(0xFF7B1FA2)
+                    "gold" -> Color(0xFFF57F17)
+                    "silver" -> Color(0xFF757575)
+                    else -> Color(0xFF6D4C41)
+                }
+
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(20.dp),
+                    color = CardDark,
+                    border = BorderStroke(1.dp, tierColor.copy(alpha = 0.3f))
+                ) {
+                    Column(modifier = Modifier.padding(20.dp)) {
+                        // Header row
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Text(text = tierEmoji, fontSize = 32.sp)
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "${ld.tier.replaceFirstChar { it.uppercase() }} Member",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = tierColor
+                                )
+                                Text(
+                                    text = "${ld.loyaltyPoints} points",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = TextGray
+                                )
+                            }
+                            // Points badge
+                            Surface(
+                                shape = RoundedCornerShape(12.dp),
+                                color = tierBg.copy(alpha = 0.2f)
+                            ) {
+                                Text(
+                                    text = "${ld.loyaltyPoints} pts",
+                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.Black,
+                                    color = tierColor
+                                )
+                            }
+                        }
+
+                        // Progress bar to next tier
+                        if (ld.tierInfo.next != null && ld.tierInfo.progressPercent < 100) {
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = ld.tier.replaceFirstChar { it.uppercase() },
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = TextGray
+                                )
+                                Text(
+                                    text = "${ld.tierInfo.pointsToNext} pts to ${ld.tierInfo.next!!.replaceFirstChar { it.uppercase() }}",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = TextGray
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(6.dp))
+                            // Track
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(6.dp)
+                                    .clip(RoundedCornerShape(3.dp))
+                                    .background(Color.White.copy(alpha = 0.08f))
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth(ld.tierInfo.progressPercent / 100f)
+                                        .fillMaxHeight()
+                                        .clip(RoundedCornerShape(3.dp))
+                                        .background(tierColor)
+                                )
+                            }
+                        }
+
+                        // Stats row
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            LoyaltyStatChip(
+                                modifier = Modifier.weight(1f),
+                                label = "Orders",
+                                value = "${ld.totalOrders}"
+                            )
+                            LoyaltyStatChip(
+                                modifier = Modifier.weight(1f),
+                                label = "Total Spent",
+                                value = "$${String.format("%.0f", ld.totalSpent)}"
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
             
             // Menu Section
             Column(
@@ -238,6 +362,36 @@ fun ProfileMenuItem(
                 contentDescription = null,
                 tint = TextGray,
                 modifier = Modifier.size(20.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun LoyaltyStatChip(
+    modifier: Modifier = Modifier,
+    label: String,
+    value: String
+) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(12.dp),
+        color = Color.White.copy(alpha = 0.05f)
+    ) {
+        Column(
+            modifier = Modifier.padding(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = value,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Black,
+                color = TextLight
+            )
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelSmall,
+                color = TextGray
             )
         }
     }

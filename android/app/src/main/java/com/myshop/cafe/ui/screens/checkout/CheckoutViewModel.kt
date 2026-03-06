@@ -37,6 +37,7 @@ data class CheckoutUiState(
     val isSubmitting: Boolean = false,
     val error: String? = null,
     val successOrder: Order? = null,
+    val successLoyalty: OrderLoyalty? = null,
     val showKhqr: Boolean = false,
     val khqrString: String? = null,
     val paymentMd5: String? = null,
@@ -243,11 +244,12 @@ class CheckoutViewModel @Inject constructor(
                 items = state.items,
                 orderType = state.orderType,
                 tableNumber = tableNum
-            ).onSuccess { order ->
+            ).onSuccess { (order, loyalty) ->
                 cartRepository.clearCart()
                 _uiState.value = _uiState.value.copy(
                     isSubmitting = false,
-                    successOrder = order
+                    successOrder = order,
+                    successLoyalty = loyalty
                 )
             }.onFailure { error ->
                 _uiState.value = _uiState.value.copy(
