@@ -56,14 +56,14 @@ def main():
     
     if universal_apk:
         filename = os.path.basename(universal_apk)
-        caption = f"🚀 <b>New Release Build (Universal)</b>\n\n📦 File: <code>{filename}</code>\n✨ Includes professional KHQR redesign and one-click ACLEDA payment."
+        caption = f"🚀 <b>New Release Build (Universal)</b>\n\n📦 File: <code>{filename}</code>\n✨ <b>New Features:</b>\n✅ Auto-OTP detection from notification/clipboard\n✅ 6-digit auto-submit verification\n✅ Functional menu search (Web & Mobile)\n✅ Removed hardcoded delivery fee in cart"
         send_to_telegram(universal_apk, caption)
     else:
         # Fallback to the first found if universal is missing
         if apk_files:
             apk = apk_files[0]
             filename = os.path.basename(apk)
-            caption = f"🚀 <b>New Release Build</b>\n\n📦 File: <code>{filename}</code>"
+            caption = f"🚀 <b>New Release Build</b>\n\n📦 File: <code>{filename}</code>\n✨ <b>New Features:</b>\n✅ Auto-OTP detection from notification/clipboard\n✅ 6-digit auto-submit verification\n✅ Functional menu search (Web & Mobile)\n✅ Removed hardcoded delivery fee in cart"
             send_to_telegram(apk, caption)
 
 if __name__ == "__main__":

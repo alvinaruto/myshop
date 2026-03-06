@@ -192,7 +192,7 @@ export default function CustomerMenuPage() {
     const [submitting, setSubmitting] = useState(false);
 
     // Order success
-    const [orderSuccess, setOrderSuccess] = useState<{ orderNumber: string } | null>(null);
+    const [orderSuccess, setOrderSuccess] = useState<{ orderNumber: string; pointsEarned?: number; totalPoints?: number; tier?: string } | null>(null);
 
     // OTP Auth state
     const [authToken, setAuthToken] = useState<string | null>(null);
@@ -204,6 +204,19 @@ export default function CustomerMenuPage() {
     const [otpCountdown, setOtpCountdown] = useState(0);
     const [currentBillNumber, setCurrentBillNumber] = useState('');
 
+    // Loyalty state
+    const [loyalty, setLoyalty] = useState<{ loyalty_points: number; tier: string; tier_info: { progress_percent: number; points_to_next: number; next: string | null } } | null>(null);
+
+    const fetchLoyalty = async (token: string) => {
+        try {
+            const res = await fetch('/api/customer/loyalty', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            if (data.success) setLoyalty(data.data);
+        } catch { }
+    };
+
     // Load saved auth from localStorage
     useEffect(() => {
         const savedToken = localStorage.getItem('myshop_customer_token');
@@ -213,6 +226,7 @@ export default function CustomerMenuPage() {
             setVerifiedPhone(savedPhone);
             setCustomerPhone(savedPhone);
             setOtpStep('checkout');
+            fetchLoyalty(savedToken);
         }
     }, []);
 
@@ -376,7 +390,8 @@ export default function CustomerMenuPage() {
                     setCustomerName(data.data.customer.name);
                 }
                 setOtpStep('checkout');
-                toast.success('Phone verified!');
+                toast.success('Phone verified! ✅');
+                fetchLoyalty(token);
             } else {
                 throw new Error(data.message || 'Verification failed');
             }
@@ -455,12 +470,17 @@ export default function CustomerMenuPage() {
 
             if (data.success) {
                 setOrderSuccess({
-                    orderNumber: data.data.order.order_number
+                    orderNumber: data.data.order.order_number,
+                    pointsEarned: data.data.loyalty?.points_earned,
+                    totalPoints: data.data.loyalty?.total_points,
+                    tier: data.data.loyalty?.tier,
                 });
+                // Update loyalty display
+                if (authToken) fetchLoyalty(authToken);
                 clearCart();
                 setCheckoutOpen(false);
                 setCartOpen(false);
-                toast.success('Order placed successfully!');
+                toast.success('Order placed successfully! ☕');
             } else if (res.status === 401) {
                 // Token expired — clear and restart OTP
                 changePhone();
@@ -505,19 +525,47 @@ export default function CustomerMenuPage() {
 
     // Order success view
     if (orderSuccess) {
+        const tierColors: Record<string, string> = {
+            bronze: 'from-amber-700 to-amber-900',
+            silver: 'from-gray-400 to-gray-600',
+            gold: 'from-yellow-400 to-amber-600',
+            platinum: 'from-purple-400 to-purple-700',
+        };
+        const tierEmojis: Record<string, string> = {
+            bronze: '🥉', silver: '🥈', gold: '🥇', platinum: '💎'
+        };
+        const tier = orderSuccess.tier || 'bronze';
+
         return (
-            <div className="min-h-screen bg-gradient-to-br from-green-900 via-emerald-900 to-green-800 flex items-center justify-center p-4">
+            <div className="min-h-screen bg-gradient-to-br from-espresso via-amber-950 to-espresso flex items-center justify-center p-4">
                 <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 text-center">
-                    <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    {/* Animated check */}
+                    <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce">
                         <FiCheck className="w-10 h-10 text-green-600" />
                     </div>
-                    <h1 className="text-3xl font-black text-gray-900 mb-2">Order Placed!</h1>
+                    <h1 className="text-3xl font-black text-gray-900 mb-2">Order Placed! ☕</h1>
                     <p className="text-gray-500 mb-6">Your order has been sent to the kitchen</p>
 
-                    <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-2xl p-6 mb-6">
+                    {/* Order number */}
+                    <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-2xl p-6 mb-4">
                         <p className="text-sm opacity-80 mb-1">Order Number</p>
                         <p className="text-4xl font-black">#{orderSuccess.orderNumber.split('-').pop()}</p>
                     </div>
+
+                    {/* Loyalty Points celebration */}
+                    {orderSuccess.pointsEarned !== undefined && orderSuccess.pointsEarned > 0 && (
+                        <div className={`bg-gradient-to-r ${tierColors[tier]} text-white rounded-2xl p-5 mb-4`}>
+                            <div className="flex items-center justify-center gap-3">
+                                <span className="text-3xl">{tierEmojis[tier]}</span>
+                                <div className="text-left">
+                                    <p className="text-lg font-black">+{orderSuccess.pointsEarned} points earned!</p>
+                                    <p className="text-sm opacity-80">
+                                        Total: <strong>{orderSuccess.totalPoints}</strong> pts · {tier.charAt(0).toUpperCase() + tier.slice(1)} Member
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     <p className="text-gray-600 mb-6">
                         Please proceed to the counter for payment. We'll start preparing your order right away!
@@ -579,6 +627,34 @@ export default function CustomerMenuPage() {
                         <p className="font-sans text-cream/60 max-w-md text-lg italic leading-relaxed">
                             Discover our curated selection of artisan coffees, pastries, and treats.
                         </p>
+
+                        {/* Loyalty Badge — shown after phone verification */}
+                        {loyalty && (
+                            <div className="mt-6 inline-flex items-center gap-3 bg-white/5 backdrop-blur-sm border border-gold/20 rounded-2xl px-5 py-3">
+                                <div className="text-center">
+                                    <p className="text-gold font-black text-xl">{loyalty.loyalty_points}</p>
+                                    <p className="text-gold/50 text-[10px] uppercase tracking-widest">Points</p>
+                                </div>
+                                <div className="w-px h-8 bg-gold/20" />
+                                <div className="text-left">
+                                    <p className="text-amber-100 font-bold text-sm capitalize">{loyalty.tier} Member</p>
+                                    {loyalty.tier_info.next && (
+                                        <div className="mt-1">
+                                            <div className="h-1 w-24 bg-white/10 rounded-full overflow-hidden">
+                                                <div
+                                                    className="h-full bg-gradient-to-r from-gold to-amber-400 rounded-full transition-all"
+                                                    style={{ width: `${loyalty.tier_info.progress_percent}%` }}
+                                                />
+                                            </div>
+                                            <p className="text-[10px] text-gold/40 mt-0.5">{loyalty.tier_info.points_to_next} pts to {loyalty.tier_info.next}</p>
+                                        </div>
+                                    )}
+                                </div>
+                                <span className="text-2xl">
+                                    {loyalty.tier === 'platinum' ? '💎' : loyalty.tier === 'gold' ? '🥇' : loyalty.tier === 'silver' ? '🥈' : '🥉'}
+                                </span>
+                            </div>
+                        )}
 
                         <div className="w-px h-12 bg-gold/50 mt-10" />
                     </div>
@@ -1149,6 +1225,24 @@ export default function CustomerMenuPage() {
                                             </div>
                                         </div>
                                     </div>
+
+                                    {/* Loyalty Points Preview */}
+                                    {loyalty && (
+                                        <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-4 flex items-center gap-3">
+                                            <div className="text-2xl">{loyalty.tier === 'platinum' ? '💎' : loyalty.tier === 'gold' ? '🥇' : loyalty.tier === 'silver' ? '🥈' : '🥉'}</div>
+                                            <div className="flex-1">
+                                                <p className="text-sm font-bold text-amber-900">
+                                                    You'll earn +{Math.floor(cartTotal)} points!
+                                                </p>
+                                                <p className="text-xs text-amber-700">
+                                                    Current: {loyalty.loyalty_points} pts · <span className="capitalize">{loyalty.tier}</span> Member
+                                                </p>
+                                            </div>
+                                            <span className="text-xs font-bold text-amber-600 bg-amber-100 px-2 py-1 rounded-full">
+                                                {loyalty.loyalty_points + Math.floor(cartTotal)} after
+                                            </span>
+                                        </div>
+                                    )}
 
                                     {/* Order Type */}
                                     <div>

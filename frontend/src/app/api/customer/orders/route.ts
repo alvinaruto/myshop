@@ -178,11 +178,23 @@ export async function POST(request: NextRequest) {
             }, { transaction });
         }
 
-        // Update customer stats
+        // Update customer stats + loyalty points (1 point per $1 spent)
+        const pointsEarned = Math.floor(totalUsd);
+        const currentPoints = (customer as any).loyalty_points || 0;
+        const newTotalPoints = currentPoints + pointsEarned;
+
+        // Determine tier
+        let newTier = 'bronze';
+        if (newTotalPoints >= 500) newTier = 'platinum';
+        else if (newTotalPoints >= 200) newTier = 'gold';
+        else if (newTotalPoints >= 50) newTier = 'silver';
+
         await (customer as any).update({
             total_orders: ((customer as any).total_orders || 0) + 1,
             total_spent: parseFloat((customer as any).total_spent || 0) + totalUsd,
-            last_visit: new Date()
+            last_visit: new Date(),
+            loyalty_points: newTotalPoints,
+            tier: newTier,
         }, { transaction });
 
         await transaction.commit();
@@ -214,6 +226,11 @@ export async function POST(request: NextRequest) {
             success: true,
             data: {
                 order: createdOrder,
+                loyalty: {
+                    points_earned: pointsEarned,
+                    total_points: newTotalPoints,
+                    tier: newTier,
+                },
                 message: 'Order placed successfully! Please proceed to the counter for payment.'
             }
         }, { status: 201 });

@@ -4,7 +4,7 @@ import { ReactNode, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/stores/authStore';
-import { FiHome, FiShoppingCart, FiPackage, FiUsers, FiBarChart2, FiSettings, FiLogOut, FiMenu, FiX, FiSmartphone, FiDollarSign, FiShield, FiBell, FiAlertCircle, FiCoffee } from 'react-icons/fi';
+import { FiHome, FiShoppingCart, FiPackage, FiUsers, FiBarChart2, FiSettings, FiLogOut, FiMenu, FiX, FiSmartphone, FiDollarSign, FiShield, FiBell, FiAlertCircle, FiCoffee, FiAward } from 'react-icons/fi';
 import { productApi } from '@/lib/api';
 import { useState } from 'react';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -30,6 +30,7 @@ const navigation: NavItem[] = [
     { name: 'Café Menu', href: '/cafe/menu', icon: FiCoffee, roles: ['admin', 'manager'] },
     { name: 'Café Sales', href: '/cafe/sales', icon: FiDollarSign, roles: ['admin', 'manager'] },
     { name: 'Café Reports', href: '/cafe/reports', icon: FiBarChart2, roles: ['admin', 'manager'] },
+    { name: 'Loyalty Program', href: '/cafe/loyalty', icon: FiAward, roles: ['admin', 'manager'] },
     { name: 'Shift Management', href: '/cafe/shift', icon: FiCoffee, roles: ['admin', 'manager', 'cashier'] },
     { name: 'Tables', href: '/cafe/tables', icon: FiCoffee, roles: ['admin', 'manager'] },
     { name: 'Promotions', href: '/cafe/promotions', icon: FiCoffee, roles: ['admin', 'manager'] },
@@ -58,25 +59,17 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         setIsMounted(true);
         if (isAuthenticated) {
             fetchLowStock();
-            fetchPendingOrders();
-            // Poll for pending orders every 30 seconds
-            const interval = setInterval(fetchPendingOrders, 30000);
-            return () => clearInterval(interval);
+            // Use SSE for real-time pending order count
+            const es = new EventSource('/api/sse/orders?status=pending,preparing');
+            es.onmessage = (e) => {
+                try {
+                    const msg = JSON.parse(e.data);
+                    if (msg.type === 'orders') setPendingOrderCount(msg.data.length);
+                } catch { }
+            };
+            return () => es.close();
         }
     }, [isAuthenticated]);
-
-    const fetchPendingOrders = async () => {
-        try {
-            const res = await fetch('/api/cafe/orders?status=pending,preparing&limit=100');
-            const data = await res.json();
-            if (data.success) {
-                setPendingOrderCount(data.data?.length || 0);
-            }
-        } catch (error) {
-            console.error('Failed to fetch pending orders');
-        }
-    };
-
     const fetchLowStock = async () => {
         try {
             const res = await productApi.getLowStock();
