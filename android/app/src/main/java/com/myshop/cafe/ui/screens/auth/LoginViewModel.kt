@@ -24,7 +24,10 @@ data class LoginUiState(
     val isLoginSuccess: Boolean = false,
     val isTelegramLinked: Boolean = true,
     val botUrl: String? = null,
-    val isNotificationServiceEnabled: Boolean = true
+    val isNotificationServiceEnabled: Boolean = true,
+    val isStaffMode: Boolean = false,
+    val username: String = "",
+    val password: String = ""
 )
 
 @HiltViewModel
@@ -172,6 +175,46 @@ class LoginViewModel @Inject constructor(
                     isLoading = false,
                     error = friendlyError
                 )
+            }
+        }
+    }
+
+    fun toggleStaffMode() {
+        _uiState.value = _uiState.value.copy(
+            isStaffMode = !_uiState.value.isStaffMode,
+            error = null
+        )
+    }
+
+    fun onUsernameChange(u: String) { _uiState.value = _uiState.value.copy(username = u) }
+    fun onPasswordChange(p: String) { _uiState.value = _uiState.value.copy(password = p) }
+
+    fun loginStaff() {
+        val state = _uiState.value
+        if (state.username.isBlank() || state.password.isBlank()) {
+            _uiState.value = _uiState.value.copy(error = "Enter both credentials")
+            return
+        }
+
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            try {
+                // We use a generic POST call since we don't have a specific model yet or we can use a map
+                val result = apiService.loginStaffDirect(mapOf(
+                    "username" to state.username,
+                    "password" to state.password
+                ))
+                
+                if (result.success && result.data != null) {
+                    val token = result.data.token
+                    val username = result.data.user.username
+                    userRepository.loginStaff(username, token)
+                    _uiState.value = _uiState.value.copy(isLoading = false, isLoginSuccess = true)
+                } else {
+                    _uiState.value = _uiState.value.copy(isLoading = false, error = result.message)
+                }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(isLoading = false, error = "Login failed: ${e.message}")
             }
         }
     }

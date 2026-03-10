@@ -37,39 +37,43 @@ class ProfileViewModel @Inject constructor(
         viewModelScope.launch {
             userRepository.userSession.collect { session ->
                 if (session.isLoggedIn && session.token != null) {
-                    fetchLoyalty(session.token)
-                    syncFcmToken(session.phoneNumber)
+                    if (!session.isStaff) {
+                        fetchLoyalty(session.token)
+                    }
+                    syncFcmToken(session)
                 }
             }
         }
     }
-
-    private fun syncFcmToken(phone: String) {
+    
+    private fun syncFcmToken(session: UserSession) {
         viewModelScope.launch {
             try {
                 var token = userRepository.getFcmToken()
                 
                 if (token == null) {
-                    // Try to get current token from Firebase
                     try {
                         val task = com.google.firebase.messaging.FirebaseMessaging.getInstance().token
                         token = kotlinx.coroutines.tasks.await(task)
                         if (token != null) {
                             userRepository.saveFcmToken(token)
                         }
-                    } catch (e: Exception) {
-                        // ignore
-                    }
+                    } catch (e: Exception) { }
                 }
 
-                if (token != null) {
-                    apiService.updateFcmToken(
-                        com.myshop.cafe.data.models.UpdateFcmTokenRequest(phone, token)
-                    )
+                if (token != null && session.token != null) {
+                    if (session.isStaff) {
+                        apiService.updateStaffFcmToken(
+                            "Bearer ${session.token}",
+                            mapOf("fcmToken" to token)
+                        )
+                    } else {
+                        apiService.updateFcmToken(
+                            com.myshop.cafe.data.models.UpdateFcmTokenRequest(session.phoneNumber, token)
+                        )
+                    }
                 }
-            } catch (e: Exception) {
-                // Silently fail
-            }
+            } catch (e: Exception) { }
         }
     }
 

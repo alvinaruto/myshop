@@ -82,7 +82,11 @@ fun LoginScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = if (uiState.isOtpSent) "Verification" else "Welcome to myShop",
+                    text = when {
+                        uiState.isStaffMode -> "Staff Sign In"
+                        uiState.isOtpSent -> "Verification"
+                        else -> "Welcome to myShop"
+                    },
                     style = MaterialTheme.typography.headlineMedium,
                     color = TextLight,
                     fontWeight = FontWeight.Bold,
@@ -90,68 +94,128 @@ fun LoginScreen(
                 )
                 
                 Text(
-                    text = if (uiState.isOtpSent) 
-                        "Enter the 6-digit code sent to ${uiState.phoneNumber}" 
-                        else "Sign in with phone number to start ordering",
+                    text = when {
+                        uiState.isStaffMode -> "Enter your username and password"
+                        uiState.isOtpSent -> "Enter the 6-digit code sent to ${uiState.phoneNumber}"
+                        else -> "Sign in with phone number to start ordering"
+                    },
                     style = MaterialTheme.typography.bodyMedium,
                     color = TextGray,
                     modifier = Modifier.padding(top = 8.dp, bottom = 48.dp),
                     textAlign = TextAlign.Center
                 )
 
+                TextButton(
+                    onClick = viewModel::toggleStaffMode,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                ) {
+                    Text(
+                        text = if (uiState.isStaffMode) "Login as Customer" else "Login as Staff",
+                        color = BrownLight,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+
                 AnimatedContent(
-                    targetState = uiState.isOtpSent,
+                    targetState = if (uiState.isStaffMode) "staff" else if (uiState.isOtpSent) "otp" else "phone",
                     transitionSpec = {
                         slideInHorizontally { it } + fadeIn() togetherWith 
                         slideOutHorizontally { -it } + fadeOut()
                     },
                     label = "LoginTransition"
-                ) { isOtp ->
-                    if (!isOtp) {
-                        // Phone Number Input
-                        OutlinedTextField(
-                            value = uiState.phoneNumber,
-                            onValueChange = viewModel::onPhoneNumberChange,
-                            label = { Text("Phone Number", color = TextGray) },
-                            placeholder = { Text("e.g. 012345678", color = TextGray.copy(alpha = 0.5f)) },
-                            modifier = Modifier.fillMaxWidth(),
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                            shape = RoundedCornerShape(16.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = InputDark,
-                                unfocusedContainerColor = InputDark,
-                                focusedBorderColor = BrownLight,
-                                unfocusedBorderColor = Color.Transparent,
-                                focusedTextColor = TextLight,
-                                unfocusedTextColor = TextLight,
-                                cursorColor = BrownLight
-                            ),
-                            leadingIcon = {
-                                Icon(Icons.Default.Phone, contentDescription = null, tint = TextGray)
+                ) { mode ->
+                    when (mode) {
+                        "staff" -> {
+                            Column {
+                                OutlinedTextField(
+                                    value = uiState.username,
+                                    onValueChange = viewModel::onUsernameChange,
+                                    label = { Text("Username", color = TextGray) },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(16.dp),
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedContainerColor = InputDark,
+                                        unfocusedContainerColor = InputDark,
+                                        focusedBorderColor = BrownLight,
+                                        unfocusedBorderColor = Color.Transparent,
+                                        focusedTextColor = TextLight,
+                                        unfocusedTextColor = TextLight
+                                    ),
+                                    leadingIcon = {
+                                        Icon(Icons.Default.Lock, contentDescription = null, tint = TextGray)
+                                    }
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                                OutlinedTextField(
+                                    value = uiState.password,
+                                    onValueChange = viewModel::onPasswordChange,
+                                    label = { Text("Password", color = TextGray) },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(16.dp),
+                                    visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedContainerColor = InputDark,
+                                        unfocusedContainerColor = InputDark,
+                                        focusedBorderColor = BrownLight,
+                                        unfocusedBorderColor = Color.Transparent,
+                                        focusedTextColor = TextLight,
+                                        unfocusedTextColor = TextLight
+                                    ),
+                                    leadingIcon = {
+                                        Icon(Icons.Default.Lock, contentDescription = null, tint = TextGray)
+                                    }
+                                )
                             }
-                        )
-                    } else {
-                        // OTP Code Input, Paste Button & Telegram Warning
-                        val lifecycleOwner = LocalLifecycleOwner.current
-
-                        // Auto-check clipboard whenever screen resumes (e.g., user comes back from Telegram)
-                        DisposableEffect(lifecycleOwner) {
-                            val observer = LifecycleEventObserver { _, event ->
-                                if (event == Lifecycle.Event.ON_RESUME) {
-                                    viewModel.autoFillOtpFromClipboard()
-                                    viewModel.checkNotificationServiceStatus()
-                                }
-                            }
-                            lifecycleOwner.lifecycle.addObserver(observer)
-                            onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
                         }
-
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            OtpInputField(
-                                otpCode = uiState.otpCode,
-                                onOtpCodeChange = viewModel::onOtpCodeChange,
-                                isLoading = uiState.isLoading
+                        "phone" -> {
+                            // Phone Number Input
+                            OutlinedTextField(
+                                value = uiState.phoneNumber,
+                                onValueChange = viewModel::onPhoneNumberChange,
+                                label = { Text("Phone Number", color = TextGray) },
+                                placeholder = { Text("e.g. 012345678", color = TextGray.copy(alpha = 0.5f)) },
+                                modifier = Modifier.fillMaxWidth(),
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                                shape = RoundedCornerShape(16.dp),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedContainerColor = InputDark,
+                                    unfocusedContainerColor = InputDark,
+                                    focusedBorderColor = BrownLight,
+                                    unfocusedBorderColor = Color.Transparent,
+                                    focusedTextColor = TextLight,
+                                    unfocusedTextColor = TextLight,
+                                    cursorColor = BrownLight
+                                ),
+                                leadingIcon = {
+                                    Icon(Icons.Default.Phone, contentDescription = null, tint = TextGray)
+                                }
                             )
+                        }
+                        else -> {
+                            // OTP
+                            val lifecycleOwner = LocalLifecycleOwner.current
+                            DisposableEffect(lifecycleOwner) {
+                                val observer = LifecycleEventObserver { _, event ->
+                                    if (event == Lifecycle.Event.ON_RESUME) {
+                                        viewModel.autoFillOtpFromClipboard()
+                                        viewModel.checkNotificationServiceStatus()
+                                    }
+                                }
+                                lifecycleOwner.lifecycle.addObserver(observer)
+                                onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+                            }
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                OtpInputField(
+                                    otpCode = uiState.otpCode,
+                                    onOtpCodeChange = viewModel::onOtpCodeChange,
+                                    isLoading = uiState.isLoading
+                                )
+                                // ... (rest of OTP components)
+                            }
+                        }
+                    }
+                }
 
                             Spacer(modifier = Modifier.height(16.dp))
 
@@ -260,7 +324,13 @@ fun LoginScreen(
                 Spacer(modifier = Modifier.height(32.dp))
 
                 Button(
-                    onClick = { if (uiState.isOtpSent) viewModel.verifyOtp() else viewModel.requestOtp() },
+                    onClick = { 
+                        when {
+                            uiState.isStaffMode -> viewModel.loginStaff()
+                            uiState.isOtpSent -> viewModel.verifyOtp()
+                            else -> viewModel.requestOtp()
+                        }
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
@@ -271,8 +341,13 @@ fun LoginScreen(
                     if (uiState.isLoading) {
                         CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White)
                     } else {
+                        val text = when {
+                            uiState.isStaffMode -> "Sign In"
+                            uiState.isOtpSent -> "Verify & Sign In"
+                            else -> "Send Code"
+                        }
                         Text(
-                            text = if (uiState.isOtpSent) "Verify & Sign In" else "Send Code",
+                            text = text,
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp,
                             color = Color.White

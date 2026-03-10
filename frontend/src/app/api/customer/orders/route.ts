@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { models, getSequelize } from '@/lib/db';
 import { sendOrderNotification, isTelegramConfigured } from '@/lib/telegram';
 import { verifyCustomerAuth, unauthorizedResponse } from '@/lib/auth';
-import { sendFcmNotification } from '@/lib/fcm';
+import { sendFcmNotification, notifyAllStaff } from '@/lib/fcm';
 
 // POST /api/customer/orders - Create customer order (Auth required)
 export async function POST(request: NextRequest) {
@@ -234,6 +234,13 @@ export async function POST(request: NextRequest) {
             `Your order #${(createdOrder as any).order_number} has been placed successfully.`,
             { type: 'order_placed', order_id: (createdOrder as any).id, status: 'pending' }
         ).catch(err => console.error('FCM order notification failed:', err));
+
+        // Notify Staff (New Order alert)
+        notifyAllStaff(
+            'New Order! 🔔',
+            `Order #${(createdOrder as any).order_number} received from ${customer_name || 'Customer'}.`,
+            { type: 'new_order', order_id: (createdOrder as any).id }
+        ).catch(err => console.error('FCM staff notification failed:', err));
 
         return NextResponse.json({
             success: true,

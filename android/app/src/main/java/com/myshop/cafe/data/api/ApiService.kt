@@ -12,6 +12,9 @@ interface ApiService {
     // Auth endpoints
     @POST("customer/otp-request")
     suspend fun requestOtp(@Body request: RequestOtpRequest): OtpRequestResponse
+    
+    @POST("auth/login")
+    suspend fun loginStaffDirect(@Body request: Map<String, String>): StaffAuthResponse
 
     @POST("customer/otp-verify")
     suspend fun verifyOtp(@Body request: VerifyOtpRequest): AuthResponse
@@ -48,5 +51,11 @@ interface ApiService {
 
     @POST("customer/update-fcm-token")
     suspend fun updateFcmToken(@Body request: UpdateFcmTokenRequest): CommonResponse
+
+    @POST("auth/update-fcm-token")
+    suspend fun updateStaffFcmToken(
+        @Header("Authorization") auth: String,
+        @Body request: Map<String, String>
+    ): CommonResponse
 }
 

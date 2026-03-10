@@ -33,6 +33,10 @@ export default (sequelize: Sequelize) => {
         is_active: {
             type: DataTypes.BOOLEAN,
             defaultValue: true
+        },
+        fcm_token: {
+            type: DataTypes.TEXT,
+            allowNull: true
         }
     }, {
         tableName: 'users',

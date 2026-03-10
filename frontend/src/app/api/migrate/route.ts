@@ -241,6 +241,9 @@ export async function POST(request: NextRequest) {
                 ALTER TABLE cafe_customers ADD COLUMN IF NOT EXISTS otp_code VARCHAR(6);
                 ALTER TABLE cafe_customers ADD COLUMN IF NOT EXISTS otp_expiry TIMESTAMP WITH TIME ZONE;
                 ALTER TABLE cafe_customers ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE;
+                
+                -- Also for staff users
+                ALTER TABLE users ADD COLUMN IF NOT EXISTS fcm_token TEXT;
             `);
 
             // Also ensure cafe_orders has payment fields

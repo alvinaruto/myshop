@@ -24,9 +24,11 @@ class UserRepository @Inject constructor(
     private object PreferencesKeys {
         val PHONE_NUMBER = stringPreferencesKey("phone_number")
         val CUSTOMER_NAME = stringPreferencesKey("customer_name")
+        val USERNAME = stringPreferencesKey("username")
         val AUTH_TOKEN = stringPreferencesKey("auth_token")
         val FCM_TOKEN = stringPreferencesKey("fcm_token")
         val IS_LOGGED_IN = booleanPreferencesKey("is_logged_in")
+        val IS_STAFF = booleanPreferencesKey("is_staff")
     }
 
     val userSession: Flow<UserSession> = context.dataStore.data
@@ -34,8 +36,10 @@ class UserRepository @Inject constructor(
             UserSession(
                 phoneNumber = preferences[PreferencesKeys.PHONE_NUMBER] ?: "",
                 customerName = preferences[PreferencesKeys.CUSTOMER_NAME],
+                username = preferences[PreferencesKeys.USERNAME],
                 token = preferences[PreferencesKeys.AUTH_TOKEN],
-                isLoggedIn = preferences[PreferencesKeys.IS_LOGGED_IN] ?: false
+                isLoggedIn = preferences[PreferencesKeys.IS_LOGGED_IN] ?: false,
+                isStaff = preferences[PreferencesKeys.IS_STAFF] ?: false
             )
         }
 
@@ -47,6 +51,16 @@ class UserRepository @Inject constructor(
             preferences[PreferencesKeys.CUSTOMER_NAME] = customerName ?: ""
             preferences[PreferencesKeys.AUTH_TOKEN] = token
             preferences[PreferencesKeys.IS_LOGGED_IN] = true
+            preferences[PreferencesKeys.IS_STAFF] = false
+        }
+    }
+
+    suspend fun loginStaff(username: String, token: String) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.USERNAME] = username
+            preferences[PreferencesKeys.AUTH_TOKEN] = token
+            preferences[PreferencesKeys.IS_LOGGED_IN] = true
+            preferences[PreferencesKeys.IS_STAFF] = true
         }
     }
 

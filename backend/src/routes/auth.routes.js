@@ -17,5 +17,16 @@ router.post('/change-password', authenticate, [
 ], validate, changePassword);
 
 router.post('/logout', authenticate, logout);
+router.post('/update-fcm-token', authenticate, [
+    body('fcmToken').notEmpty().withMessage('FCM token is required')
+], validate, async (req, res) => {
+    try {
+        const { fcmToken } = req.body;
+        await req.user.update({ fcm_token: fcmToken });
+        res.json({ success: true, message: 'FCM token updated' });
+    } catch (e) {
+        res.status(500).json({ success: false, message: e.message });
+    }
+});
 
 module.exports = router;

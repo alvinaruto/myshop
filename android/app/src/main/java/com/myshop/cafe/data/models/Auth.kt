@@ -58,3 +58,21 @@ data class CommonResponse(
     val success: Boolean,
     val message: String? = null
 )
+@Serializable
+data class StaffAuthResponse(
+    val success: Boolean,
+    val message: String? = null,
+    val data: StaffAuthData? = null
+)
+
+@Serializable
+data class StaffAuthData(
+    val user: StaffUser,
+    val token: String
+)
+
+@Serializable
+data class StaffUser(
+    val username: String,
+    val role: String? = null
+)
