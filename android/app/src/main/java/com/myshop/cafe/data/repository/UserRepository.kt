@@ -10,6 +10,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.myshop.cafe.data.models.UserSession
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -24,6 +25,7 @@ class UserRepository @Inject constructor(
         val PHONE_NUMBER = stringPreferencesKey("phone_number")
         val CUSTOMER_NAME = stringPreferencesKey("customer_name")
         val AUTH_TOKEN = stringPreferencesKey("auth_token")
+        val FCM_TOKEN = stringPreferencesKey("fcm_token")
         val IS_LOGGED_IN = booleanPreferencesKey("is_logged_in")
     }
 
@@ -52,5 +54,15 @@ class UserRepository @Inject constructor(
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.IS_LOGGED_IN] = false
         }
+    }
+
+    suspend fun saveFcmToken(token: String) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.FCM_TOKEN] = token
+        }
+    }
+
+    suspend fun getFcmToken(): String? {
+        return context.dataStore.data.map { it[PreferencesKeys.FCM_TOKEN] }.first()
     }
 }

@@ -17,7 +17,10 @@ class OrderRepository @Inject constructor(
         customerName: String?,
         items: List<CartItem>,
         orderType: OrderType,
-        tableNumber: Int?
+        tableNumber: Int?,
+        isPaid: Boolean = false,
+        paymentMethod: String = "cash",
+        khqrReference: String? = null
     ): Result<Pair<Order, OrderLoyalty?>> = withContext(Dispatchers.IO) {
         try {
             val request = CreateOrderRequest(
@@ -31,7 +34,10 @@ class OrderRepository @Inject constructor(
                     )
                 },
                 orderType = orderType.apiValue,
-                tableNumber = if (orderType == OrderType.DINE_IN) tableNumber else null
+                tableNumber = if (orderType == OrderType.DINE_IN) tableNumber else null,
+                isPaid = isPaid,
+                paymentMethod = paymentMethod,
+                khqrReference = khqrReference
             )
             
             val response = apiService.createOrder(request)

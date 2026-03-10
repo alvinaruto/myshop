@@ -46,3 +46,15 @@ data class CustomerData(
     val phone: String,
     val name: String? = null
 )
+
+@Serializable
+data class UpdateFcmTokenRequest(
+    val phone: String,
+    val fcm_token: String
+)
+
+@Serializable
+data class CommonResponse(
+    val success: Boolean,
+    val message: String? = null
+)

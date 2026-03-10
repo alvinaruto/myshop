@@ -39,6 +39,7 @@ async function run() {
       ALTER TABLE cafe_customers ADD COLUMN IF NOT EXISTS loyalty_points INTEGER DEFAULT 0;
       ALTER TABLE cafe_customers ADD COLUMN IF NOT EXISTS tier VARCHAR(20) DEFAULT 'bronze';
       ALTER TABLE cafe_customers ADD COLUMN IF NOT EXISTS telegram_chat_id VARCHAR(50);
+      ALTER TABLE cafe_customers ADD COLUMN IF NOT EXISTS fcm_token TEXT;
     `;
 
         await client.query(query);

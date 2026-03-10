@@ -56,14 +56,34 @@ def main():
     
     if universal_apk:
         filename = os.path.basename(universal_apk)
-        caption = f"🚀 <b>New Release Build (Universal)</b>\n\n📦 File: <code>{filename}</code>\n✨ <b>New Features:</b>\n✅ Auto-OTP detection from notification/clipboard\n✅ 6-digit auto-submit verification\n✅ Functional menu search (Web & Mobile)\n✅ Removed hardcoded delivery fee in cart"
+        caption = (
+            f"🚀 <b>New Release Build (Universal)</b>\n\n"
+            f"📦 File: <code>{filename}</code>\n"
+            f"✨ <b>New Features:</b>\n"
+            f"💳 <b>Automatic KHQR payment confirmation</b>\n"
+            f"🔗 <b>Deep link auto-launch for ACLEDA Mobile</b>\n"
+            f"🏆 Loyalty Points System (earn 1pt per $1 spent)\n"
+            f"🥉🥈🥇💎 Bronze → Silver → Gold → Platinum tiers\n"
+            f"📊 Points celebration on order success screen\n"
+            f"👤 Loyalty card on Profile with progress bar"
+        )
         send_to_telegram(universal_apk, caption)
     else:
         # Fallback to the first found if universal is missing
         if apk_files:
             apk = apk_files[0]
             filename = os.path.basename(apk)
-            caption = f"🚀 <b>New Release Build</b>\n\n📦 File: <code>{filename}</code>\n✨ <b>New Features:</b>\n✅ Auto-OTP detection from notification/clipboard\n✅ 6-digit auto-submit verification\n✅ Functional menu search (Web & Mobile)\n✅ Removed hardcoded delivery fee in cart"
+            caption = (
+                f"🚀 <b>New Release Build</b>\n\n"
+                f"📦 File: <code>{filename}</code>\n"
+                f"✨ <b>New Features:</b>\n"
+                f"💳 <b>Automatic KHQR payment confirmation</b>\n"
+                f"🔗 <b>Deep link auto-launch for ACLEDA Mobile</b>\n"
+                f"🏆 Loyalty Points System (earn 1pt per $1 spent)\n"
+                f"🥉🥈🥇💎 Bronze → Silver → Gold → Platinum tiers\n"
+                f"📊 Points celebration on order success screen\n"
+                f"👤 Loyalty card on Profile with progress bar"
+            )
             send_to_telegram(apk, caption)
 
 if __name__ == "__main__":

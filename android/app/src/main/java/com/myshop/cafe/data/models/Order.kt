@@ -51,7 +51,13 @@ data class CreateOrderRequest(
     val orderType: String = "takeaway",
     @SerialName("table_number")
     val tableNumber: Int? = null,
-    val notes: String? = null
+    val notes: String? = null,
+    @SerialName("is_paid")
+    val isPaid: Boolean = false,
+    @SerialName("payment_method")
+    val paymentMethod: String = "cash",
+    @SerialName("khqr_reference")
+    val khqrReference: String? = null
 )
 
 @Serializable

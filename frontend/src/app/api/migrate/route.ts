@@ -234,6 +234,27 @@ export async function POST(request: NextRequest) {
             migrations.push(`cafe_tables: ${e.message}`);
         }
 
+        // Migration 6: Add push notification and loyalty columns to cafe_customers & cafe_orders
+        try {
+            await sequelize.query(`
+                ALTER TABLE cafe_customers ADD COLUMN IF NOT EXISTS fcm_token TEXT;
+                ALTER TABLE cafe_customers ADD COLUMN IF NOT EXISTS otp_code VARCHAR(6);
+                ALTER TABLE cafe_customers ADD COLUMN IF NOT EXISTS otp_expiry TIMESTAMP WITH TIME ZONE;
+                ALTER TABLE cafe_customers ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE;
+            `);
+
+            // Also ensure cafe_orders has payment fields
+            await sequelize.query(`
+                ALTER TABLE cafe_orders ADD COLUMN IF NOT EXISTS is_paid BOOLEAN DEFAULT FALSE;
+                ALTER TABLE cafe_orders ADD COLUMN IF NOT EXISTS payment_method VARCHAR(20) DEFAULT 'cash';
+                ALTER TABLE cafe_orders ADD COLUMN IF NOT EXISTS khqr_reference VARCHAR(100);
+            `);
+
+            migrations.push('cafe_customers & cafe_orders: Push/Payment columns added');
+        } catch (e: any) {
+            migrations.push(`Migration 6 Error: ${e.message}`);
+        }
+
         return NextResponse.json({
             success: true,
             message: 'Migrations completed',

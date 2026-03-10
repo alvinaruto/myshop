@@ -45,6 +45,10 @@ export default (sequelize: Sequelize) => {
             type: DataTypes.STRING(50),
             allowNull: true
         },
+        fcm_token: {
+            type: DataTypes.TEXT,
+            allowNull: true
+        },
         otp_code: {
             type: DataTypes.STRING(6),
             allowNull: true
@@ -52,6 +56,10 @@ export default (sequelize: Sequelize) => {
         otp_expiry: {
             type: DataTypes.DATE,
             allowNull: true
+        },
+        is_active: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: true
         }
     }, {
         tableName: 'cafe_customers',

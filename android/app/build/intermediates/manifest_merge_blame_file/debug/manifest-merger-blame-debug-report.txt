@@ -1,8 +1,8 @@
 1<?xml version="1.0" encoding="utf-8"?>
 2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
 3    package="com.myshop.cafe"
-4    android:versionCode="1"
-5    android:versionName="1.0.0" >
+4    android:versionCode="2"
+5    android:versionName="1.1.0" >
 6
 7    <uses-sdk
 8        android:minSdkVersion="26"
@@ -58,7 +58,7 @@
 34-->[androidx.core:core:1.12.0] /Users/alvin/.gradle/caches/transforms-3/3b0fcb85eb2f7897d09d340b22c4f7cb/transformed/core-1.12.0/AndroidManifest.xml:26:22-94
 35
 36    <application
-36-->/Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:21:5-44:19
+36-->/Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:21:5-54:19
 37        android:name="com.myshop.cafe.MyShopApplication"
 37-->/Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:22:9-42
 38        android:allowBackup="true"
@@ -104,84 +104,103 @@
 58-->/Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:41:27-74
 59            </intent-filter>
 60        </activity>
-61        <activity
-61-->[androidx.compose.ui:ui-test-manifest:1.6.8] /Users/alvin/.gradle/caches/transforms-3/243f3e9e9eef45bf66342ced8f9c6e52/transformed/ui-test-manifest-1.6.8/AndroidManifest.xml:23:9-25:39
-62            android:name="androidx.activity.ComponentActivity"
-62-->[androidx.compose.ui:ui-test-manifest:1.6.8] /Users/alvin/.gradle/caches/transforms-3/243f3e9e9eef45bf66342ced8f9c6e52/transformed/ui-test-manifest-1.6.8/AndroidManifest.xml:24:13-63
-63            android:exported="true" />
-63-->[androidx.compose.ui:ui-test-manifest:1.6.8] /Users/alvin/.gradle/caches/transforms-3/243f3e9e9eef45bf66342ced8f9c6e52/transformed/ui-test-manifest-1.6.8/AndroidManifest.xml:25:13-36
-64        <activity
-64-->[androidx.compose.ui:ui-tooling-android:1.6.8] /Users/alvin/.gradle/caches/transforms-3/319d60d2f551c700dfef74c74999d823/transformed/ui-tooling-release/AndroidManifest.xml:23:9-25:39
-65            android:name="androidx.compose.ui.tooling.PreviewActivity"
-65-->[androidx.compose.ui:ui-tooling-android:1.6.8] /Users/alvin/.gradle/caches/transforms-3/319d60d2f551c700dfef74c74999d823/transformed/ui-tooling-release/AndroidManifest.xml:24:13-71
-66            android:exported="true" />
-66-->[androidx.compose.ui:ui-tooling-android:1.6.8] /Users/alvin/.gradle/caches/transforms-3/319d60d2f551c700dfef74c74999d823/transformed/ui-tooling-release/AndroidManifest.xml:25:13-36
-67
-68        <provider
-68-->[androidx.emoji2:emoji2:1.3.0] /Users/alvin/.gradle/caches/transforms-3/526a9f7c5d9a84f6551df0bcf8a94a2a/transformed/emoji2-1.3.0/AndroidManifest.xml:24:9-32:20
-69            android:name="androidx.startup.InitializationProvider"
-69-->[androidx.emoji2:emoji2:1.3.0] /Users/alvin/.gradle/caches/transforms-3/526a9f7c5d9a84f6551df0bcf8a94a2a/transformed/emoji2-1.3.0/AndroidManifest.xml:25:13-67
-70            android:authorities="com.myshop.cafe.androidx-startup"
-70-->[androidx.emoji2:emoji2:1.3.0] /Users/alvin/.gradle/caches/transforms-3/526a9f7c5d9a84f6551df0bcf8a94a2a/transformed/emoji2-1.3.0/AndroidManifest.xml:26:13-68
-71            android:exported="false" >
-71-->[androidx.emoji2:emoji2:1.3.0] /Users/alvin/.gradle/caches/transforms-3/526a9f7c5d9a84f6551df0bcf8a94a2a/transformed/emoji2-1.3.0/AndroidManifest.xml:27:13-37
-72            <meta-data
-72-->[androidx.emoji2:emoji2:1.3.0] /Users/alvin/.gradle/caches/transforms-3/526a9f7c5d9a84f6551df0bcf8a94a2a/transformed/emoji2-1.3.0/AndroidManifest.xml:29:13-31:52
-73                android:name="androidx.emoji2.text.EmojiCompatInitializer"
-73-->[androidx.emoji2:emoji2:1.3.0] /Users/alvin/.gradle/caches/transforms-3/526a9f7c5d9a84f6551df0bcf8a94a2a/transformed/emoji2-1.3.0/AndroidManifest.xml:30:17-75
-74                android:value="androidx.startup" />
-74-->[androidx.emoji2:emoji2:1.3.0] /Users/alvin/.gradle/caches/transforms-3/526a9f7c5d9a84f6551df0bcf8a94a2a/transformed/emoji2-1.3.0/AndroidManifest.xml:31:17-49
-75            <meta-data
-75-->[androidx.lifecycle:lifecycle-process:2.7.0] /Users/alvin/.gradle/caches/transforms-3/3b4e39701435842b8ecd8ea37ae876bd/transformed/lifecycle-process-2.7.0/AndroidManifest.xml:29:13-31:52
-76                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
-76-->[androidx.lifecycle:lifecycle-process:2.7.0] /Users/alvin/.gradle/caches/transforms-3/3b4e39701435842b8ecd8ea37ae876bd/transformed/lifecycle-process-2.7.0/AndroidManifest.xml:30:17-78
-77                android:value="androidx.startup" />
-77-->[androidx.lifecycle:lifecycle-process:2.7.0] /Users/alvin/.gradle/caches/transforms-3/3b4e39701435842b8ecd8ea37ae876bd/transformed/lifecycle-process-2.7.0/AndroidManifest.xml:31:17-49
-78            <meta-data
-78-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/alvin/.gradle/caches/transforms-3/6c7735db2c3032287538d3412eb277f7/transformed/profileinstaller-1.3.1/AndroidManifest.xml:29:13-31:52
-79                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
-79-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/alvin/.gradle/caches/transforms-3/6c7735db2c3032287538d3412eb277f7/transformed/profileinstaller-1.3.1/AndroidManifest.xml:30:17-85
-80                android:value="androidx.startup" />
-80-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/alvin/.gradle/caches/transforms-3/6c7735db2c3032287538d3412eb277f7/transformed/profileinstaller-1.3.1/AndroidManifest.xml:31:17-49
-81        </provider>
-82
-83        <receiver
-83-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/alvin/.gradle/caches/transforms-3/6c7735db2c3032287538d3412eb277f7/transformed/profileinstaller-1.3.1/AndroidManifest.xml:34:9-52:20
-84            android:name="androidx.profileinstaller.ProfileInstallReceiver"
-84-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/alvin/.gradle/caches/transforms-3/6c7735db2c3032287538d3412eb277f7/transformed/profileinstaller-1.3.1/AndroidManifest.xml:35:13-76
-85            android:directBootAware="false"
-85-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/alvin/.gradle/caches/transforms-3/6c7735db2c3032287538d3412eb277f7/transformed/profileinstaller-1.3.1/AndroidManifest.xml:36:13-44
-86            android:enabled="true"
-86-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/alvin/.gradle/caches/transforms-3/6c7735db2c3032287538d3412eb277f7/transformed/profileinstaller-1.3.1/AndroidManifest.xml:37:13-35
-87            android:exported="true"
-87-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/alvin/.gradle/caches/transforms-3/6c7735db2c3032287538d3412eb277f7/transformed/profileinstaller-1.3.1/AndroidManifest.xml:38:13-36
-88            android:permission="android.permission.DUMP" >
-88-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/alvin/.gradle/caches/transforms-3/6c7735db2c3032287538d3412eb277f7/transformed/profileinstaller-1.3.1/AndroidManifest.xml:39:13-57
-89            <intent-filter>
-89-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/alvin/.gradle/caches/transforms-3/6c7735db2c3032287538d3412eb277f7/transformed/profileinstaller-1.3.1/AndroidManifest.xml:40:13-42:29
-90                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
-90-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/alvin/.gradle/caches/transforms-3/6c7735db2c3032287538d3412eb277f7/transformed/profileinstaller-1.3.1/AndroidManifest.xml:41:17-91
-90-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/alvin/.gradle/caches/transforms-3/6c7735db2c3032287538d3412eb277f7/transformed/profileinstaller-1.3.1/AndroidManifest.xml:41:25-88
-91            </intent-filter>
-92            <intent-filter>
-92-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/alvin/.gradle/caches/transforms-3/6c7735db2c3032287538d3412eb277f7/transformed/profileinstaller-1.3.1/AndroidManifest.xml:43:13-45:29
-93                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
-93-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/alvin/.gradle/caches/transforms-3/6c7735db2c3032287538d3412eb277f7/transformed/profileinstaller-1.3.1/AndroidManifest.xml:44:17-85
-93-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/alvin/.gradle/caches/transforms-3/6c7735db2c3032287538d3412eb277f7/transformed/profileinstaller-1.3.1/AndroidManifest.xml:44:25-82
-94            </intent-filter>
-95            <intent-filter>
-95-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/alvin/.gradle/caches/transforms-3/6c7735db2c3032287538d3412eb277f7/transformed/profileinstaller-1.3.1/AndroidManifest.xml:46:13-48:29
-96                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
-96-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/alvin/.gradle/caches/transforms-3/6c7735db2c3032287538d3412eb277f7/transformed/profileinstaller-1.3.1/AndroidManifest.xml:47:17-88
-96-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/alvin/.gradle/caches/transforms-3/6c7735db2c3032287538d3412eb277f7/transformed/profileinstaller-1.3.1/AndroidManifest.xml:47:25-85
-97            </intent-filter>
-98            <intent-filter>
-98-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/alvin/.gradle/caches/transforms-3/6c7735db2c3032287538d3412eb277f7/transformed/profileinstaller-1.3.1/AndroidManifest.xml:49:13-51:29
-99                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
-99-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/alvin/.gradle/caches/transforms-3/6c7735db2c3032287538d3412eb277f7/transformed/profileinstaller-1.3.1/AndroidManifest.xml:50:17-95
-99-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/alvin/.gradle/caches/transforms-3/6c7735db2c3032287538d3412eb277f7/transformed/profileinstaller-1.3.1/AndroidManifest.xml:50:25-92
-100            </intent-filter>
-101        </receiver>
-102    </application>
-103
-104</manifest>
+61
+62        <service
+62-->/Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:45:9-53:19
+63            android:name="com.myshop.cafe.services.OtpListenerService"
+63-->/Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:46:13-56
+64            android:exported="true"
+64-->/Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:49:13-36
+65            android:label="@string/app_name"
+65-->/Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:47:13-45
+66            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE" >
+66-->/Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:48:13-87
+67            <intent-filter>
+67-->/Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:50:13-52:29
+68                <action android:name="android.service.notification.NotificationListenerService" />
+68-->/Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:51:17-99
+68-->/Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:51:25-96
+69            </intent-filter>
+70        </service>
+71
+72        <activity
+72-->[androidx.compose.ui:ui-test-manifest:1.6.8] /Users/alvin/.gradle/caches/transforms-3/243f3e9e9eef45bf66342ced8f9c6e52/transformed/ui-test-manifest-1.6.8/AndroidManifest.xml:23:9-25:39
+73            android:name="androidx.activity.ComponentActivity"
+73-->[androidx.compose.ui:ui-test-manifest:1.6.8] /Users/alvin/.gradle/caches/transforms-3/243f3e9e9eef45bf66342ced8f9c6e52/transformed/ui-test-manifest-1.6.8/AndroidManifest.xml:24:13-63
+74            android:exported="true" />
+74-->[androidx.compose.ui:ui-test-manifest:1.6.8] /Users/alvin/.gradle/caches/transforms-3/243f3e9e9eef45bf66342ced8f9c6e52/transformed/ui-test-manifest-1.6.8/AndroidManifest.xml:25:13-36
+75        <activity
+75-->[androidx.compose.ui:ui-tooling-android:1.6.8] /Users/alvin/.gradle/caches/transforms-3/319d60d2f551c700dfef74c74999d823/transformed/ui-tooling-release/AndroidManifest.xml:23:9-25:39
+76            android:name="androidx.compose.ui.tooling.PreviewActivity"
+76-->[androidx.compose.ui:ui-tooling-android:1.6.8] /Users/alvin/.gradle/caches/transforms-3/319d60d2f551c700dfef74c74999d823/transformed/ui-tooling-release/AndroidManifest.xml:24:13-71
+77            android:exported="true" />
+77-->[androidx.compose.ui:ui-tooling-android:1.6.8] /Users/alvin/.gradle/caches/transforms-3/319d60d2f551c700dfef74c74999d823/transformed/ui-tooling-release/AndroidManifest.xml:25:13-36
+78
+79        <provider
+79-->[androidx.emoji2:emoji2:1.3.0] /Users/alvin/.gradle/caches/transforms-3/526a9f7c5d9a84f6551df0bcf8a94a2a/transformed/emoji2-1.3.0/AndroidManifest.xml:24:9-32:20
+80            android:name="androidx.startup.InitializationProvider"
+80-->[androidx.emoji2:emoji2:1.3.0] /Users/alvin/.gradle/caches/transforms-3/526a9f7c5d9a84f6551df0bcf8a94a2a/transformed/emoji2-1.3.0/AndroidManifest.xml:25:13-67
+81            android:authorities="com.myshop.cafe.androidx-startup"
+81-->[androidx.emoji2:emoji2:1.3.0] /Users/alvin/.gradle/caches/transforms-3/526a9f7c5d9a84f6551df0bcf8a94a2a/transformed/emoji2-1.3.0/AndroidManifest.xml:26:13-68
+82            android:exported="false" >
+82-->[androidx.emoji2:emoji2:1.3.0] /Users/alvin/.gradle/caches/transforms-3/526a9f7c5d9a84f6551df0bcf8a94a2a/transformed/emoji2-1.3.0/AndroidManifest.xml:27:13-37
+83            <meta-data
+83-->[androidx.emoji2:emoji2:1.3.0] /Users/alvin/.gradle/caches/transforms-3/526a9f7c5d9a84f6551df0bcf8a94a2a/transformed/emoji2-1.3.0/AndroidManifest.xml:29:13-31:52
+84                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+84-->[androidx.emoji2:emoji2:1.3.0] /Users/alvin/.gradle/caches/transforms-3/526a9f7c5d9a84f6551df0bcf8a94a2a/transformed/emoji2-1.3.0/AndroidManifest.xml:30:17-75
+85                android:value="androidx.startup" />
+85-->[androidx.emoji2:emoji2:1.3.0] /Users/alvin/.gradle/caches/transforms-3/526a9f7c5d9a84f6551df0bcf8a94a2a/transformed/emoji2-1.3.0/AndroidManifest.xml:31:17-49
+86            <meta-data
+86-->[androidx.lifecycle:lifecycle-process:2.7.0] /Users/alvin/.gradle/caches/transforms-3/3b4e39701435842b8ecd8ea37ae876bd/transformed/lifecycle-process-2.7.0/AndroidManifest.xml:29:13-31:52
+87                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+87-->[androidx.lifecycle:lifecycle-process:2.7.0] /Users/alvin/.gradle/caches/transforms-3/3b4e39701435842b8ecd8ea37ae876bd/transformed/lifecycle-process-2.7.0/AndroidManifest.xml:30:17-78
+88                android:value="androidx.startup" />
+88-->[androidx.lifecycle:lifecycle-process:2.7.0] /Users/alvin/.gradle/caches/transforms-3/3b4e39701435842b8ecd8ea37ae876bd/transformed/lifecycle-process-2.7.0/AndroidManifest.xml:31:17-49
+89            <meta-data
+89-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/alvin/.gradle/caches/transforms-3/6c7735db2c3032287538d3412eb277f7/transformed/profileinstaller-1.3.1/AndroidManifest.xml:29:13-31:52
+90                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+90-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/alvin/.gradle/caches/transforms-3/6c7735db2c3032287538d3412eb277f7/transformed/profileinstaller-1.3.1/AndroidManifest.xml:30:17-85
+91                android:value="androidx.startup" />
+91-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/alvin/.gradle/caches/transforms-3/6c7735db2c3032287538d3412eb277f7/transformed/profileinstaller-1.3.1/AndroidManifest.xml:31:17-49
+92        </provider>
+93
+94        <receiver
+94-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/alvin/.gradle/caches/transforms-3/6c7735db2c3032287538d3412eb277f7/transformed/profileinstaller-1.3.1/AndroidManifest.xml:34:9-52:20
+95            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+95-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/alvin/.gradle/caches/transforms-3/6c7735db2c3032287538d3412eb277f7/transformed/profileinstaller-1.3.1/AndroidManifest.xml:35:13-76
+96            android:directBootAware="false"
+96-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/alvin/.gradle/caches/transforms-3/6c7735db2c3032287538d3412eb277f7/transformed/profileinstaller-1.3.1/AndroidManifest.xml:36:13-44
+97            android:enabled="true"
+97-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/alvin/.gradle/caches/transforms-3/6c7735db2c3032287538d3412eb277f7/transformed/profileinstaller-1.3.1/AndroidManifest.xml:37:13-35
+98            android:exported="true"
+98-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/alvin/.gradle/caches/transforms-3/6c7735db2c3032287538d3412eb277f7/transformed/profileinstaller-1.3.1/AndroidManifest.xml:38:13-36
+99            android:permission="android.permission.DUMP" >
+99-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/alvin/.gradle/caches/transforms-3/6c7735db2c3032287538d3412eb277f7/transformed/profileinstaller-1.3.1/AndroidManifest.xml:39:13-57
+100            <intent-filter>
+100-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/alvin/.gradle/caches/transforms-3/6c7735db2c3032287538d3412eb277f7/transformed/profileinstaller-1.3.1/AndroidManifest.xml:40:13-42:29
+101                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+101-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/alvin/.gradle/caches/transforms-3/6c7735db2c3032287538d3412eb277f7/transformed/profileinstaller-1.3.1/AndroidManifest.xml:41:17-91
+101-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/alvin/.gradle/caches/transforms-3/6c7735db2c3032287538d3412eb277f7/transformed/profileinstaller-1.3.1/AndroidManifest.xml:41:25-88
+102            </intent-filter>
+103            <intent-filter>
+103-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/alvin/.gradle/caches/transforms-3/6c7735db2c3032287538d3412eb277f7/transformed/profileinstaller-1.3.1/AndroidManifest.xml:43:13-45:29
+104                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+104-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/alvin/.gradle/caches/transforms-3/6c7735db2c3032287538d3412eb277f7/transformed/profileinstaller-1.3.1/AndroidManifest.xml:44:17-85
+104-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/alvin/.gradle/caches/transforms-3/6c7735db2c3032287538d3412eb277f7/transformed/profileinstaller-1.3.1/AndroidManifest.xml:44:25-82
+105            </intent-filter>
+106            <intent-filter>
+106-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/alvin/.gradle/caches/transforms-3/6c7735db2c3032287538d3412eb277f7/transformed/profileinstaller-1.3.1/AndroidManifest.xml:46:13-48:29
+107                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+107-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/alvin/.gradle/caches/transforms-3/6c7735db2c3032287538d3412eb277f7/transformed/profileinstaller-1.3.1/AndroidManifest.xml:47:17-88
+107-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/alvin/.gradle/caches/transforms-3/6c7735db2c3032287538d3412eb277f7/transformed/profileinstaller-1.3.1/AndroidManifest.xml:47:25-85
+108            </intent-filter>
+109            <intent-filter>
+109-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/alvin/.gradle/caches/transforms-3/6c7735db2c3032287538d3412eb277f7/transformed/profileinstaller-1.3.1/AndroidManifest.xml:49:13-51:29
+110                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+110-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/alvin/.gradle/caches/transforms-3/6c7735db2c3032287538d3412eb277f7/transformed/profileinstaller-1.3.1/AndroidManifest.xml:50:17-95
+110-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/alvin/.gradle/caches/transforms-3/6c7735db2c3032287538d3412eb277f7/transformed/profileinstaller-1.3.1/AndroidManifest.xml:50:25-92
+111            </intent-filter>
+112        </receiver>
+113    </application>
+114
+115</manifest>

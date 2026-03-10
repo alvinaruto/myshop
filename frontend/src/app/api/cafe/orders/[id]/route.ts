@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { models, getSequelize } from '@/lib/db';
 import { sendCustomerAlert, sendOrderStatusToGroup, isTelegramConfigured } from '@/lib/telegram';
+import { sendFcmNotification } from '@/lib/fcm';
 
 // GET /api/cafe/orders/[id]
 export async function GET(
@@ -97,6 +98,34 @@ export async function PATCH(
                         orderNumber,
                         newStatus
                     ).catch(err => console.error('Customer alert failed:', err));
+                }
+
+                // Notify customer via FCM if token exists
+                if (['preparing', 'ready', 'completed'].includes(newStatus)) {
+                    const statusMessages: Record<string, { title: string, body: string }> = {
+                        'preparing': {
+                            title: 'Order Preparing ☕',
+                            body: `Your order #${orderNumber} is now being prepared!`
+                        },
+                        'ready': {
+                            title: 'Order Ready! ✨',
+                            body: `Your order #${orderNumber} is ready for pickup!`
+                        },
+                        'completed': {
+                            title: 'Order Completed ✅',
+                            body: `Thanks for your visit! Hope to see you again soon.`
+                        }
+                    };
+
+                    const msg = statusMessages[newStatus];
+                    if (msg && customer?.phone) {
+                        sendFcmNotification(
+                            customer.phone,
+                            msg.title,
+                            msg.body,
+                            { type: 'order_status', order_id: params.id, status: newStatus }
+                        ).catch(err => console.error('FCM notification failed:', err));
+                    }
                 }
             }
         }

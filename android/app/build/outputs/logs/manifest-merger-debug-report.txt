@@ -1,9 +1,9 @@
 -- Merging decision tree log ---
 manifest
-ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:2:1-46:12
-INJECTED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:2:1-46:12
-INJECTED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:2:1-46:12
-INJECTED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:2:1-46:12
+ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:2:1-56:12
+INJECTED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:2:1-56:12
+INJECTED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:2:1-56:12
+INJECTED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:2:1-56:12
 MERGED from [com.google.android.material:material:1.11.0] /Users/alvin/.gradle/caches/transforms-3/8c0d4d8b14c6b1eeb8e2bdfb7d50ebd1/transformed/material-1.11.0/AndroidManifest.xml:17:1-24:12
 MERGED from [androidx.constraintlayout:constraintlayout:2.0.1] /Users/alvin/.gradle/caches/transforms-3/622ae411556479ac0970bcff18b88c98/transformed/constraintlayout-2.0.1/AndroidManifest.xml:2:1-11:12
 MERGED from [io.coil-kt:coil-compose:2.5.0] /Users/alvin/.gradle/caches/transforms-3/b6f90b961751a17cd46f4e79407b7078/transformed/coil-compose-2.5.0/AndroidManifest.xml:2:1-7:12
@@ -134,8 +134,8 @@ ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.
 intent#action:name:android.intent.action.VIEW+data:scheme:acledabankqr
 ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:15:9-18:18
 application
-ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:21:5-44:19
-INJECTED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:21:5-44:19
+ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:21:5-54:19
+INJECTED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:21:5-54:19
 MERGED from [com.google.android.material:material:1.11.0] /Users/alvin/.gradle/caches/transforms-3/8c0d4d8b14c6b1eeb8e2bdfb7d50ebd1/transformed/material-1.11.0/AndroidManifest.xml:22:5-20
 MERGED from [com.google.android.material:material:1.11.0] /Users/alvin/.gradle/caches/transforms-3/8c0d4d8b14c6b1eeb8e2bdfb7d50ebd1/transformed/material-1.11.0/AndroidManifest.xml:22:5-20
 MERGED from [androidx.constraintlayout:constraintlayout:2.0.1] /Users/alvin/.gradle/caches/transforms-3/622ae411556479ac0970bcff18b88c98/transformed/constraintlayout-2.0.1/AndroidManifest.xml:9:5-20
@@ -202,6 +202,22 @@ category#android.intent.category.LAUNCHER
 ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:41:17-77
 	android:name
 		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:41:27-74
+service#com.myshop.cafe.services.OtpListenerService
+ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:45:9-53:19
+	android:label
+		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:47:13-45
+	android:exported
+		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:49:13-36
+	android:permission
+		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:48:13-87
+	android:name
+		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:46:13-56
+intent-filter#action:name:android.service.notification.NotificationListenerService
+ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:50:13-52:29
+action#android.service.notification.NotificationListenerService
+ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:51:17-99
+	android:name
+		ADDED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml:51:25-96
 uses-sdk
 INJECTED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from /Users/alvin/Web App Dev/myShop/android/app/src/main/AndroidManifest.xml

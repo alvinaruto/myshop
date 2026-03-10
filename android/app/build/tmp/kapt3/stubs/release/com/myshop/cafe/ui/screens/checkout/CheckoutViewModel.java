@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel;
 import com.myshop.cafe.data.models.CartItem;
 import com.myshop.cafe.data.models.Order;
 import com.myshop.cafe.data.models.OrderType;
+import com.myshop.cafe.data.models.OrderLoyalty;
 import com.myshop.cafe.data.repository.CartRepository;
 import com.myshop.cafe.data.repository.OrderRepository;
 import com.myshop.cafe.data.repository.UserRepository;

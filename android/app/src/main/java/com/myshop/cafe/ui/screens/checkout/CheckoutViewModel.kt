@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.myshop.cafe.data.models.CartItem
 import com.myshop.cafe.data.models.Order
 import com.myshop.cafe.data.models.OrderType
+import com.myshop.cafe.data.models.OrderLoyalty
 import com.myshop.cafe.data.repository.CartRepository
 import com.myshop.cafe.data.repository.OrderRepository
 import com.myshop.cafe.data.repository.UserRepository
@@ -243,7 +244,10 @@ class CheckoutViewModel @Inject constructor(
                 customerName = state.customerName.takeIf { it.isNotBlank() },
                 items = state.items,
                 orderType = state.orderType,
-                tableNumber = tableNum
+                tableNumber = tableNum,
+                isPaid = isPaid,
+                paymentMethod = if (isPaid) "khqr" else "cash",
+                khqrReference = state.paymentMd5
             ).onSuccess { (order, loyalty) ->
                 cartRepository.clearCart()
                 _uiState.value = _uiState.value.copy(

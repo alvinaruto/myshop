@@ -263,6 +263,7 @@ fun CheckoutScreen(
             khqrString = uiState.khqrString!!,
             amount = uiState.totalPrice,
             deepLinkUrl = uiState.deepLinkUrl,
+            onConfirmPayment = { viewModel.placeOrder(isPaid = true) },
             onDismiss = { viewModel.showKhqr(false) }
         )
     }
@@ -680,6 +681,7 @@ fun KhqrPaymentDialog(
     khqrString: String,
     amount: Double,
     deepLinkUrl: String? = null,
+    onConfirmPayment: () -> Unit,
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
@@ -814,6 +816,19 @@ fun KhqrPaymentDialog(
                         ) {
                             Text("Copy KHQR to Paste", color = Color(0xFF0D47A1), fontWeight = FontWeight.Bold)
                         }
+                    }
+
+                    // --- Manual Confirmation Button (For Testing/Manual Use) ---
+                    BouncyButton(
+                        onClick = onConfirmPayment,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp)
+                            .padding(bottom = 8.dp),
+                        containerColor = Green500,
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text("Confirm Payment (Manual)", color = Color.White, fontWeight = FontWeight.Bold)
                     }
 
                     BouncyButton(

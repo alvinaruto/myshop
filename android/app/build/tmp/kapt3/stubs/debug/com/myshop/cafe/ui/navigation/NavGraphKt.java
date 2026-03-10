@@ -8,7 +8,7 @@ import com.myshop.cafe.ui.theme.*;
 import androidx.compose.animation.*;
 import androidx.compose.animation.core.Spring;
 
-@kotlin.Metadata(mv = {1, 9, 0}, k = 2, xi = 48, d1 = {"\u0000$\n\u0000\n\u0002\u0010\u0002\n\u0000\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0002\b\u0002\n\u0002\u0010\u000e\n\u0000\n\u0002\u0018\u0002\n\u0002\b\u0002\u001a\u001c\u0010\u0000\u001a\u00020\u00012\b\b\u0002\u0010\u0002\u001a\u00020\u00032\b\b\u0002\u0010\u0004\u001a\u00020\u0005H\u0007\u001a,\u0010\u0006\u001a\u00020\u00012\u0006\u0010\u0007\u001a\u00020\b2\f\u0010\t\u001a\b\u0012\u0004\u0012\u00020\u00010\n2\f\u0010\u000b\u001a\b\u0012\u0004\u0012\u00020\u00010\nH\u0003\u00a8\u0006\f"}, d2 = {"NavGraph", "", "navController", "Landroidx/navigation/NavHostController;", "menuViewModel", "Lcom/myshop/cafe/ui/screens/menu/MenuViewModel;", "OrderSuccessContent", "orderNumber", "", "onTrackOrderClick", "Lkotlin/Function0;", "onOrderMoreClick", "app_debug"})
+@kotlin.Metadata(mv = {1, 9, 0}, k = 2, xi = 48, d1 = {"\u0000,\n\u0000\n\u0002\u0010\u0002\n\u0000\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0002\b\u0002\n\u0002\u0010\u000e\n\u0000\n\u0002\u0010\b\n\u0002\b\u0003\n\u0002\u0018\u0002\n\u0002\b\u0002\u001a\u001c\u0010\u0000\u001a\u00020\u00012\b\b\u0002\u0010\u0002\u001a\u00020\u00032\b\b\u0002\u0010\u0004\u001a\u00020\u0005H\u0007\u001aJ\u0010\u0006\u001a\u00020\u00012\u0006\u0010\u0007\u001a\u00020\b2\b\b\u0002\u0010\t\u001a\u00020\n2\b\b\u0002\u0010\u000b\u001a\u00020\n2\b\b\u0002\u0010\f\u001a\u00020\b2\f\u0010\r\u001a\b\u0012\u0004\u0012\u00020\u00010\u000e2\f\u0010\u000f\u001a\b\u0012\u0004\u0012\u00020\u00010\u000eH\u0003\u00a8\u0006\u0010"}, d2 = {"NavGraph", "", "navController", "Landroidx/navigation/NavHostController;", "menuViewModel", "Lcom/myshop/cafe/ui/screens/menu/MenuViewModel;", "OrderSuccessContent", "orderNumber", "", "pointsEarned", "", "totalPoints", "tier", "onTrackOrderClick", "Lkotlin/Function0;", "onOrderMoreClick", "app_debug"})
 public final class NavGraphKt {
     
     @androidx.compose.runtime.Composable()
@@ -18,6 +18,6 @@ public final class NavGraphKt {
     }
     
     @androidx.compose.runtime.Composable()
-    private static final void OrderSuccessContent(java.lang.String orderNumber, kotlin.jvm.functions.Function0<kotlin.Unit> onTrackOrderClick, kotlin.jvm.functions.Function0<kotlin.Unit> onOrderMoreClick) {
+    private static final void OrderSuccessContent(java.lang.String orderNumber, int pointsEarned, int totalPoints, java.lang.String tier, kotlin.jvm.functions.Function0<kotlin.Unit> onTrackOrderClick, kotlin.jvm.functions.Function0<kotlin.Unit> onOrderMoreClick) {
     }
 }

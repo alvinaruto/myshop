@@ -45,5 +45,8 @@ interface ApiService {
 
     @POST("sales/verify-khqr")
     suspend fun verifyKhqr(@Body request: VerifyKhqrRequest): VerifyKhqrResponse
+
+    @POST("customer/update-fcm-token")
+    suspend fun updateFcmToken(@Body request: UpdateFcmTokenRequest): CommonResponse
 }
 

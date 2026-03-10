@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { models, getSequelize } from '@/lib/db';
 import { sendOrderNotification, isTelegramConfigured } from '@/lib/telegram';
 import { verifyCustomerAuth, unauthorizedResponse } from '@/lib/auth';
+import { sendFcmNotification } from '@/lib/fcm';
 
 // POST /api/customer/orders - Create customer order (Auth required)
 export async function POST(request: NextRequest) {
@@ -21,7 +22,10 @@ export async function POST(request: NextRequest) {
             items,
             order_type = 'takeaway',
             table_number,
-            notes
+            notes,
+            is_paid = false,
+            payment_method = 'cash',
+            khqr_reference = null
         } = body;
 
         // Validate required fields
@@ -161,12 +165,13 @@ export async function POST(request: NextRequest) {
             table_number: order_type === 'dine_in' ? table_number : null,
             subtotal_usd: subtotal,
             total_usd: totalUsd,
-            paid_usd: 0,
+            paid_usd: is_paid ? totalUsd : 0,
             paid_khr: 0,
             change_usd: 0,
             change_khr: 0,
             exchange_rate,
-            payment_method: 'cash',
+            payment_method: payment_method,
+            khqr_reference: khqr_reference,
             status: 'pending'
         }, { transaction });
 
@@ -221,6 +226,14 @@ export async function POST(request: NextRequest) {
                 created_at: (createdOrder as any).createdAt
             }).catch(err => console.error('Telegram notification failed:', err));
         }
+
+        // Send FCM notification (Order received)
+        sendFcmNotification(
+            customer_phone,
+            'Order Received! ☕',
+            `Your order #${(createdOrder as any).order_number} has been placed successfully.`,
+            { type: 'order_placed', order_id: (createdOrder as any).id, status: 'pending' }
+        ).catch(err => console.error('FCM order notification failed:', err));
 
         return NextResponse.json({
             success: true,

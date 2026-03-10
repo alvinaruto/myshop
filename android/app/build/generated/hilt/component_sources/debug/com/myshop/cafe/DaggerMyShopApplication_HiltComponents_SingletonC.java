@@ -11,6 +11,7 @@ import com.myshop.cafe.data.api.NetworkModule_ProvideApiServiceFactory;
 import com.myshop.cafe.data.api.NetworkModule_ProvideOkHttpClientFactory;
 import com.myshop.cafe.data.api.NetworkModule_ProvideRetrofitFactory;
 import com.myshop.cafe.data.repository.CartRepository;
+import com.myshop.cafe.data.repository.LoyaltyRepository;
 import com.myshop.cafe.data.repository.MenuRepository;
 import com.myshop.cafe.data.repository.OrderRepository;
 import com.myshop.cafe.data.repository.UserRepository;
@@ -487,7 +488,7 @@ public final class DaggerMyShopApplication_HiltComponents_SingletonC {
           return (T) new CheckoutViewModel(singletonCImpl.cartRepositoryProvider.get(), singletonCImpl.orderRepositoryProvider.get(), singletonCImpl.userRepositoryProvider.get());
 
           case 2: // com.myshop.cafe.ui.screens.auth.LoginViewModel 
-          return (T) new LoginViewModel(singletonCImpl.userRepositoryProvider.get(), singletonCImpl.provideApiServiceProvider.get());
+          return (T) new LoginViewModel(singletonCImpl.userRepositoryProvider.get(), singletonCImpl.provideApiServiceProvider.get(), ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
 
           case 3: // com.myshop.cafe.ui.screens.menu.MenuViewModel 
           return (T) new MenuViewModel(singletonCImpl.menuRepositoryProvider.get(), singletonCImpl.cartRepositoryProvider.get());
@@ -499,7 +500,7 @@ public final class DaggerMyShopApplication_HiltComponents_SingletonC {
           return (T) new OrderStatusViewModel(singletonCImpl.orderRepositoryProvider.get());
 
           case 6: // com.myshop.cafe.ui.screens.profile.ProfileViewModel 
-          return (T) new ProfileViewModel(singletonCImpl.userRepositoryProvider.get());
+          return (T) new ProfileViewModel(singletonCImpl.userRepositoryProvider.get(), singletonCImpl.loyaltyRepositoryProvider.get());
 
           default: throw new AssertionError(id);
         }
@@ -595,6 +596,8 @@ public final class DaggerMyShopApplication_HiltComponents_SingletonC {
 
     private Provider<MenuRepository> menuRepositoryProvider;
 
+    private Provider<LoyaltyRepository> loyaltyRepositoryProvider;
+
     private SingletonCImpl(ApplicationContextModule applicationContextModuleParam) {
       this.applicationContextModule = applicationContextModuleParam;
       initialize(applicationContextModuleParam);
@@ -610,10 +613,11 @@ public final class DaggerMyShopApplication_HiltComponents_SingletonC {
       this.provideApiServiceProvider = DoubleCheck.provider(new SwitchingProvider<ApiService>(singletonCImpl, 2));
       this.orderRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<OrderRepository>(singletonCImpl, 1));
       this.menuRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<MenuRepository>(singletonCImpl, 6));
+      this.loyaltyRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<LoyaltyRepository>(singletonCImpl, 7));
     }
 
     @Override
-    public void injectMyShopApplication(MyShopApplication myShopApplication) {
+    public void injectMyShopApplication(MyShopApplication arg0) {
     }
 
     @Override
@@ -665,6 +669,9 @@ public final class DaggerMyShopApplication_HiltComponents_SingletonC {
 
           case 6: // com.myshop.cafe.data.repository.MenuRepository 
           return (T) new MenuRepository(singletonCImpl.provideApiServiceProvider.get());
+
+          case 7: // com.myshop.cafe.data.repository.LoyaltyRepository 
+          return (T) new LoyaltyRepository(singletonCImpl.provideApiServiceProvider.get());
 
           default: throw new AssertionError(id);
         }

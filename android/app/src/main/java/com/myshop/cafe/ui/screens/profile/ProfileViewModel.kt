@@ -18,7 +18,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val userRepository: UserRepository,
-    private val loyaltyRepository: LoyaltyRepository
+    private val loyaltyRepository: LoyaltyRepository,
+    private val apiService: com.myshop.cafe.data.api.ApiService
 ) : ViewModel() {
 
     val userSession: StateFlow<UserSession> = userRepository.userSession
@@ -37,7 +38,37 @@ class ProfileViewModel @Inject constructor(
             userRepository.userSession.collect { session ->
                 if (session.isLoggedIn && session.token != null) {
                     fetchLoyalty(session.token)
+                    syncFcmToken(session.phoneNumber)
                 }
+            }
+        }
+    }
+
+    private fun syncFcmToken(phone: String) {
+        viewModelScope.launch {
+            try {
+                var token = userRepository.getFcmToken()
+                
+                if (token == null) {
+                    // Try to get current token from Firebase
+                    try {
+                        val task = com.google.firebase.messaging.FirebaseMessaging.getInstance().token
+                        token = kotlinx.coroutines.tasks.await(task)
+                        if (token != null) {
+                            userRepository.saveFcmToken(token)
+                        }
+                    } catch (e: Exception) {
+                        // ignore
+                    }
+                }
+
+                if (token != null) {
+                    apiService.updateFcmToken(
+                        com.myshop.cafe.data.models.UpdateFcmTokenRequest(phone, token)
+                    )
+                }
+            } catch (e: Exception) {
+                // Silently fail
             }
         }
     }
