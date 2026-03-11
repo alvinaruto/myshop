@@ -12,7 +12,20 @@
           "package_name": "com.myshop.cafe"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "978048441489-5obrpg8s4an6g2js7tbmfdoduarbu0cj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.myshop.cafe",
+            "certificate_hash": "05ab5ae824c543d2a8c8fa1f493954b9ad28810a"
+          }
+        },
+        {
+          "client_id": "978048441489-060bm3tli86b8updaj4qg38uo3sei611.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyC9ChpHE1MB4icWM32qBMiXFlW7H-bQhLw"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "978048441489-060bm3tli86b8updaj4qg38uo3sei611.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

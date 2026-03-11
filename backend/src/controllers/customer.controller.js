@@ -104,6 +104,7 @@ const googleLogin = async (req, res, next) => {
         return res.json(customerResponse(customer, token));
 
     } catch (error) {
+        console.error('[google-login] Error:', error.message, error.stack);
         next(error);
     }
 };

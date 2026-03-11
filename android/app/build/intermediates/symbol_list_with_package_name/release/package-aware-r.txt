@@ -3834,6 +3834,7 @@ string customer_name
 string customer_name_hint
 string default_error_message
 string default_popup_window_title
+string default_web_client_id
 string dine_in
 string dropdown_menu
 string error_a11y_label

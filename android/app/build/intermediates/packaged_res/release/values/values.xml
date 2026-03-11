@@ -39,6 +39,7 @@
     <string name="clear_cart">Clear Cart</string>
     <string name="customer_name">Name (Optional)</string>
     <string name="customer_name_hint">Enter your name</string>
+    <string name="default_web_client_id" translatable="false">978048441489-060bm3tli86b8updaj4qg38uo3sei611.apps.googleusercontent.com</string>
     <string name="dine_in">Dine-In</string>
     <string name="error_loading">Failed to load data</string>
     <string name="gcm_defaultSenderId" translatable="false">978048441489</string>

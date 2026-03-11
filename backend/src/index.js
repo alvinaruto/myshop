@@ -85,11 +85,9 @@ const startServer = async () => {
     await sequelize.authenticate();
     console.log('✅ Database connection established successfully.');
 
-    // Sync models in development (use migrations in production)
-    if (process.env.NODE_ENV === 'development') {
-      await sequelize.sync({ alter: true });
-      console.log('✅ Database models synchronized.');
-    }
+    // Sync models on every start — alter:true only adds/changes columns, never drops data
+    await sequelize.sync({ alter: true });
+    console.log('✅ Database models synchronized.');
 
     if (require.main === module) {
       app.listen(PORT, () => {

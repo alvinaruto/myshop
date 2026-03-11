@@ -1988,6 +1988,7 @@
     <string name="customer_name_hint">Enter your name</string>
     <string name="default_error_message">"Invalid input"</string>
     <string name="default_popup_window_title" ns1:ignore="ExtraTranslation">"Pop-Up Window"</string>
+    <string name="default_web_client_id" translatable="false">978048441489-060bm3tli86b8updaj4qg38uo3sei611.apps.googleusercontent.com</string>
     <string name="dine_in">Dine-In</string>
     <string name="dropdown_menu">"Dropdown menu"</string>
     <string description="Screen reader announcement for when a checkbox is on error. [CHAR LIMIT=NONE]" name="error_a11y_label">

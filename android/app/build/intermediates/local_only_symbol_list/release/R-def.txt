@@ -42,6 +42,7 @@ string checkout_title
 string clear_cart
 string customer_name
 string customer_name_hint
+string default_web_client_id
 string dine_in
 string error_loading
 string gcm_defaultSenderId
