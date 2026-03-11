@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 @HiltViewModel
@@ -53,11 +54,19 @@ class ProfileViewModel @Inject constructor(
                 
                 if (token == null) {
                     try {
-                        val task = com.google.firebase.messaging.FirebaseMessaging.getInstance().token
-                        token = kotlinx.coroutines.tasks.await(task)
-                        if (token != null) {
-                            userRepository.saveFcmToken(token)
-                        }
+                        com.google.firebase.messaging.FirebaseMessaging.getInstance().token
+                            .addOnCompleteListener { task ->
+                                if (task.isSuccessful) {
+                                    val newToken = task.result
+                                    if (newToken != null) {
+                                        viewModelScope.launch {
+                                            userRepository.saveFcmToken(newToken)
+                                            // Trigger sync again since we now have a token
+                                            syncFcmToken(session)
+                                        }
+                                    }
+                                }
+                            }
                     } catch (e: Exception) { }
                 }
 

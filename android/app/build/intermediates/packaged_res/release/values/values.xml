@@ -41,6 +41,11 @@
     <string name="customer_name_hint">Enter your name</string>
     <string name="dine_in">Dine-In</string>
     <string name="error_loading">Failed to load data</string>
+    <string name="gcm_defaultSenderId" translatable="false">978048441489</string>
+    <string name="google_api_key" translatable="false">AIzaSyC9ChpHE1MB4icWM32qBMiXFlW7H-bQhLw</string>
+    <string name="google_app_id" translatable="false">1:978048441489:android:63ceb7e438e98d21d73330</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyC9ChpHE1MB4icWM32qBMiXFlW7H-bQhLw</string>
+    <string name="google_storage_bucket" translatable="false">myshop-57f8e.firebasestorage.app</string>
     <string name="menu_empty">Menu Coming Soon</string>
     <string name="menu_empty_subtitle">We\'re preparing something special for you!</string>
     <string name="menu_loading">Loading menu…</string>
@@ -64,6 +69,7 @@
     <string name="preparing_column">Preparing</string>
     <string name="proceed_to_checkout">Proceed to Checkout</string>
     <string name="proceed_to_counter">Please proceed to the counter for payment.</string>
+    <string name="project_id" translatable="false">myshop-57f8e</string>
     <string name="ready_column">Ready for Pickup!</string>
     <string name="retry">Retry</string>
     <string name="search">Search</string>

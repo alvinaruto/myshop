@@ -44,6 +44,11 @@ string customer_name
 string customer_name_hint
 string dine_in
 string error_loading
+string gcm_defaultSenderId
+string google_api_key
+string google_app_id
+string google_crash_reporting_api_key
+string google_storage_bucket
 string menu_empty
 string menu_empty_subtitle
 string menu_loading
@@ -67,6 +72,7 @@ string place_order
 string preparing_column
 string proceed_to_checkout
 string proceed_to_counter
+string project_id
 string ready_column
 string retry
 string search

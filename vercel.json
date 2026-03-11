@@ -15,11 +15,7 @@
             "handle": "filesystem"
         },
         {
-            "src": "/api/auth/(.*)",
-            "dest": "backend/src/index.js"
-        },
-        {
-            "src": "/api/health",
+            "src": "/api/(.*)",
             "dest": "backend/src/index.js"
         },
         {

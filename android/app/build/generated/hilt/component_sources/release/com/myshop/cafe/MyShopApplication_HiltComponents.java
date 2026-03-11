@@ -1,6 +1,7 @@
 package com.myshop.cafe;
 
 import com.myshop.cafe.data.api.NetworkModule;
+import com.myshop.cafe.services.FcmNotificationService_GeneratedInjector;
 import com.myshop.cafe.ui.screens.auth.LoginViewModel_HiltModules;
 import com.myshop.cafe.ui.screens.cart.CartViewModel_HiltModules;
 import com.myshop.cafe.ui.screens.checkout.CheckoutViewModel_HiltModules;
@@ -150,7 +151,8 @@ public final class MyShopApplication_HiltComponents {
 
   @Subcomponent
   @ServiceScoped
-  public abstract static class ServiceC implements ServiceComponent,
+  public abstract static class ServiceC implements FcmNotificationService_GeneratedInjector,
+      ServiceComponent,
       GeneratedComponent {
     @Subcomponent.Builder
     abstract interface Builder extends ServiceComponentBuilder {

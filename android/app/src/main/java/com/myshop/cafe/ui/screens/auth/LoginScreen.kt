@@ -38,6 +38,13 @@ import androidx.lifecycle.LifecycleEventObserver
 import android.content.Intent
 import android.net.Uri
 import com.myshop.cafe.ui.theme.*
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.res.painterResource
+import com.myshop.cafe.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,6 +58,33 @@ fun LoginScreen(
         if (uiState.isLoginSuccess) {
             onLoginSuccess()
         }
+    }
+
+    val context = LocalContext.current
+    // NOTE: This Web Client ID should ideally come from strings.xml or BuildConfig
+    // If not found in google-services.json, you might need to get it from Firebase Console -> Project Settings -> Auth -> Google
+    val webClientId = "978048441489-060bm3tli86b8updaj4qg38uo3sei611.apps.googleusercontent.com" // Placeholder, user needs to update
+
+    val googleSignInLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+        try {
+            val account = task.getResult(ApiException::class.java)
+            account?.idToken?.let { viewModel.loginWithGoogle(it) }
+        } catch (e: ApiException) {
+            // Handle error
+            viewModel.clearError() // reset
+        }
+    }
+
+    fun startGoogleSignIn() {
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(webClientId)
+            .requestEmail()
+            .build()
+        val googleSignInClient = GoogleSignIn.getClient(context, gso)
+        googleSignInLauncher.launch(googleSignInClient.signInIntent)
     }
 
     Scaffold(
@@ -211,13 +245,8 @@ fun LoginScreen(
                                     onOtpCodeChange = viewModel::onOtpCodeChange,
                                     isLoading = uiState.isLoading
                                 )
-                                // ... (rest of OTP components)
-                            }
-                        }
-                    }
-                }
 
-                            Spacer(modifier = Modifier.height(16.dp))
+                                Spacer(modifier = Modifier.height(16.dp))
 
                                 // Paste from Notification button fallback
                                 OutlinedButton(
@@ -285,34 +314,35 @@ fun LoginScreen(
                                 }
 
                                 if (!uiState.isTelegramLinked) {
-                                val context = LocalContext.current
-                                Spacer(modifier = Modifier.height(16.dp))
-                                Card(
-                                    colors = CardDefaults.cardColors(containerColor = BrownLight.copy(alpha = 0.1f)),
-                                    shape = RoundedCornerShape(12.dp),
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    Column(modifier = Modifier.padding(16.dp)) {
-                                        Text(
-                                            text = "Account not linked to Telegram",
-                                            color = BrownLight,
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 14.sp
-                                        )
-                                        Text(
-                                            text = "Please link your phone to our bot to receive the OTP code.",
-                                            color = TextGray,
-                                            fontSize = 12.sp,
-                                            modifier = Modifier.padding(top = 4.dp)
-                                        )
-                                        TextButton(
-                                            onClick = {
-                                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(uiState.botUrl ?: "https://t.me/myshop_coffee_bot"))
-                                                context.startActivity(intent)
-                                            },
-                                            contentPadding = PaddingValues(0.dp)
-                                        ) {
-                                            Text("Open Telegram Bot", color = BrownLight, fontWeight = FontWeight.Bold)
+                                    val context = LocalContext.current
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    Card(
+                                        colors = CardDefaults.cardColors(containerColor = BrownLight.copy(alpha = 0.1f)),
+                                        shape = RoundedCornerShape(12.dp),
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) {
+                                        Column(modifier = Modifier.padding(16.dp)) {
+                                            Text(
+                                                text = "Account not linked to Telegram",
+                                                color = BrownLight,
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 14.sp
+                                            )
+                                            Text(
+                                                text = "Please link your phone to our bot to receive the OTP code.",
+                                                color = TextGray,
+                                                fontSize = 12.sp,
+                                                modifier = Modifier.padding(top = 4.dp)
+                                            )
+                                            TextButton(
+                                                onClick = {
+                                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(uiState.botUrl ?: "https://t.me/myshop_coffee_bot"))
+                                                    context.startActivity(intent)
+                                                },
+                                                contentPadding = PaddingValues(0.dp)
+                                            ) {
+                                                Text("Open Telegram Bot", color = BrownLight, fontWeight = FontWeight.Bold)
+                                            }
                                         }
                                     }
                                 }
@@ -355,6 +385,49 @@ fun LoginScreen(
                     }
                 }
                 
+                if (!uiState.isStaffMode && !uiState.isOtpSent) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    Text(
+                        text = "OR",
+                        color = TextGray.copy(alpha = 0.5f),
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    )
+                    
+                    OutlinedButton(
+                        onClick = { startGoogleSignIn() },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        shape = RoundedCornerShape(28.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            containerColor = Color.White,
+                            contentColor = Color.Black
+                        ),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, Color.LightGray)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            // We can use a font icon or just a text G if we don't have the resource
+                            Text(
+                                "G",
+                                fontWeight = FontWeight.Black,
+                                fontSize = 20.sp,
+                                color = Color(0xFF4285F4),
+                                modifier = Modifier.padding(end = 12.dp)
+                            )
+                            Text(
+                                "Sign in with Google",
+                                fontWeight = FontWeight.Medium,
+                                fontSize = 16.sp
+                            )
+                        }
+                    }
+                }
+
                 if (uiState.isOtpSent) {
                     TextButton(
                         onClick = viewModel::requestOtp,

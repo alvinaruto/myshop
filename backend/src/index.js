@@ -17,6 +17,7 @@ const categoryRoutes = require('./routes/category.routes');
 const brandRoutes = require('./routes/brand.routes');
 const publicRoutes = require('./routes/public.routes');
 const uploadRoutes = require('./routes/upload.routes');
+const customerRoutes = require('./routes/customer.routes');
 const path = require('path');
 
 const app = express();
@@ -58,6 +59,7 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/brands', brandRoutes);
 app.use('/api/public', publicRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/customer', customerRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

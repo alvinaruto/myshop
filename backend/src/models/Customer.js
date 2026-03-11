@@ -20,6 +20,23 @@ module.exports = (sequelize) => {
             type: DataTypes.STRING(100),
             allowNull: true
         },
+        google_id: {
+            type: DataTypes.STRING(255),
+            allowNull: true,
+            unique: true
+        },
+        telegram_chat_id: {
+            type: DataTypes.STRING(50),
+            allowNull: true
+        },
+        fcm_token: {
+            type: DataTypes.TEXT,
+            allowNull: true
+        },
+        loyalty_points: {
+            type: DataTypes.INTEGER,
+            defaultValue: 0
+        },
         address: {
             type: DataTypes.TEXT,
             allowNull: true
@@ -32,7 +49,8 @@ module.exports = (sequelize) => {
         tableName: 'customers',
         indexes: [
             { fields: ['phone'] },
-            { fields: ['name'] }
+            { fields: ['name'] },
+            { fields: ['google_id'] }
         ]
     });
 

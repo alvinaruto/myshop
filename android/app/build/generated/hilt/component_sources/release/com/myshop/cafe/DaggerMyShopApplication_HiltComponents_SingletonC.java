@@ -6,6 +6,9 @@ import android.view.View;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.ViewModel;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.myshop.cafe.data.api.ApiService;
 import com.myshop.cafe.data.api.NetworkModule_ProvideApiServiceFactory;
 import com.myshop.cafe.data.api.NetworkModule_ProvideOkHttpClientFactory;
@@ -15,6 +18,8 @@ import com.myshop.cafe.data.repository.LoyaltyRepository;
 import com.myshop.cafe.data.repository.MenuRepository;
 import com.myshop.cafe.data.repository.OrderRepository;
 import com.myshop.cafe.data.repository.UserRepository;
+import com.myshop.cafe.services.FcmNotificationService;
+import com.myshop.cafe.services.FcmNotificationService_MembersInjector;
 import com.myshop.cafe.ui.screens.auth.LoginViewModel;
 import com.myshop.cafe.ui.screens.auth.LoginViewModel_HiltModules_KeyModule_ProvideFactory;
 import com.myshop.cafe.ui.screens.cart.CartViewModel;
@@ -46,11 +51,8 @@ import dagger.hilt.android.internal.modules.ApplicationContextModule;
 import dagger.hilt.android.internal.modules.ApplicationContextModule_ProvideContextFactory;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.DoubleCheck;
-import dagger.internal.MapBuilder;
 import dagger.internal.Preconditions;
 import dagger.internal.Provider;
-import dagger.internal.SetBuilder;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.processing.Generated;
@@ -388,7 +390,7 @@ public final class DaggerMyShopApplication_HiltComponents_SingletonC {
 
     @Override
     public Set<String> getViewModelKeys() {
-      return SetBuilder.<String>newSetBuilder(7).add(CartViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(CheckoutViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(LoginViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(MenuViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(OrderHistoryViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(OrderStatusViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(ProfileViewModel_HiltModules_KeyModule_ProvideFactory.provide()).build();
+      return ImmutableSet.<String>of(CartViewModel_HiltModules_KeyModule_ProvideFactory.provide(), CheckoutViewModel_HiltModules_KeyModule_ProvideFactory.provide(), LoginViewModel_HiltModules_KeyModule_ProvideFactory.provide(), MenuViewModel_HiltModules_KeyModule_ProvideFactory.provide(), OrderHistoryViewModel_HiltModules_KeyModule_ProvideFactory.provide(), OrderStatusViewModel_HiltModules_KeyModule_ProvideFactory.provide(), ProfileViewModel_HiltModules_KeyModule_ProvideFactory.provide());
     }
 
     @Override
@@ -452,12 +454,12 @@ public final class DaggerMyShopApplication_HiltComponents_SingletonC {
 
     @Override
     public Map<String, javax.inject.Provider<ViewModel>> getHiltViewModelMap() {
-      return MapBuilder.<String, javax.inject.Provider<ViewModel>>newMapBuilder(7).put("com.myshop.cafe.ui.screens.cart.CartViewModel", ((Provider) cartViewModelProvider)).put("com.myshop.cafe.ui.screens.checkout.CheckoutViewModel", ((Provider) checkoutViewModelProvider)).put("com.myshop.cafe.ui.screens.auth.LoginViewModel", ((Provider) loginViewModelProvider)).put("com.myshop.cafe.ui.screens.menu.MenuViewModel", ((Provider) menuViewModelProvider)).put("com.myshop.cafe.ui.screens.profile.OrderHistoryViewModel", ((Provider) orderHistoryViewModelProvider)).put("com.myshop.cafe.ui.screens.orderstatus.OrderStatusViewModel", ((Provider) orderStatusViewModelProvider)).put("com.myshop.cafe.ui.screens.profile.ProfileViewModel", ((Provider) profileViewModelProvider)).build();
+      return ImmutableMap.<String, javax.inject.Provider<ViewModel>>builderWithExpectedSize(7).put("com.myshop.cafe.ui.screens.cart.CartViewModel", ((Provider) cartViewModelProvider)).put("com.myshop.cafe.ui.screens.checkout.CheckoutViewModel", ((Provider) checkoutViewModelProvider)).put("com.myshop.cafe.ui.screens.auth.LoginViewModel", ((Provider) loginViewModelProvider)).put("com.myshop.cafe.ui.screens.menu.MenuViewModel", ((Provider) menuViewModelProvider)).put("com.myshop.cafe.ui.screens.profile.OrderHistoryViewModel", ((Provider) orderHistoryViewModelProvider)).put("com.myshop.cafe.ui.screens.orderstatus.OrderStatusViewModel", ((Provider) orderStatusViewModelProvider)).put("com.myshop.cafe.ui.screens.profile.ProfileViewModel", ((Provider) profileViewModelProvider)).build();
     }
 
     @Override
     public Map<String, Object> getHiltViewModelAssistedMap() {
-      return Collections.<String, Object>emptyMap();
+      return ImmutableMap.<String, Object>of();
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {
@@ -500,7 +502,7 @@ public final class DaggerMyShopApplication_HiltComponents_SingletonC {
           return (T) new OrderStatusViewModel(singletonCImpl.orderRepositoryProvider.get());
 
           case 6: // com.myshop.cafe.ui.screens.profile.ProfileViewModel 
-          return (T) new ProfileViewModel(singletonCImpl.userRepositoryProvider.get(), singletonCImpl.loyaltyRepositoryProvider.get());
+          return (T) new ProfileViewModel(singletonCImpl.userRepositoryProvider.get(), singletonCImpl.loyaltyRepositoryProvider.get(), singletonCImpl.provideApiServiceProvider.get());
 
           default: throw new AssertionError(id);
         }
@@ -575,6 +577,17 @@ public final class DaggerMyShopApplication_HiltComponents_SingletonC {
 
 
     }
+
+    @Override
+    public void injectFcmNotificationService(FcmNotificationService arg0) {
+      injectFcmNotificationService2(arg0);
+    }
+
+    @CanIgnoreReturnValue
+    private FcmNotificationService injectFcmNotificationService2(FcmNotificationService instance) {
+      FcmNotificationService_MembersInjector.injectUserRepository(instance, singletonCImpl.userRepositoryProvider.get());
+      return instance;
+    }
   }
 
   private static final class SingletonCImpl extends MyShopApplication_HiltComponents.SingletonC {
@@ -617,12 +630,12 @@ public final class DaggerMyShopApplication_HiltComponents_SingletonC {
     }
 
     @Override
-    public void injectMyShopApplication(MyShopApplication myShopApplication) {
+    public void injectMyShopApplication(MyShopApplication arg0) {
     }
 
     @Override
     public Set<Boolean> getDisableFragmentGetContextFix() {
-      return Collections.<Boolean>emptySet();
+      return ImmutableSet.<Boolean>of();
     }
 
     @Override

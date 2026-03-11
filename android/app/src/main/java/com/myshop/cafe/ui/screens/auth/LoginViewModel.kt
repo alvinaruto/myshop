@@ -27,7 +27,8 @@ data class LoginUiState(
     val isNotificationServiceEnabled: Boolean = true,
     val isStaffMode: Boolean = false,
     val username: String = "",
-    val password: String = ""
+    val password: String = "",
+    val googleToken: String? = null
 )
 
 @HiltViewModel
@@ -215,6 +216,42 @@ class LoginViewModel @Inject constructor(
                 }
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(isLoading = false, error = "Login failed: ${e.message}")
+            }
+        }
+    }
+
+    fun loginWithGoogle(idToken: String) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            try {
+                val response = apiService.googleLogin(mapOf("idToken" to idToken))
+                if (response.success && response.data != null) {
+                    val authData = response.data
+                    userRepository.login(
+                        phoneNumber = authData.customer.phone,
+                        customerName = authData.customer.name,
+                        token = authData.token
+                    )
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        isLoginSuccess = true
+                    )
+                } else if (response.message.contains("No account linked")) {
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        error = "Google account not linked. Please sign in with your phone number first."
+                    )
+                } else {
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        error = response.message
+                    )
+                }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = "Google login failed: ${e.message}"
+                )
             }
         }
     }

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "978048441489",
+    "project_id": "myshop-57f8e",
+    "storage_bucket": "myshop-57f8e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:978048441489:android:63ceb7e438e98d21d73330",
+        "android_client_info": {
+          "package_name": "com.myshop.cafe"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC9ChpHE1MB4icWM32qBMiXFlW7H-bQhLw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -19,6 +19,9 @@ interface ApiService {
     @POST("customer/otp-verify")
     suspend fun verifyOtp(@Body request: VerifyOtpRequest): AuthResponse
 
+    @POST("customer/google-login")
+    suspend fun googleLogin(@Body request: Map<String, String>): AuthResponse
+
     // Menu endpoints
     @GET("cafe/menu-categories")
     suspend fun getMenuCategories(): MenuCategoriesResponse

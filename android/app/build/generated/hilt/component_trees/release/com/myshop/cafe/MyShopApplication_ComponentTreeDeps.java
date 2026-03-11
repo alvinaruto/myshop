@@ -20,6 +20,7 @@ import dagger.hilt.processor.internal.definecomponent.codegen._dagger_hilt_compo
 import hilt_aggregated_deps._com_myshop_cafe_MainActivity_GeneratedInjector;
 import hilt_aggregated_deps._com_myshop_cafe_MyShopApplication_GeneratedInjector;
 import hilt_aggregated_deps._com_myshop_cafe_data_api_NetworkModule;
+import hilt_aggregated_deps._com_myshop_cafe_services_FcmNotificationService_GeneratedInjector;
 import hilt_aggregated_deps._com_myshop_cafe_ui_screens_auth_LoginViewModel_HiltModules_BindsModule;
 import hilt_aggregated_deps._com_myshop_cafe_ui_screens_auth_LoginViewModel_HiltModules_KeyModule;
 import hilt_aggregated_deps._com_myshop_cafe_ui_screens_cart_CartViewModel_HiltModules_BindsModule;
@@ -77,6 +78,7 @@ import hilt_aggregated_deps._dagger_hilt_android_internal_modules_HiltWrapper_Ac
         _com_myshop_cafe_MainActivity_GeneratedInjector.class,
         _com_myshop_cafe_MyShopApplication_GeneratedInjector.class,
         _com_myshop_cafe_data_api_NetworkModule.class,
+        _com_myshop_cafe_services_FcmNotificationService_GeneratedInjector.class,
         _com_myshop_cafe_ui_screens_auth_LoginViewModel_HiltModules_BindsModule.class,
         _com_myshop_cafe_ui_screens_auth_LoginViewModel_HiltModules_KeyModule.class,
         _com_myshop_cafe_ui_screens_cart_CartViewModel_HiltModules_BindsModule.class,

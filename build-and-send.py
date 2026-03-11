@@ -60,12 +60,13 @@ def main():
             f"🚀 <b>New Release Build (Universal)</b>\n\n"
             f"📦 File: <code>{filename}</code>\n"
             f"✨ <b>New Features:</b>\n"
-            f"💳 <b>Automatic KHQR payment confirmation</b>\n"
-            f"🔗 <b>Deep link auto-launch for ACLEDA Mobile</b>\n"
-            f"🏆 Loyalty Points System (earn 1pt per $1 spent)\n"
-            f"🥉🥈🥇💎 Bronze → Silver → Gold → Platinum tiers\n"
-            f"📊 Points celebration on order success screen\n"
-            f"👤 Loyalty card on Profile with progress bar"
+            f"👤 <b>Sign in with Google for Customers</b>\n"
+            f"🔔 <b>Push Notifications for Staff & Customers</b>\n"
+            f"👤 <b>Staff Login Mode with username/password</b>\n"
+            f"💳 Automatic KHQR payment confirmation\n"
+            f"🔗 Deep link auto-launch for ACLEDA Mobile\n"
+            f"🏆 Loyalty Points System\n"
+            f"📊 Points celebration & progress bar"
         )
         send_to_telegram(universal_apk, caption)
     else:
@@ -77,12 +78,12 @@ def main():
                 f"🚀 <b>New Release Build</b>\n\n"
                 f"📦 File: <code>{filename}</code>\n"
                 f"✨ <b>New Features:</b>\n"
-                f"💳 <b>Automatic KHQR payment confirmation</b>\n"
-                f"🔗 <b>Deep link auto-launch for ACLEDA Mobile</b>\n"
-                f"🏆 Loyalty Points System (earn 1pt per $1 spent)\n"
-                f"🥉🥈🥇💎 Bronze → Silver → Gold → Platinum tiers\n"
-                f"📊 Points celebration on order success screen\n"
-                f"👤 Loyalty card on Profile with progress bar"
+                f"🔔 <b>Push Notifications for Staff & Customers</b>\n"
+                f"👤 <b>Staff Login Mode with username/password</b>\n"
+                f"💳 Automatic KHQR payment confirmation\n"
+                f"🔗 Deep link auto-launch for ACLEDA Mobile\n"
+                f"🏆 Loyalty Points System\n"
+                f"📊 Points celebration & progress bar"
             )
             send_to_telegram(apk, caption)
 

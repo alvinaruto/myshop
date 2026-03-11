@@ -1,5 +1,6 @@
 package com.myshop.cafe.ui.screens.profile;
 
+import com.myshop.cafe.data.api.ApiService;
 import com.myshop.cafe.data.repository.LoyaltyRepository;
 import com.myshop.cafe.data.repository.UserRepository;
 import dagger.internal.DaggerGenerated;
@@ -27,24 +28,29 @@ public final class ProfileViewModel_Factory implements Factory<ProfileViewModel>
 
   private final Provider<LoyaltyRepository> loyaltyRepositoryProvider;
 
+  private final Provider<ApiService> apiServiceProvider;
+
   public ProfileViewModel_Factory(Provider<UserRepository> userRepositoryProvider,
-      Provider<LoyaltyRepository> loyaltyRepositoryProvider) {
+      Provider<LoyaltyRepository> loyaltyRepositoryProvider,
+      Provider<ApiService> apiServiceProvider) {
     this.userRepositoryProvider = userRepositoryProvider;
     this.loyaltyRepositoryProvider = loyaltyRepositoryProvider;
+    this.apiServiceProvider = apiServiceProvider;
   }
 
   @Override
   public ProfileViewModel get() {
-    return newInstance(userRepositoryProvider.get(), loyaltyRepositoryProvider.get());
+    return newInstance(userRepositoryProvider.get(), loyaltyRepositoryProvider.get(), apiServiceProvider.get());
   }
 
   public static ProfileViewModel_Factory create(Provider<UserRepository> userRepositoryProvider,
-      Provider<LoyaltyRepository> loyaltyRepositoryProvider) {
-    return new ProfileViewModel_Factory(userRepositoryProvider, loyaltyRepositoryProvider);
+      Provider<LoyaltyRepository> loyaltyRepositoryProvider,
+      Provider<ApiService> apiServiceProvider) {
+    return new ProfileViewModel_Factory(userRepositoryProvider, loyaltyRepositoryProvider, apiServiceProvider);
   }
 
   public static ProfileViewModel newInstance(UserRepository userRepository,
-      LoyaltyRepository loyaltyRepository) {
-    return new ProfileViewModel(userRepository, loyaltyRepository);
+      LoyaltyRepository loyaltyRepository, ApiService apiService) {
+    return new ProfileViewModel(userRepository, loyaltyRepository, apiService);
   }
 }
