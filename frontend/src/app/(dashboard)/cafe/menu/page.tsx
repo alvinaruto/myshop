@@ -91,8 +91,8 @@ export default function CafeMenuPage() {
         loadData();
     }, []);
 
-    const loadData = async () => {
-        setLoading(true);
+    const loadData = async (showSpinner = true) => {
+        if (showSpinner) setLoading(true);
         try {
             const [catRes, itemRes] = await Promise.all([
                 fetch('/api/cafe/menu-categories'),
@@ -105,7 +105,7 @@ export default function CafeMenuPage() {
         } catch (error) {
             toast.error('Failed to load data');
         } finally {
-            setLoading(false);
+            if (showSpinner) setLoading(false);
         }
     };
 
@@ -143,7 +143,7 @@ export default function CafeMenuPage() {
 
             toast.success(editingCategory ? 'Category updated' : 'Category created');
             setShowCategoryModal(false);
-            loadData();
+            loadData(false);
         } catch (error: any) {
             toast.error(error.message);
         } finally {
@@ -158,7 +158,7 @@ export default function CafeMenuPage() {
             const data = await res.json();
             if (!data.success) throw new Error(data.message);
             toast.success('Category deleted');
-            loadData();
+            loadData(false);
         } catch (error: any) {
             toast.error(error.message);
         }
@@ -214,7 +214,7 @@ export default function CafeMenuPage() {
 
             toast.success(editingItem ? 'Item updated' : 'Item created');
             setShowItemModal(false);
-            loadData();
+            loadData(false);
         } catch (error: any) {
             toast.error(error.message);
         } finally {
@@ -229,7 +229,7 @@ export default function CafeMenuPage() {
             const data = await res.json();
             if (!data.success) throw new Error(data.message);
             toast.success('Item deleted');
-            loadData();
+            loadData(false);
         } catch (error: any) {
             toast.error(error.message);
         }
@@ -244,7 +244,7 @@ export default function CafeMenuPage() {
             });
             const data = await res.json();
             if (!data.success) throw new Error(data.message);
-            loadData();
+            loadData(false);
         } catch (error: any) {
             toast.error(error.message);
         }
