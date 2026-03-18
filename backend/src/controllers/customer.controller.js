@@ -22,6 +22,7 @@ function makeCustomerToken(customer) {
 function customerResponse(customer, token) {
     return {
         success: true,
+        message: 'Login successful',
         data: {
             token,
             customer: {
