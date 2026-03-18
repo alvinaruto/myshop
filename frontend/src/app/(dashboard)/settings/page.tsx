@@ -41,7 +41,7 @@ export default function SettingsPage() {
 
             {/* Tabs */}
             <div className="flex gap-2 border-b">
-                {['categories', 'brands', 'exchange-rates'].map((tab) => (
+                {['categories', 'brands', 'exchange-rates', 'integrations'].map((tab) => (
                     <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
@@ -55,9 +55,59 @@ export default function SettingsPage() {
                 ))}
             </div>
 
-            {activeTab === 'categories' && <CategoriesTab categories={categories} onRefresh={loadData} />}
+        {activeTab === 'categories' && <CategoriesTab categories={categories} onRefresh={loadData} />}
             {activeTab === 'brands' && <BrandsTab brands={brands} onRefresh={loadData} />}
             {activeTab === 'exchange-rates' && <ExchangeRatesTab history={rateHistory} />}
+            {activeTab === 'integrations' && <IntegrationsTab />}
+        </div>
+    );
+}
+
+function IntegrationsTab() {
+    const [proxyUrl, setProxyUrl] = useState('');
+
+    useEffect(() => {
+        const stored = localStorage.getItem('bakong_proxy_url') || '';
+        setProxyUrl(stored);
+    }, []);
+
+    const handleSave = () => {
+        if (proxyUrl) {
+            localStorage.setItem('bakong_proxy_url', proxyUrl.trim());
+        } else {
+            localStorage.removeItem('bakong_proxy_url');
+        }
+        toast.success("Bakong Proxy URL updated!");
+    };
+
+    return (
+        <div className="card max-w-2xl">
+            <div className="p-4 border-b">
+                <h3 className="font-semibold text-gray-800 dark:text-white">Bakong KHQR Proxy Setup</h3>
+                <p className="text-sm text-gray-500 mt-1">Configure your local ngrok URL to verify Bakong payments from the Cafe POS.</p>
+            </div>
+            <div className="p-6 space-y-4">
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Proxy URL (e.g., https://your-ngrok-url.ngrok-free.dev)
+                    </label>
+                    <input 
+                        type="url" 
+                        value={proxyUrl} 
+                        onChange={(e) => setProxyUrl(e.target.value)} 
+                        placeholder="https://...." 
+                        className="input w-full"
+                    />
+                </div>
+                <div className="text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 p-3 rounded-lg border border-amber-200 dark:border-amber-800">
+                    <strong>Note:</strong> Since your Cafe POS is running on Vercel (Cloud), it cannot reach your physical bank directly. You must run <code className="bg-amber-100 dark:bg-amber-900 px-1 py-0.5 rounded">node local-proxy.js</code> and <code className="bg-amber-100 dark:bg-amber-900 px-1 py-0.5 rounded">ngrok http 5005</code> on your computer in Cambodia, then paste the resulting secure URL here.
+                </div>
+                <div className="pt-2">
+                    <button onClick={handleSave} className="btn btn-primary">
+                        Save Configuration
+                    </button>
+                </div>
+            </div>
         </div>
     );
 }
