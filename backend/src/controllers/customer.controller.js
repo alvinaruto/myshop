@@ -127,18 +127,21 @@ const otpRequest = async (req, res, next) => {
             return res.status(400).json({ success: false, message: 'Phone number is required' });
         }
 
-        // Find or create customer
+        // Find customer, or auto-register on first use
         let customer = await Customer.findOne({ where: { phone } });
-
-        const telegramLinked = !!(customer && customer.telegram_chat_id);
-        const botUrl = process.env.TELEGRAM_BOT_URL || 'https://t.me/myshop_coffee_bot';
+        let isNewCustomer = false;
 
         if (!customer) {
-            return res.status(404).json({
-                success: false,
-                message: 'Customer not found. Please register first.'
+            customer = await Customer.create({
+                name: phone, // placeholder name; customer can update later
+                phone,
             });
+            isNewCustomer = true;
+            console.log(`[otp-request] Auto-registered new customer for phone: ${phone}`);
         }
+
+        const telegramLinked = !!(customer.telegram_chat_id);
+        const botUrl = process.env.TELEGRAM_BOT_URL || 'https://t.me/myshop_coffee_bot';
 
         // Generate a 6-digit OTP and store it temporarily
         // In production, store in Redis or DB with expiry.
