@@ -27,26 +27,47 @@ export async function GET(request: NextRequest) {
             ];
         }
 
-        const items = await models.MenuItem.findAll({
-            where,
-            include: [
-                {
-                    model: models.MenuCategory,
-                    as: 'category',
-                    attributes: ['id', 'name', 'name_kh', 'icon']
-                },
-                {
-                    model: models.Recipe,
-                    as: 'recipes',
-                    include: [{
-                        model: models.Ingredient,
-                        as: 'ingredient',
-                        attributes: ['id', 'name', 'unit', 'quantity']
-                    }]
-                }
-            ],
-            order: [['name', 'ASC']]
-        });
+        // Try full query with recipes; fall back to simple query if tables missing
+        let items: any[];
+        try {
+            items = await models.MenuItem.findAll({
+                where,
+                include: [
+                    {
+                        model: models.MenuCategory,
+                        as: 'category',
+                        attributes: ['id', 'name', 'name_kh', 'icon']
+                    },
+                    {
+                        model: models.Recipe,
+                        as: 'recipes',
+                        required: false,
+                        include: [{
+                            model: models.Ingredient,
+                            as: 'ingredient',
+                            attributes: ['id', 'name', 'unit', 'quantity'],
+                            required: false,
+                        }]
+                    }
+                ],
+                order: [['name', 'ASC']]
+            });
+        } catch (includeErr: any) {
+            // Recipe/Ingredient tables may not exist yet — fallback without them
+            console.warn('[menu-items] Falling back to simple query:', includeErr.message);
+            items = await models.MenuItem.findAll({
+                where,
+                include: [
+                    {
+                        model: models.MenuCategory,
+                        as: 'category',
+                        attributes: ['id', 'name', 'name_kh', 'icon'],
+                        required: false,
+                    }
+                ],
+                order: [['name', 'ASC']]
+            });
+        }
 
         return NextResponse.json({
             success: true,
