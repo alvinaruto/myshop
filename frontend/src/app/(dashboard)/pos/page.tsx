@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { productApi, serialApi, saleApi, exchangeRateApi } from '@/lib/api';
 import { useCartStore, CartItem } from '@/stores/cartStore';
+import { useSettingsStore } from '@/stores/settingsStore';
 import toast from 'react-hot-toast';
 import { FiSearch, FiTrash2, FiMinus, FiPlus, FiDollarSign, FiCheck, FiX, FiLoader, FiPrinter, FiCamera } from 'react-icons/fi';
 import { useReactToPrint } from 'react-to-print';
@@ -75,6 +76,8 @@ export default function POSPage() {
         clearCart,
         getCartData,
     } = useCartStore();
+
+    const { businessInfo } = useSettingsStore();
 
     useEffect(() => {
         loadExchangeRate();
@@ -403,11 +406,7 @@ export default function POSPage() {
                                 <Receipt
                                     ref={receiptRef}
                                     sale={lastSale}
-                                    businessInfo={{
-                                        name: 'MyShop Phone Store',
-                                        address: 'Phnom Penh, Cambodia',
-                                        phone: '012 345 678'
-                                    }}
+                                    businessInfo={businessInfo}
                                 />
                             </div>
 
