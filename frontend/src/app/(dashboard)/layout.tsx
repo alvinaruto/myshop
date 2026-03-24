@@ -95,10 +95,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     }, [isAuthenticated, isMounted, _hasHydrated, router]);
 
     // Keep the frame visible but handle hydration state for content
-    const showLoading = !isMounted || !_hasHydrated;
-
-    // Don't show anything until mounted to avoid hydration mismatch
-    if (!isMounted) return null;
+    const isLoadingContent = !isMounted || !_hasHydrated || !isAuthenticated || !user;
 
     const handleLogout = () => {
         logout();
@@ -109,9 +106,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     const filteredNavigation = user 
         ? navigation.filter((item) => item.roles.includes(user.role))
         : [];
-
-    // Check if we should show the content loader (only for main content)
-    const isLoadingContent = !_hasHydrated || !isAuthenticated || !user;
 
     return (
         <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
@@ -298,10 +292,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 </header>
 
                 {/* Page content */}
-                <main className="p-3 sm:p-4 lg:p-6">
+                <main className="p-3 sm:p-4 lg:p-6 transition-opacity duration-300">
                     {isLoadingContent ? (
-                        <div className="flex items-center justify-center h-64">
-                            <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary-600"></div>
+                        <div className="flex flex-col items-center justify-center h-[50vh] animate-pulse">
+                            <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-lg mb-4"></div>
+                            <div className="h-4 w-48 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
+                            <div className="h-3 w-32 bg-gray-100 dark:bg-gray-800 rounded"></div>
                         </div>
                     ) : (
                         children

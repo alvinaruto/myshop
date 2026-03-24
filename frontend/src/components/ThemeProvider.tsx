@@ -22,10 +22,5 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
         }
     }, [isDarkMode, mounted]);
 
-    // Avoid flashing white if dark mode is active (can be improved with a script in layout)
-    if (!mounted) {
-        return <div style={{ visibility: 'hidden' }}>{children}</div>;
-    }
-
     return <>{children}</>;
 };

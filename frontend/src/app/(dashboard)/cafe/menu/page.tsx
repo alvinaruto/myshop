@@ -256,13 +256,8 @@ export default function CafeMenuPage() {
         item.name_kh?.includes(searchQuery)
     );
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center h-64">
-                <FiLoader className="w-8 h-8 animate-spin text-amber-500" />
-            </div>
-        );
-    }
+    // We no longer block the whole rendering with a spinner to avoid white splash
+    // instead we will show a skeleton inside the main layout
 
     return (
         <div className="space-y-6">
@@ -335,25 +330,31 @@ export default function CafeMenuPage() {
             {/* Categories Tab */}
             {activeTab === 'categories' && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {categories.map(cat => (
-                        <div key={cat.id} className="card p-4 flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <span className="text-3xl">{cat.icon}</span>
-                                <div>
-                                    <p className="font-semibold text-gray-900 dark:text-white">{cat.name}</p>
-                                    {cat.name_kh && <p className="text-sm text-gray-500">{cat.name_kh}</p>}
+                    {loading ? (
+                        [1, 2, 3, 4, 5, 6].map(i => (
+                            <div key={i} className="card p-4 h-20 animate-pulse bg-gray-50/50 dark:bg-gray-800/50"></div>
+                        ))
+                    ) : (
+                        categories.map(cat => (
+                            <div key={cat.id} className="card p-4 flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <span className="text-3xl">{cat.icon}</span>
+                                    <div>
+                                        <p className="font-semibold text-gray-900 dark:text-white">{cat.name}</p>
+                                        {cat.name_kh && <p className="text-sm text-gray-500">{cat.name_kh}</p>}
+                                    </div>
+                                </div>
+                                <div className="flex gap-2">
+                                    <button onClick={() => openCategoryModal(cat)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
+                                        <FiEdit2 className="w-4 h-4" />
+                                    </button>
+                                    <button onClick={() => deleteCategory(cat.id)} className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg">
+                                        <FiTrash2 className="w-4 h-4" />
+                                    </button>
                                 </div>
                             </div>
-                            <div className="flex gap-2">
-                                <button onClick={() => openCategoryModal(cat)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
-                                    <FiEdit2 className="w-4 h-4" />
-                                </button>
-                                <button onClick={() => deleteCategory(cat.id)} className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg">
-                                    <FiTrash2 className="w-4 h-4" />
-                                </button>
-                            </div>
-                        </div>
-                    ))}
+                        ))
+                    )}
                 </div>
             )}
 
@@ -363,7 +364,16 @@ export default function CafeMenuPage() {
                     ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'
                     : 'space-y-3'
                 }>
-                    {filteredItems.map(item => (
+                    {loading ? (
+                        [1, 2, 3, 4, 5, 6, 7, 8].map(i => (
+                            <div key={i} className="card overflow-hidden h-48 animate-pulse bg-gray-50/50 dark:bg-gray-800/50"></div>
+                        ))
+                    ) : filteredItems.length === 0 ? (
+                        <div className="col-span-full py-12 text-center text-gray-500">
+                             No menu items found
+                        </div>
+                    ) : (
+                        filteredItems.map(item => (
                         <div key={item.id} className={`card overflow-hidden ${!item.is_available ? 'opacity-60' : ''}`}>
                             {viewMode === 'grid' ? (
                                 <>
@@ -440,7 +450,8 @@ export default function CafeMenuPage() {
                                 </div>
                             )}
                         </div>
-                    ))}
+                        ))
+                    )}
                 </div>
             )}
 

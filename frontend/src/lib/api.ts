@@ -45,7 +45,8 @@ api.interceptors.response.use(
             if (typeof window !== 'undefined') {
                 // Fully clear the auth store
                 useAuthStore.getState().logout();
-                window.location.href = '/login';
+                // Let the layout handle the redirect to /login via SPA Router
+                // window.location.href = '/login';
             }
         }
         return Promise.reject(error);

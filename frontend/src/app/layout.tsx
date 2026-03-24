@@ -22,7 +22,30 @@ export default function RootLayout({
 }) {
     return (
         <html lang="en" suppressHydrationWarning>
-            <body className="min-h-screen bg-gray-50 dark:bg-gray-900">
+            <head>
+                <script
+                    dangerouslySetInnerHTML={{
+                        __html: `
+                            (function() {
+                                try {
+                                    var storage = localStorage.getItem('theme-storage');
+                                    var isDark = false;
+                                    if (storage) {
+                                        var data = JSON.parse(storage);
+                                        isDark = data.state.isDarkMode;
+                                    }
+                                    if (isDark) {
+                                        document.documentElement.classList.add('dark');
+                                    } else {
+                                        document.documentElement.classList.remove('dark');
+                                    }
+                                } catch (e) {}
+                            })();
+                        `,
+                    }}
+                />
+            </head>
+            <body className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
                 <ThemeProvider>
                     <Toaster
                         position="top-right"
