@@ -101,35 +101,55 @@ export default function DashboardPage() {
     };
 
     // SSE live analytics
+    const sseRetryRef = useRef<NodeJS.Timeout | null>(null);
     const connectSSE = useCallback(() => {
         if (esRef.current) esRef.current.close();
-        const es = new EventSource('/api/sse/analytics');
-        esRef.current = es;
+        if (sseRetryRef.current) {
+            clearTimeout(sseRetryRef.current);
+            sseRetryRef.current = null;
+        }
 
-        es.onopen = () => setConnected(true);
-        es.onmessage = (e) => {
-            try {
-                const msg = JSON.parse(e.data);
-                if (msg.type === 'analytics') {
-                    setLiveStats(prev => {
-                        if (prev) setPrevRevenue(prev.totalRevenue);
-                        return msg.data;
-                    });
-                    setConnected(true);
-                }
-            } catch { }
-        };
-        es.onerror = () => {
-            setConnected(false);
-            es.close();
-            setTimeout(connectSSE, 5000);
-        };
+        try {
+            const es = new EventSource('/api/sse/analytics');
+            esRef.current = es;
+
+            es.onopen = () => setConnected(true);
+            es.onmessage = (e) => {
+                try {
+                    const msg = JSON.parse(e.data);
+                    if (msg.type === 'analytics') {
+                        setLiveStats(prev => {
+                            if (prev) setPrevRevenue(prev.totalRevenue);
+                            return msg.data;
+                        });
+                        setConnected(true);
+                    }
+                } catch { }
+            };
+            es.onerror = () => {
+                setConnected(false);
+                es.close();
+                esRef.current = null;
+                sseRetryRef.current = setTimeout(connectSSE, 10000);
+            };
+        } catch {
+            console.warn('[SSE analytics] Failed to connect');
+        }
     }, []);
 
     useEffect(() => {
         loadData();
-        connectSSE();
-        return () => esRef.current?.close();
+        // Delay SSE so it doesn't block page hydration
+        const timer = setTimeout(connectSSE, 1000);
+        return () => {
+            clearTimeout(timer);
+            esRef.current?.close();
+            esRef.current = null;
+            if (sseRetryRef.current) {
+                clearTimeout(sseRetryRef.current);
+                sseRetryRef.current = null;
+            }
+        };
     }, [connectSSE]);
 
     const updateExchangeRate = async () => {

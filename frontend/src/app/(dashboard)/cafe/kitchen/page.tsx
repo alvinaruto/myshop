@@ -67,51 +67,67 @@ export default function KitchenDisplayPage() {
         } catch { }
     }, []);
 
+    const sseRetryRef = useRef<NodeJS.Timeout | null>(null);
     const connectSSE = useCallback(() => {
         if (eventSourceRef.current) {
             eventSourceRef.current.close();
         }
+        if (sseRetryRef.current) {
+            clearTimeout(sseRetryRef.current);
+            sseRetryRef.current = null;
+        }
 
-        const es = new EventSource('/api/sse/orders?status=pending,preparing,ready');
-        eventSourceRef.current = es;
+        try {
+            const es = new EventSource('/api/sse/orders?status=pending,preparing,ready');
+            eventSourceRef.current = es;
 
-        es.onopen = () => {
-            setConnected(true);
-            setLoading(false);
-        };
+            es.onopen = () => {
+                setConnected(true);
+                setLoading(false);
+            };
 
-        es.onmessage = (event) => {
-            try {
-                const msg = JSON.parse(event.data);
-                if (msg.type === 'orders') {
-                    const newOrders: KitchenOrder[] = msg.data;
-                    const newPending = newOrders.filter(o => o.status === 'pending').length;
-                    if (soundRef.current && newPending > prevCountRef.current && prevCountRef.current >= 0) {
-                        playNotification();
-                        if (newPending > prevCountRef.current) {
-                            toast(`🔔 New order arrived!`, { icon: '☕', duration: 3000 });
+            es.onmessage = (event) => {
+                try {
+                    const msg = JSON.parse(event.data);
+                    if (msg.type === 'orders') {
+                        const newOrders: KitchenOrder[] = msg.data;
+                        const newPending = newOrders.filter(o => o.status === 'pending').length;
+                        if (soundRef.current && newPending > prevCountRef.current && prevCountRef.current >= 0) {
+                            playNotification();
+                            if (newPending > prevCountRef.current) {
+                                toast(`🔔 New order arrived!`, { icon: '☕', duration: 3000 });
+                            }
                         }
+                        prevCountRef.current = newPending;
+                        setOrders(newOrders);
+                        setLoading(false);
+                        setConnected(true);
                     }
-                    prevCountRef.current = newPending;
-                    setOrders(newOrders);
-                    setLoading(false);
-                    setConnected(true);
-                }
-            } catch { }
-        };
+                } catch { }
+            };
 
-        es.onerror = () => {
-            setConnected(false);
-            es.close();
-            // Reconnect after 5s
-            setTimeout(connectSSE, 5000);
-        };
+            es.onerror = () => {
+                setConnected(false);
+                es.close();
+                eventSourceRef.current = null;
+                // Reconnect after 10s to avoid blocking navigation
+                sseRetryRef.current = setTimeout(connectSSE, 10000);
+            };
+        } catch {
+            console.warn('[SSE kitchen] Failed to connect');
+        }
     }, [playNotification]);
 
     useEffect(() => {
-        connectSSE();
+        const timer = setTimeout(connectSSE, 500);
         return () => {
+            clearTimeout(timer);
             eventSourceRef.current?.close();
+            eventSourceRef.current = null;
+            if (sseRetryRef.current) {
+                clearTimeout(sseRetryRef.current);
+                sseRetryRef.current = null;
+            }
         };
     }, [connectSSE]);
 

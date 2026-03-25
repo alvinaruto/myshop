@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode, useEffect } from 'react';
+import { ReactNode, useEffect, useRef, useCallback } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/stores/authStore';
@@ -55,21 +55,66 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     const [lowStockItems, setLowStockItems] = useState<any[]>([]);
     const [pendingOrderCount, setPendingOrderCount] = useState(0);
 
-    useEffect(() => {
-        setIsMounted(true);
-        if (isAuthenticated) {
-            fetchLowStock();
-            // Use SSE for real-time pending order count
+    // SSE ref to prevent interfering with navigation
+    const sseRef = useRef<EventSource | null>(null);
+    const sseRetryTimer = useRef<NodeJS.Timeout | null>(null);
+
+    const connectSSE = useCallback(() => {
+        // Clean up any existing connection
+        if (sseRef.current) {
+            sseRef.current.close();
+            sseRef.current = null;
+        }
+        if (sseRetryTimer.current) {
+            clearTimeout(sseRetryTimer.current);
+            sseRetryTimer.current = null;
+        }
+
+        try {
             const es = new EventSource('/api/sse/orders?status=pending,preparing');
+            sseRef.current = es;
+
             es.onmessage = (e) => {
                 try {
                     const msg = JSON.parse(e.data);
                     if (msg.type === 'orders') setPendingOrderCount(msg.data.length);
                 } catch { }
             };
-            return () => es.close();
+
+            es.onerror = () => {
+                // Close the errored connection immediately
+                es.close();
+                sseRef.current = null;
+                // Retry after 10s to avoid hammering the server
+                sseRetryTimer.current = setTimeout(() => {
+                    connectSSE();
+                }, 10000);
+            };
+        } catch {
+            // EventSource constructor can throw if URL is invalid
+            console.warn('[SSE] Failed to connect');
         }
-    }, [isAuthenticated]);
+    }, []);
+
+    useEffect(() => {
+        setIsMounted(true);
+        if (isAuthenticated) {
+            fetchLowStock();
+            // Delay SSE connection slightly so it doesn't block initial page load
+            const timer = setTimeout(connectSSE, 1000);
+            return () => {
+                clearTimeout(timer);
+                if (sseRef.current) {
+                    sseRef.current.close();
+                    sseRef.current = null;
+                }
+                if (sseRetryTimer.current) {
+                    clearTimeout(sseRetryTimer.current);
+                    sseRetryTimer.current = null;
+                }
+            };
+        }
+    }, [isAuthenticated, connectSSE]);
     const fetchLowStock = async () => {
         try {
             const res = await productApi.getLowStock();
