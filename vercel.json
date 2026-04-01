@@ -12,15 +12,7 @@
     ],
     "rewrites": [
         {
-            "source": "/api/cafe/(.*)",
-            "destination": "frontend/api/cafe/$1"
-        },
-        {
-            "source": "/api/sse/(.*)",
-            "destination": "frontend/api/sse/$1"
-        },
-        {
-            "source": "/api/(.*)",
+            "source": "/api/(?!(cafe|sse)/)(.*)",
             "destination": "backend/src/index.js"
         },
         {
