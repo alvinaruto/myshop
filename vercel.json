@@ -1,5 +1,4 @@
 {
-    "//": "Trigger Redeploy 2026-04-01-22-21",
     "version": 2,
     "builds": [
         {
@@ -30,6 +29,7 @@
         }
     ],
     "env": {
-        "NODE_ENV": "production"
+        "NODE_ENV": "production",
+        "DEPLOY_ID": "2026-04-01-22-24"
     }
 }
