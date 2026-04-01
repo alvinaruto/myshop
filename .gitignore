@@ -37,3 +37,4 @@ android/.gradle/
 *.class
 *.apk
 *.aar
+node_modules
