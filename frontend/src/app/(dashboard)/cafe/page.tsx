@@ -201,18 +201,35 @@ export default function CafePOSPage() {
 
     const addToCart = (item: MenuItem, size: 'regular' | 'medium' | 'large', customizations: any) => {
         const price = getItemPrice(item, size);
-        const cartItem: CartItem = {
-            id: `${item.id}-${size}-${Date.now()}`,
-            menu_item_id: item.id,
-            name: item.name,
-            size,
-            quantity: 1,
-            unit_price: price,
-            total: price,
-            customizations
-        };
+        // Build a stable key: same item + size + sugar + ice → merge into one row
+        const sugar = customizations?.sugar || 'normal';
+        const ice = customizations?.ice || 'normal';
+        const key = `${item.id}-${size}-${sugar}-${ice}`;
 
-        setCart(prev => [...prev, cartItem]);
+        setCart(prev => {
+            const existingIdx = prev.findIndex(c => c.id === key);
+            if (existingIdx !== -1) {
+                // Already in cart → increment quantity
+                return prev.map((c, i) => {
+                    if (i !== existingIdx) return c;
+                    const newQty = c.quantity + 1;
+                    return { ...c, quantity: newQty, total: c.unit_price * newQty };
+                });
+            }
+            // New combination → add row
+            const cartItem: CartItem = {
+                id: key,
+                menu_item_id: item.id,
+                name: item.name,
+                size,
+                quantity: 1,
+                unit_price: price,
+                total: price,
+                customizations
+            };
+            return [...prev, cartItem];
+        });
+
         toast.success(`Added ${item.name} (${size})`);
         setShowSizeModal(false);
         setSelectedItem(null);
