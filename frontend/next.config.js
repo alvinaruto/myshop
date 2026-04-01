@@ -14,6 +14,12 @@ const nextConfig = {
     },
     async rewrites() {
         return {
+            beforeFiles: [
+                {
+                    source: '/frontend/api/:path*',
+                    destination: '/api/:path*',
+                }
+            ],
             // Fallback rewrites run AFTER all pages/API routes in the filesystem
             // This sends non-Next.js API requests to the Express backend
             fallback: [
