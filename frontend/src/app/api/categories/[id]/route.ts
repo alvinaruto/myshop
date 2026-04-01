@@ -6,12 +6,12 @@ interface Params {
     params: { id: string };
 }
 
-export async function GET(req: NextRequest, { params }: Params) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
         const auth = await verifyAuth(req);
         if (!auth) return unauthorizedResponse();
 
-        const category = await models.Category.findByPk(params.id);
+        const category = await models.Category.findByPk((await params).id);
         if (!category) {
             return NextResponse.json({ success: false, message: 'Category not found' }, { status: 404 });
         }
@@ -22,7 +22,7 @@ export async function GET(req: NextRequest, { params }: Params) {
     }
 }
 
-export async function PATCH(req: NextRequest, { params }: Params) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
         const auth = await verifyAuth(req);
         if (!auth) return unauthorizedResponse();
@@ -31,7 +31,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
             return forbiddenResponse();
         }
 
-        const category = await models.Category.findByPk(params.id);
+        const category = await models.Category.findByPk((await params).id);
         if (!category) {
             return NextResponse.json({ success: false, message: 'Category not found' }, { status: 404 });
         }
@@ -50,7 +50,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     }
 }
 
-export async function DELETE(req: NextRequest, { params }: Params) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
         const auth = await verifyAuth(req);
         if (!auth) return unauthorizedResponse();
@@ -59,13 +59,13 @@ export async function DELETE(req: NextRequest, { params }: Params) {
             return forbiddenResponse();
         }
 
-        const category = await models.Category.findByPk(params.id);
+        const category = await models.Category.findByPk((await params).id);
         if (!category) {
             return NextResponse.json({ success: false, message: 'Category not found' }, { status: 404 });
         }
 
         // Check if category has products
-        const productCount = await models.Product.count({ where: { category_id: params.id } });
+        const productCount = await models.Product.count({ where: { category_id: (await params).id } });
         if (productCount > 0) {
             return NextResponse.json({
                 success: false,

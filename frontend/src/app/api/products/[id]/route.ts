@@ -4,13 +4,13 @@ import { verifyAuth, unauthorizedResponse } from '@/lib/auth';
 
 export async function GET(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const auth = await verifyAuth(req);
         if (!auth) return unauthorizedResponse();
 
-        const product = await models.Product.findByPk(params.id, {
+        const product = await models.Product.findByPk((await params).id, {
             include: [
                 { model: models.Category, as: 'category' },
                 { model: models.Brand, as: 'brand' },
@@ -42,7 +42,7 @@ export async function GET(
 
 export async function PATCH(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const auth = await verifyAuth(req);
@@ -52,7 +52,7 @@ export async function PATCH(
             return NextResponse.json({ success: false, message: 'Permission denied' }, { status: 403 });
         }
 
-        const product = await models.Product.findByPk(params.id);
+        const product = await models.Product.findByPk((await params).id);
         if (!product) {
             return NextResponse.json({ success: false, message: 'Product not found' }, { status: 404 });
         }
@@ -81,7 +81,7 @@ export async function PATCH(
 
 export async function DELETE(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const auth = await verifyAuth(req);
@@ -91,7 +91,7 @@ export async function DELETE(
             return NextResponse.json({ success: false, message: 'Only admins can delete products' }, { status: 403 });
         }
 
-        const product = await models.Product.findByPk(params.id);
+        const product = await models.Product.findByPk((await params).id);
         if (!product) {
             return NextResponse.json({ success: false, message: 'Product not found' }, { status: 404 });
         }

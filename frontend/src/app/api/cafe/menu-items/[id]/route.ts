@@ -4,10 +4,10 @@ import { models } from '@/lib/db';
 // GET /api/cafe/menu-items/[id]
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const item = await models.MenuItem.findByPk(params.id, {
+        const item = await models.MenuItem.findByPk((await params).id, {
             include: [
                 { model: models.MenuCategory, as: 'category' },
                 {
@@ -41,11 +41,11 @@ export async function GET(
 // PATCH /api/cafe/menu-items/[id]
 export async function PATCH(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const body = await request.json();
-        const item = await models.MenuItem.findByPk(params.id);
+        const item = await models.MenuItem.findByPk((await params).id);
 
         if (!item) {
             return NextResponse.json(
@@ -61,13 +61,13 @@ export async function PATCH(
         if (body.recipes && Array.isArray(body.recipes)) {
             // Delete existing recipes
             await models.Recipe.destroy({
-                where: { menu_item_id: params.id }
+                where: { menu_item_id: (await params).id }
             });
 
             // Create new recipes
             for (const recipe of body.recipes) {
                 await models.Recipe.create({
-                    menu_item_id: params.id,
+                    menu_item_id: (await params).id,
                     ingredient_id: recipe.ingredient_id,
                     size: recipe.size || 'regular',
                     quantity: recipe.quantity
@@ -76,7 +76,7 @@ export async function PATCH(
         }
 
         // Fetch updated item
-        const updated = await models.MenuItem.findByPk(params.id, {
+        const updated = await models.MenuItem.findByPk((await params).id, {
             include: [
                 { model: models.MenuCategory, as: 'category' },
                 {
@@ -103,10 +103,10 @@ export async function PATCH(
 // DELETE /api/cafe/menu-items/[id]
 export async function DELETE(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const item = await models.MenuItem.findByPk(params.id);
+        const item = await models.MenuItem.findByPk((await params).id);
 
         if (!item) {
             return NextResponse.json(

@@ -6,10 +6,10 @@ import { sendFcmNotification } from '@/lib/fcm';
 // GET /api/cafe/orders/[id]
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const order = await models.CafeOrder.findByPk(params.id, {
+        const order = await models.CafeOrder.findByPk((await params).id, {
             include: [
                 {
                     model: models.CafeOrderItem,
@@ -50,11 +50,11 @@ export async function GET(
 // PATCH /api/cafe/orders/[id] - Update order status
 export async function PATCH(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const body = await request.json();
-        const order = await models.CafeOrder.findByPk(params.id, {
+        const order = await models.CafeOrder.findByPk((await params).id, {
             include: [
                 { model: models.CafeCustomer, as: 'customer' }
             ]
@@ -123,7 +123,7 @@ export async function PATCH(
                             customer.phone,
                             msg.title,
                             msg.body,
-                            { type: 'order_status', order_id: params.id, status: newStatus }
+                            { type: 'order_status', order_id: (await params).id, status: newStatus }
                         ).catch(err => console.error('FCM notification failed:', err));
                     }
                 }
@@ -147,13 +147,13 @@ export async function PATCH(
 // POST /api/cafe/orders/[id]/void - Void order (restore stock)
 export async function POST(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     const sequelize = getSequelize();
     const transaction = await sequelize.transaction();
 
     try {
-        const order = await models.CafeOrder.findByPk(params.id, {
+        const order = await models.CafeOrder.findByPk((await params).id, {
             include: [{ model: models.CafeOrderItem, as: 'items' }],
             transaction
         });
@@ -200,7 +200,7 @@ export async function POST(
                         type: 'in',
                         quantity: restoreQty,
                         reference_type: 'sale',
-                        reference_id: params.id,
+                        reference_id: (await params).id,
                         notes: `Stock restored from voided order ${(order as any).order_number}`
                     }, { transaction });
                 }

@@ -4,13 +4,13 @@ import { verifyAuth, unauthorizedResponse } from '@/lib/auth';
 
 export async function GET(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const auth = await verifyAuth(req);
         if (!auth) return unauthorizedResponse();
 
-        const sale = await models.Sale.findByPk(params.id, {
+        const sale = await models.Sale.findByPk((await params).id, {
             include: [
                 {
                     model: models.SaleItem,

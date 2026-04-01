@@ -4,10 +4,10 @@ import { models, getSequelize } from '@/lib/db';
 // GET /api/cafe/ingredients/[id]
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const ingredient = await models.Ingredient.findByPk(params.id, {
+        const ingredient = await models.Ingredient.findByPk((await params).id, {
             include: [{
                 model: models.StockTransaction,
                 as: 'transactions',
@@ -42,11 +42,11 @@ export async function GET(
 // PATCH /api/cafe/ingredients/[id]
 export async function PATCH(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const body = await request.json();
-        const ingredient = await models.Ingredient.findByPk(params.id);
+        const ingredient = await models.Ingredient.findByPk((await params).id);
 
         if (!ingredient) {
             return NextResponse.json(
@@ -76,10 +76,10 @@ export async function PATCH(
 // DELETE /api/cafe/ingredients/[id]
 export async function DELETE(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const ingredient = await models.Ingredient.findByPk(params.id);
+        const ingredient = await models.Ingredient.findByPk((await params).id);
 
         if (!ingredient) {
             return NextResponse.json(

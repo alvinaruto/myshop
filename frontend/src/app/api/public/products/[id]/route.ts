@@ -3,10 +3,10 @@ import { models } from '@/lib/db';
 
 export async function GET(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const product = await models.Product.findByPk(params.id, {
+        const product = await models.Product.findByPk((await params).id, {
             include: [
                 { model: models.Category, as: 'category' },
                 { model: models.Brand, as: 'brand' },

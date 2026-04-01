@@ -4,7 +4,7 @@ import { models, getSequelize } from '@/lib/db';
 // POST /api/cafe/ingredients/[id]/stock - Adjust stock
 export async function POST(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     const sequelize = getSequelize();
     const transaction = await sequelize.transaction();
@@ -20,7 +20,7 @@ export async function POST(
             );
         }
 
-        const ingredient = await models.Ingredient.findByPk(params.id, { transaction });
+        const ingredient = await models.Ingredient.findByPk((await params).id, { transaction });
 
         if (!ingredient) {
             await transaction.rollback();
@@ -68,7 +68,7 @@ export async function POST(
 
         // Create stock transaction record
         await models.StockTransaction.create({
-            ingredient_id: params.id,
+            ingredient_id: (await params).id,
             type,
             quantity: stockQty,
             reference_type: 'manual',

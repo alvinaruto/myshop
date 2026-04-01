@@ -4,7 +4,7 @@ import { verifyAuth, unauthorizedResponse } from '@/lib/auth';
 
 export async function PATCH(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const auth = await verifyAuth(req);
@@ -14,7 +14,7 @@ export async function PATCH(
             return NextResponse.json({ success: false, message: 'Permission denied' }, { status: 403 });
         }
 
-        const brand = await models.Brand.findByPk(params.id);
+        const brand = await models.Brand.findByPk((await params).id);
         if (!brand) return NextResponse.json({ success: false, message: 'Brand not found' }, { status: 404 });
 
         const data = await req.json();
@@ -28,7 +28,7 @@ export async function PATCH(
 
 export async function DELETE(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const auth = await verifyAuth(req);
@@ -38,7 +38,7 @@ export async function DELETE(
             return NextResponse.json({ success: false, message: 'Only admins can delete brands' }, { status: 403 });
         }
 
-        const brand = await models.Brand.findByPk(params.id);
+        const brand = await models.Brand.findByPk((await params).id);
         if (!brand) return NextResponse.json({ success: false, message: 'Brand not found' }, { status: 404 });
 
         await (brand as any).destroy();

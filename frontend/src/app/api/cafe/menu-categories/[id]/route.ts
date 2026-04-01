@@ -4,10 +4,10 @@ import { models } from '@/lib/db';
 // GET /api/cafe/menu-categories/[id]
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const category = await models.MenuCategory.findByPk(params.id, {
+        const category = await models.MenuCategory.findByPk((await params).id, {
             include: [{
                 model: models.MenuItem,
                 as: 'items',
@@ -39,11 +39,11 @@ export async function GET(
 // PATCH /api/cafe/menu-categories/[id]
 export async function PATCH(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const body = await request.json();
-        const category = await models.MenuCategory.findByPk(params.id);
+        const category = await models.MenuCategory.findByPk((await params).id);
 
         if (!category) {
             return NextResponse.json(
@@ -70,10 +70,10 @@ export async function PATCH(
 // DELETE /api/cafe/menu-categories/[id]
 export async function DELETE(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const category = await models.MenuCategory.findByPk(params.id);
+        const category = await models.MenuCategory.findByPk((await params).id);
 
         if (!category) {
             return NextResponse.json(

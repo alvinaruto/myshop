@@ -4,10 +4,10 @@ import { Op } from 'sequelize';
 
 export async function GET(
     req: NextRequest,
-    { params }: { params: { serial: string } }
+    { params }: { params: Promise<{ serial: string }> }
 ) {
     try {
-        const { serial } = params;
+        const { serial } = await params;
         const warranty = await models.Warranty.findOne({
             include: [
                 {
