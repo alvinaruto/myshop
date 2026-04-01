@@ -133,11 +133,17 @@ export default function KitchenDisplayPage() {
 
     const updateStatus = async (orderId: string, newStatus: string) => {
         try {
-            const res = await fetch(`/api/cafe/orders/${orderId}`, {
+            // Use query param ?id= to avoid Vercel monorepo dynamic-segment routing issues
+            const res = await fetch(`/api/cafe/orders?id=${orderId}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status: newStatus })
             });
+            // Guard against HTML error pages
+            const contentType = res.headers.get('content-type') || '';
+            if (!contentType.includes('application/json')) {
+                throw new Error(`Server error (${res.status})`);
+            }
             const data = await res.json();
             if (!data.success) throw new Error(data.message);
             toast.success(`Order marked as ${newStatus}`);

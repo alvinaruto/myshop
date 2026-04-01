@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { models, getSequelize } from '@/lib/db';
 import { Op } from 'sequelize';
+import { sendCustomerAlert, sendOrderStatusToGroup, isTelegramConfigured } from '@/lib/telegram';
+import { sendFcmNotification } from '@/lib/fcm';
 
 // GET /api/cafe/orders - List orders
 export async function GET(request: NextRequest) {
@@ -227,6 +229,107 @@ export async function POST(request: NextRequest) {
     } catch (error: any) {
         await transaction.rollback();
         console.error('Error creating cafe order:', error);
+        return NextResponse.json(
+            { success: false, message: error.message },
+            { status: 500 }
+        );
+    }
+}
+
+// PATCH /api/cafe/orders?id={orderId} - Update order status
+// Uses query param to avoid Vercel monorepo dynamic-segment routing issues
+export async function PATCH(
+    request: NextRequest
+) {
+    try {
+        const { searchParams } = new URL(request.url);
+        const orderId = searchParams.get('id');
+
+        if (!orderId) {
+            return NextResponse.json(
+                { success: false, message: 'Order ID is required' },
+                { status: 400 }
+            );
+        }
+
+        const body = await request.json();
+        const order = await models.CafeOrder.findByPk(orderId, {
+            include: [
+                { model: models.CafeCustomer, as: 'customer' }
+            ]
+        });
+
+        if (!order) {
+            return NextResponse.json(
+                { success: false, message: 'Order not found' },
+                { status: 404 }
+            );
+        }
+
+        const oldStatus = (order as any).status;
+        const newStatus = body.status;
+
+        if (newStatus && oldStatus !== newStatus) {
+            await (order as any).update({ status: newStatus });
+
+            const customer = (order as any).customer;
+            const orderNumber = (order as any).order_number;
+
+            if (isTelegramConfigured()) {
+                if (['preparing', 'ready', 'completed', 'voided'].includes(newStatus)) {
+                    sendOrderStatusToGroup(
+                        orderNumber,
+                        newStatus,
+                        customer?.name || customer?.phone
+                    ).catch((err: any) => console.error('Group status notification failed:', err));
+                }
+
+                if (
+                    customer?.telegram_chat_id &&
+                    ['preparing', 'ready', 'completed'].includes(newStatus)
+                ) {
+                    sendCustomerAlert(
+                        customer.telegram_chat_id,
+                        orderNumber,
+                        newStatus
+                    ).catch((err: any) => console.error('Customer alert failed:', err));
+                }
+
+                if (['preparing', 'ready', 'completed'].includes(newStatus)) {
+                    const statusMessages: Record<string, { title: string, body: string }> = {
+                        'preparing': {
+                            title: 'Order Preparing ☕',
+                            body: `Your order #${orderNumber} is now being prepared!`
+                        },
+                        'ready': {
+                            title: 'Order Ready! ✨',
+                            body: `Your order #${orderNumber} is ready for pickup!`
+                        },
+                        'completed': {
+                            title: 'Order Completed ✅',
+                            body: `Thanks for your visit! Hope to see you again soon.`
+                        }
+                    };
+
+                    const msg = statusMessages[newStatus];
+                    if (msg && customer?.phone) {
+                        sendFcmNotification(
+                            customer.phone,
+                            msg.title,
+                            msg.body,
+                            { type: 'order_status', order_id: orderId, status: newStatus }
+                        ).catch((err: any) => console.error('FCM notification failed:', err));
+                    }
+                }
+            }
+        }
+
+        return NextResponse.json({
+            success: true,
+            data: order
+        });
+    } catch (error: any) {
+        console.error('Error updating order status:', error);
         return NextResponse.json(
             { success: false, message: error.message },
             { status: 500 }
