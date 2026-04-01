@@ -11,35 +11,7 @@ interface KHQRConfig {
     billNumber?: string;
 }
 
-/**
- * Manual EMVCo Tag Builder for KHQR
- */
-const buildTag = (tag: string, value: string): string => {
-    const len = value.length.toString().padStart(2, '0');
-    return `${tag}${len}${value}`;
-};
-
-/**
- * CRC16-CCITT implementation for KHQR
- */
-const crc16 = (data: string): string => {
-    let crc = 0xFFFF;
-    for (let i = 0; i < data.length; i++) {
-        crc ^= data.charCodeAt(i) << 8;
-        for (let j = 0; j < 8; j++) {
-            if ((crc & 0x8000) !== 0) {
-                crc = (crc << 1) ^ 0x1021;
-            } else {
-                crc <<= 1;
-            }
-        }
-    }
-    return (crc & 0xFFFF).toString(16).toUpperCase().padStart(4, '0');
-};
-
-/**
- * Generates a KHQR string manually following the BSTHEN pattern
- */
+// Removed redundant manual builders.
 export const generateKHQR = ({
     amount,
     currency,
@@ -48,55 +20,48 @@ export const generateKHQR = ({
     merchantCity = 'PHNOM PENH',
     billNumber,
 }: KHQRConfig): string => {
-    let khqr = '';
+    try {
+        const isDynamic = amount > 0;
+        
+        const optionalData: any = {
+            currency: currency === 'USD' ? khqrData.currency.usd : khqrData.currency.khr,
+            // 855 is required as country code for mobileNumber validation in Bakong Spec
+            mobileNumber: '85578211599',
+            storeLabel: merchantName,
+            terminalLabel: 'POS',
+            purposeOfTransaction: 'Cafe Order Payment',
+            languageDataName: merchantName,
+            merchantCity: merchantCity
+        };
 
-    // Tag 00: Payload Format Indicator
-    khqr += buildTag('00', '01');
+        // Only add dynamic fields if amount > 0
+        if (isDynamic) {
+            optionalData.amount = amount;
+            optionalData.billNumber = billNumber;
+            optionalData.expirationTimestamp = Date.now() + 15 * 60 * 1000; // 15 mins expiry
+        } else if (billNumber) {
+            optionalData.billNumber = billNumber;
+        }
 
-    // Tag 01: Point of Initiation Method (11 for Static, 12 for Dynamic)
-    const isDynamic = amount > 0;
-    khqr += buildTag('01', isDynamic ? '12' : '11');
+        const individualInfo = new IndividualInfo(
+            accountNumber,
+            merchantName,
+            merchantCity,
+            optionalData
+        );
 
-    // Tag 29: Merchant Account Information (Individual)
-    const tag29Value = buildTag('00', accountNumber);
-    khqr += buildTag('29', tag29Value);
+        const khqr = new BakongKHQR();
+        const response = khqr.generateIndividual(individualInfo);
 
-    // Tag 52: Merchant Category Code
-    khqr += buildTag('52', '5999');
-
-    // Tag 53: Transaction Currency (840 for USD, 116 for KHR)
-    khqr += buildTag('53', currency === 'USD' ? '840' : '116');
-
-    // Tag 54: Transaction Amount
-    if (isDynamic) {
-        khqr += buildTag('54', amount.toFixed(2));
+        if (response && response.data && response.data.qr) {
+            return response.data.qr;
+        }
+        
+        throw new Error(response?.status?.message || 'Unknown generation error');
+    } catch (error) {
+        console.error('Failed to generate official Bakong KHQR payload:', error);
+        return '';
     }
-
-    // Tag 58: Country Code
-    khqr += buildTag('58', 'KH');
-
-    // Tag 59: Merchant Name
-    khqr += buildTag('59', merchantName);
-
-    // Tag 60: Merchant City
-    khqr += buildTag('60', merchantCity);
-
-    // Tag 62: Additional Data Field Template
-    let tag62Value = '';
-    if (billNumber) tag62Value += buildTag('01', billNumber);
-    // Add mobile number if available (from config)
-    tag62Value += buildTag('02', '078211599');
-    tag62Value += buildTag('03', merchantName); // Store Label
-
-    if (tag62Value) {
-        khqr += buildTag('62', tag62Value);
-    }
-
-    // Final Tag 63: CRC
-    khqr += '6304';
-    khqr += crc16(khqr);
-
-    return khqr;
 };
 
 /**
