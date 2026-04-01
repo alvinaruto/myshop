@@ -12,15 +12,15 @@
     ],
     "rewrites": [
         {
-            "source": "/api/cafe/(.*)",
-            "destination": "frontend/api/cafe/$1"
+            "source": "/api/cafe/:path*",
+            "destination": "frontend/api/cafe/:path*"
         },
         {
-            "source": "/api/sse/(.*)",
-            "destination": "frontend/api/sse/$1"
+            "source": "/api/sse/:path*",
+            "destination": "frontend/api/sse/:path*"
         },
         {
-            "source": "/api/(.*)",
+            "source": "/api/:path*",
             "destination": "backend/src/index.js"
         },
         {
