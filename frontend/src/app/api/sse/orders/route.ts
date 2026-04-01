@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
                 }
 
                 if (running) {
-                    setTimeout(sendOrders, 3000);
+                    setTimeout(sendOrders, 4000);
                 }
             };
 

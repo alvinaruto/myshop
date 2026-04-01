@@ -6,10 +6,19 @@ import { useCartStore, CartItem } from '@/stores/cartStore';
 import { useSettingsStore } from '@/stores/settingsStore';
 import toast from 'react-hot-toast';
 import { FiSearch, FiTrash2, FiMinus, FiPlus, FiDollarSign, FiCheck, FiX, FiLoader, FiPrinter, FiCamera } from 'react-icons/fi';
+import dynamic from 'next/dynamic';
 import { useReactToPrint } from 'react-to-print';
 import { Receipt } from '@/components/Receipt';
-import { KHQR } from '@/components/KHQR';
-import { BarcodeScanner } from '@/components/BarcodeScanner';
+
+// Lazy-load heavy components — only fetched when needed
+const KHQR = dynamic(() => import('@/components/KHQR').then(m => ({ default: m.KHQR })), {
+    ssr: false,
+    loading: () => <div className="h-48 flex items-center justify-center animate-pulse text-gray-400">Loading QR...</div>
+});
+const BarcodeScanner = dynamic(() => import('@/components/BarcodeScanner').then(m => ({ default: m.BarcodeScanner })), {
+    ssr: false,
+    loading: () => <div className="h-48 flex items-center justify-center animate-pulse text-gray-400">Loading scanner...</div>
+});
 
 interface Product {
     id: string;

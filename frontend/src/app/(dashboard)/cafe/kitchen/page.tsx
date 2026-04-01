@@ -32,9 +32,9 @@ export default function KitchenDisplayPage() {
     const soundRef = useRef(soundEnabled);
     soundRef.current = soundEnabled;
 
-    // Clock
+    // Clock (tick every 10s to reduce re-renders)
     useEffect(() => {
-        const tick = setInterval(() => setCurrentTime(new Date()), 1000);
+        const tick = setInterval(() => setCurrentTime(new Date()), 10000);
         return () => clearInterval(tick);
     }, []);
 

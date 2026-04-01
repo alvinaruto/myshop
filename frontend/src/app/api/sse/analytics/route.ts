@@ -105,7 +105,7 @@ export async function GET(request: NextRequest) {
                     console.error('[SSE analytics] Error:', err);
                 }
 
-                if (running) setTimeout(sendStats, 5000);
+                if (running) setTimeout(sendStats, 10000);
             };
 
             await sendStats();

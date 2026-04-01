@@ -1,6 +1,27 @@
 import type { Metadata, Viewport } from 'next';
 import { Toaster } from 'react-hot-toast';
+import { Inter, Montserrat, Playfair_Display } from 'next/font/google';
 import './globals.css';
+
+const inter = Inter({
+    subsets: ['latin'],
+    display: 'swap',
+    variable: '--font-inter',
+});
+
+const montserrat = Montserrat({
+    subsets: ['latin'],
+    display: 'swap',
+    variable: '--font-montserrat',
+    weight: ['300', '400', '500', '600', '700'],
+});
+
+const playfair = Playfair_Display({
+    subsets: ['latin'],
+    display: 'swap',
+    variable: '--font-playfair',
+    weight: ['400', '700', '900'],
+});
 
 export const viewport: Viewport = {
     width: 'device-width',
@@ -45,7 +66,7 @@ export default function RootLayout({
                     }}
                 />
             </head>
-            <body className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+            <body className={`min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300 ${inter.variable} ${montserrat.variable} ${playfair.variable}`}>
                 <ThemeProvider>
                     <Toaster
                         position="top-right"

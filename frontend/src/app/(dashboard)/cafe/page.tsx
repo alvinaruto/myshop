@@ -4,7 +4,12 @@ import { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { FiSearch, FiTrash2, FiMinus, FiPlus, FiDollarSign, FiCheck, FiX, FiLoader, FiPrinter, FiCoffee, FiShoppingCart } from 'react-icons/fi';
 import { useReactToPrint } from 'react-to-print';
-import { KHQR } from '@/components/KHQR';
+import dynamic from 'next/dynamic';
+
+const KHQR = dynamic(() => import('@/components/KHQR').then(m => ({ default: m.KHQR })), {
+    ssr: false,
+    loading: () => <div className="h-48 flex items-center justify-center animate-pulse text-gray-400">Loading QR...</div>
+});
 
 interface MenuCategory {
     id: string;
@@ -389,6 +394,8 @@ export default function CafePOSPage() {
                                     <img
                                         src={getItemImage(item)}
                                         alt={item.name}
+                                        loading="lazy"
+                                        decoding="async"
                                         className="w-full h-full object-cover rounded-lg"
                                         onError={(e) => { (e.target as HTMLImageElement).src = COFFEE_IMAGES.default }}
                                     />

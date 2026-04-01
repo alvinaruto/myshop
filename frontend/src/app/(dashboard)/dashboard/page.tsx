@@ -8,11 +8,16 @@ import {
     FiRefreshCw, FiSmartphone, FiWifi, FiWifiOff, FiCoffee, FiArrowUp, FiArrowDown, FiActivity
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
-import {
-    AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip,
-    ResponsiveContainer, CartesianGrid
-} from 'recharts';
 import Link from 'next/link';
+
+// Lazy-load recharts (~200KB) — loaded on-demand, not in initial bundle
+const useRecharts = () => {
+    const [mod, setMod] = useState<any>(null);
+    useEffect(() => {
+        import('recharts').then(setMod);
+    }, []);
+    return mod;
+};
 
 interface LiveStats {
     totalRevenue: number;
@@ -69,6 +74,8 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 export default function DashboardPage() {
     const { user } = useAuthStore();
+    const recharts = useRecharts();
+    const { AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip: RTooltip, ResponsiveContainer, CartesianGrid } = recharts || {};
     const [loading, setLoading] = useState(true);
     const [summary, setSummary] = useState<DailySummary | null>(null);
     const [exchangeRate, setExchangeRate] = useState(4100);
@@ -252,6 +259,7 @@ export default function DashboardPage() {
                             <span className="text-xs text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-full">Live</span>
                         </div>
                         <div className="h-52">
+                        {ResponsiveContainer ? (
                             <ResponsiveContainer width="100%" height="100%">
                                 <AreaChart data={liveStats.hourlyData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
                                     <defs>
@@ -262,12 +270,15 @@ export default function DashboardPage() {
                                     </defs>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#374151" strokeOpacity={0.4} />
                                     <XAxis dataKey="hour" tick={{ fontSize: 10, fill: '#6b7280' }} axisLine={false} tickLine={false} />
-                                    <YAxis tick={{ fontSize: 10, fill: '#6b7280' }} axisLine={false} tickLine={false} tickFormatter={v => `$${v}`} />
-                                    <Tooltip content={<CustomTooltip />} />
+                                    <YAxis tick={{ fontSize: 10, fill: '#6b7280' }} axisLine={false} tickLine={false} tickFormatter={(v: number) => `$${v}`} />
+                                    <RTooltip content={<CustomTooltip />} />
                                     <Area type="monotone" dataKey="revenue" name="revenue" stroke="#f59e0b" strokeWidth={2.5} fillOpacity={1} fill="url(#revenueGrad)" />
                                 </AreaChart>
                             </ResponsiveContainer>
-                        </div>
+                        ) : (
+                            <div className="h-full flex items-center justify-center text-gray-400 animate-pulse">Loading chart...</div>
+                        )}
+                    </div>
                     </div>
 
                     {/* Top Items */}
@@ -310,15 +321,19 @@ export default function DashboardPage() {
                         Orders Per Hour
                     </h3>
                     <div className="h-40">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={liveStats.hourlyData} margin={{ top: 5, right: 5, left: -25, bottom: 0 }}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#374151" strokeOpacity={0.3} />
-                                <XAxis dataKey="hour" tick={{ fontSize: 10, fill: '#6b7280' }} axisLine={false} tickLine={false} />
-                                <YAxis tick={{ fontSize: 10, fill: '#6b7280' }} axisLine={false} tickLine={false} allowDecimals={false} />
-                                <Tooltip content={<CustomTooltip />} />
-                                <Bar dataKey="orders" name="orders" fill="#3b82f6" radius={[4, 4, 0, 0]} maxBarSize={32} />
-                            </BarChart>
-                        </ResponsiveContainer>
+                        {ResponsiveContainer ? (
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={liveStats.hourlyData} margin={{ top: 5, right: 5, left: -25, bottom: 0 }}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" strokeOpacity={0.3} />
+                                    <XAxis dataKey="hour" tick={{ fontSize: 10, fill: '#6b7280' }} axisLine={false} tickLine={false} />
+                                    <YAxis tick={{ fontSize: 10, fill: '#6b7280' }} axisLine={false} tickLine={false} allowDecimals={false} />
+                                    <RTooltip content={<CustomTooltip />} />
+                                    <Bar dataKey="orders" name="orders" fill="#3b82f6" radius={[4, 4, 0, 0]} maxBarSize={32} />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        ) : (
+                            <div className="h-full flex items-center justify-center text-gray-400 animate-pulse">Loading chart...</div>
+                        )}
                     </div>
                 </div>
             )}

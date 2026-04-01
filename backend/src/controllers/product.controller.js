@@ -290,20 +290,35 @@ const searchProducts = async (req, res, next) => {
             limit: 10
         });
 
-        // For serialized products, check available stock
-        const results = await Promise.all(products.map(async (p) => {
+        // Batch stock count for serialized products (avoids N+1)
+        const serializedIds = products.filter(p => p.is_serialized).map(p => p.id);
+        const stockCounts = serializedIds.length > 0
+            ? await SerialItem.findAll({
+                attributes: [
+                    'product_id',
+                    [Product.sequelize.fn('COUNT', Product.sequelize.col('id')), 'stock_count']
+                ],
+                where: { product_id: { [Op.in]: serializedIds }, status: 'in_stock' },
+                group: ['product_id'],
+                raw: true
+            })
+            : [];
+
+        const stockMap = {};
+        for (const row of stockCounts) {
+            stockMap[row.product_id] = parseInt(row.stock_count) || 0;
+        }
+
+        const results = products.map(p => {
             const product = p.toJSON();
             if (product.is_serialized) {
-                const availableCount = await SerialItem.count({
-                    where: { product_id: product.id, status: 'in_stock' }
-                });
-                product.available_stock = availableCount;
+                product.available_stock = stockMap[product.id] || 0;
             } else {
                 product.available_stock = product.quantity;
             }
-            delete product.cost_price; // Don't expose cost in search
+            delete product.cost_price;
             return product;
-        }));
+        });
 
         res.json({
             success: true,
@@ -335,7 +350,22 @@ const getLowStockProducts = async (req, res, next) => {
             order: [['quantity', 'ASC']]
         });
 
-        // Serialized products with low stock
+        // Serialized products with low stock — batch count instead of N+1
+        const serialStockCounts = await SerialItem.findAll({
+            attributes: [
+                'product_id',
+                [sequelize.fn('COUNT', sequelize.col('id')), 'stock_count']
+            ],
+            where: { status: 'in_stock' },
+            group: ['product_id'],
+            raw: true
+        });
+
+        const stockMap = {};
+        for (const row of serialStockCounts) {
+            stockMap[row.product_id] = parseInt(row.stock_count) || 0;
+        }
+
         const serializedProducts = await Product.findAll({
             where: {
                 is_active: true,
@@ -347,17 +377,16 @@ const getLowStockProducts = async (req, res, next) => {
             ]
         });
 
-        const lowStockSerialized = [];
-        for (const product of serializedProducts) {
-            const count = await SerialItem.count({
-                where: { product_id: product.id, status: 'in_stock' }
-            });
-            if (count <= product.low_stock_threshold) {
+        const lowStockSerialized = serializedProducts
+            .filter(product => {
+                const count = stockMap[product.id] || 0;
+                return count <= product.low_stock_threshold;
+            })
+            .map(product => {
                 const p = product.toJSON();
-                p.available_stock = count;
-                lowStockSerialized.push(p);
-            }
-        }
+                p.available_stock = stockMap[product.id] || 0;
+                return p;
+            });
 
         res.json({
             success: true,

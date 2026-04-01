@@ -139,8 +139,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         }
     }, [isAuthenticated, isMounted, _hasHydrated, router]);
 
-    // Keep the frame visible but handle hydration state for content
-    const isLoadingContent = !isMounted || !_hasHydrated || !isAuthenticated || !user;
+
+
 
     const handleLogout = () => {
         logout();
@@ -337,8 +337,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 </header>
 
                 {/* Page content */}
-                <main className="p-3 sm:p-4 lg:p-6 transition-opacity duration-300">
-                    {isLoadingContent ? (
+                <main className="p-3 sm:p-4 lg:p-6">
+                    {(!isMounted || !_hasHydrated) ? (
                         <div className="flex flex-col items-center justify-center h-[50vh] animate-pulse">
                             <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-lg mb-4"></div>
                             <div className="h-4 w-48 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
