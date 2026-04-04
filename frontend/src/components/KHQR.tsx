@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useEffect, useState, useRef } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { generateKHQR, DEFAULT_KHQR_CONFIG, generateMd5 } from '@/lib/khqr.util';
@@ -20,36 +22,44 @@ const getProxyUrl = () => {
         || 'https://risible-marcos-entertainedly.ngrok-free.dev';
 };
 
-// Inline SVG data URI for the Bakong logo center mark (red circle with white lotus symbol)
-// This avoids CORS issues with external URLs
-const BAKONG_CENTER_LOGO = '/images/bakong-logo.png';
-
 export const KHQR = ({ amount, currency, billNumber, onPaymentSuccess, width = 280 }: KHQRProps) => {
     const [status, setStatus] = useState<'pending' | 'success'>('pending');
+    const [khqrString, setKhqrString] = useState<string>('');
+    const [md5, setMd5] = useState<string>('');
     const pollTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-    const khqrString = generateKHQR({
-        amount,
-        currency,
-        merchantName: DEFAULT_KHQR_CONFIG.merchantName,
-        accountNumber: DEFAULT_KHQR_CONFIG.accountNumber,
-        bankCode: DEFAULT_KHQR_CONFIG.bankCode,
-        merchantCity: DEFAULT_KHQR_CONFIG.merchantCity,
-        billNumber: billNumber,
-    });
-
-    const md5 = generateMd5(khqrString);
-
-    // Derived sizes based on width (20:29 ratio)
-    const cardHeight = width * (29 / 20);
-    const headerHeight = cardHeight * 0.12;
-    const qrSize = width * 0.72;
-    const logoSize = qrSize * 0.18;
-    const cornerRadius = width * 0.06;
-
-    // Polling effect
     useEffect(() => {
-        if (status === 'success') return;
+        const generatedString = generateKHQR({
+            amount,
+            currency,
+            merchantName: DEFAULT_KHQR_CONFIG.merchantName,
+            accountNumber: DEFAULT_KHQR_CONFIG.accountNumber,
+            bankCode: DEFAULT_KHQR_CONFIG.bankCode,
+            merchantCity: DEFAULT_KHQR_CONFIG.merchantCity,
+            billNumber: billNumber,
+        });
+
+        setKhqrString(generatedString);
+        setMd5(generateMd5(generatedString));
+    }, [amount, currency, billNumber]);
+
+    // ── Derived sizes based on width ──
+    const cardHeight = width * (29 / 20);
+    // As per the official generic spec, red header is shorter on the left and drops down on the right
+    const shortHeaderHeight = width * 0.20;
+    const tallHeaderHeight = width * 0.30;
+    // 45-degree slant down-right means the tab width is the difference in heights
+    const tabWidth = tallHeaderHeight - shortHeaderHeight;
+
+    // Perfect mathematical alignment for padding and QR size
+    const sidePadding = width * 0.11;
+    const qrSize = width * 0.78; // width - (2 * sidePadding)
+    const logoSize = qrSize * 0.18;
+    const cornerRadius = width * 0.055;
+
+    // ── Polling effect ──
+    useEffect(() => {
+        if (status === 'success' || !md5) return;
 
         const checkPayment = async () => {
             const currentProxy = getProxyUrl();
@@ -86,23 +96,19 @@ export const KHQR = ({ amount, currency, billNumber, onPaymentSuccess, width = 2
         };
     }, [md5, billNumber, status, onPaymentSuccess]);
 
+    // ── Formatted amount ──
     const formattedAmount = (() => {
         if (amount === 0) return '0';
         if (currency === 'KHR') return amount.toLocaleString();
         return amount % 1 !== 0 ? amount.toFixed(2) : String(amount);
     })();
 
+    // Currency label shown after the amount (official style)
+    const currencyLabel = currency;
+
     return (
         <div className="flex flex-col items-center max-w-full">
-            {/* Import Nunito Sans for official branding */}
-            <style jsx global>{`
-                @import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700;800;900&display=swap');
-                .khqr-card {
-                    font-family: 'Nunito Sans', sans-serif;
-                }
-            `}</style>
-
-            {/* Official KHQR Card (20:29 Ratio) */}
+            {/* ═══════════ OFFICIAL KHQR CARD ═══════════ */}
             <div
                 className="khqr-card relative overflow-hidden flex flex-col max-w-full"
                 style={{
@@ -113,45 +119,56 @@ export const KHQR = ({ amount, currency, billNumber, onPaymentSuccess, width = 2
                     background: '#ffffff',
                 }}
             >
-                {/* ═══════════ RED HEADER ═══════════ */}
-                {/* No borderRadius here — the parent card's overflow:hidden + borderRadius clips the top corners */}
-                <div
-                    style={{
-                        position: 'relative',
-                        width: '100%',
-                        height: `${headerHeight}px`,
-                        background: '#E1232E',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flexShrink: 0,
-                    }}
-                >
-                    {/* KHQR Text */}
-                    <span
-                        style={{
-                            color: '#fff',
-                            fontWeight: 900,
-                            fontSize: `${headerHeight * 0.48}px`,
-                            letterSpacing: '-0.02em',
-                            lineHeight: 1,
-                        }}
+                {/* ═══════════ RED HEADER with drop-down tab ═══════════ */}
+                <div style={{ position: 'relative', width: '100%', height: `${shortHeaderHeight}px`, flexShrink: 0, zIndex: 10 }}>
+                    {/* Red background — SVG polygon for the downward tab shape */}
+                    <svg
+                        width={width}
+                        height={tallHeaderHeight}
+                        viewBox={`0 0 ${width} ${tallHeaderHeight}`}
+                        style={{ display: 'block', position: 'absolute', top: 0, left: 0 }}
+                        preserveAspectRatio="none"
                     >
-                        KHQR
-                    </span>
+                        {/* 
+                            Points: 
+                            - Top-left: 0,0
+                            - Top-right: width,0
+                            - Bottom-right: width, tallHeaderHeight
+                            - Slant start: width - tabWidth, shortHeaderHeight
+                            - Bottom-left: 0, shortHeaderHeight
+                        */}
+                        <polygon
+                            points={`0,0 ${width},0 ${width},${tallHeaderHeight} ${width - tabWidth},${shortHeaderHeight} 0,${shortHeaderHeight}`}
+                            fill="#E1232E"
+                        />
+                    </svg>
 
-                    {/* Diagonal cut on bottom-right corner — small notch matching official spec */}
+                    {/* KHQR Logo Text — centered horizontally, aligned to short height vertically */}
                     <div
                         style={{
                             position: 'absolute',
-                            bottom: 0,
-                            right: 0,
-                            width: 0,
-                            height: 0,
-                            borderBottom: `${headerHeight * 0.45}px solid #ffffff`,
-                            borderLeft: `${headerHeight * 0.45}px solid transparent`,
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                            height: `${shortHeaderHeight}px`,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            pointerEvents: 'none',
                         }}
-                    />
+                    >
+                        {/* Official KHQR Vector Logo */}
+                        {/* Official KHQR Logomark Image */}
+                        <img
+                            src="/official-khqr-logo.png"
+                            alt="KHQR"
+                            style={{ 
+                                display: 'block',
+                                height: `${shortHeaderHeight * 0.45}px`,
+                                objectFit: 'contain'
+                            }}
+                        />
+                    </div>
                 </div>
 
                 {/* ═══════════ WHITE BODY ═══════════ */}
@@ -160,18 +177,17 @@ export const KHQR = ({ amount, currency, billNumber, onPaymentSuccess, width = 2
                         flex: 1,
                         display: 'flex',
                         flexDirection: 'column',
-                        padding: `${width * 0.05}px ${width * 0.06}px ${width * 0.04}px`,
+                        padding: `${width * 0.08}px ${sidePadding}px ${width * 0.108}px`,
                         position: 'relative',
+                        zIndex: 5,
                     }}
                 >
-                    {/* Merchant Name */}
+                    {/* Merchant Name — normal case, regular weight (matches official) */}
                     <p
                         style={{
-                            fontWeight: 700,
-                            fontSize: `${cardHeight * 0.03}px`,
-                            color: '#1a1a1a',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.05em',
+                            fontWeight: 400,
+                            fontSize: `${cardHeight * 0.032}px`,
+                            color: '#333333',
                             margin: 0,
                             lineHeight: 1.4,
                         }}
@@ -179,25 +195,37 @@ export const KHQR = ({ amount, currency, billNumber, onPaymentSuccess, width = 2
                         {DEFAULT_KHQR_CONFIG.merchantName}
                     </p>
 
-                    {/* Amount */}
+                    {/* Amount + Currency Code (official style: "1,300,000 KHR" or "1.75 USD") */}
                     <p
                         style={{
-                            fontWeight: 900,
+                            fontWeight: 800,
                             fontSize: `${cardHeight * 0.065}px`,
-                            color: '#1a1a1a',
+                            color: '#000000',
                             margin: `${width * 0.01}px 0 0 0`,
-                            lineHeight: 1.1,
+                            lineHeight: 1.15,
+                            display: 'flex',
+                            alignItems: 'baseline',
+                            gap: `${width * 0.02}px`,
                         }}
                     >
-                        {currency === 'USD' ? '$' : '៛'}{formattedAmount}
+                        <span>{formattedAmount}</span>
+                        <span
+                            style={{
+                                fontWeight: 500,
+                                fontSize: `${cardHeight * 0.032}px`,
+                                color: '#333333',
+                            }}
+                        >
+                            {currencyLabel}
+                        </span>
                     </p>
 
-                    {/* Dashed Separator — official style thin gray dashes */}
+                    {/* Dashed Separator — official style: gray dashes, full width */}
                     <div
                         style={{
                             width: '100%',
-                            borderTop: '1.5px dashed #d1d5db',
-                            margin: `${width * 0.035}px 0`,
+                            borderTop: '1px dashed #b0b0b0',
+                            margin: `${width * 0.045}px 0`,
                         }}
                     />
 
@@ -213,19 +241,21 @@ export const KHQR = ({ amount, currency, billNumber, onPaymentSuccess, width = 2
                             minHeight: 0,
                         }}
                     >
-                        <div style={{ position: 'relative', lineHeight: 0 }}>
-                            <QRCodeSVG
-                                value={khqrString}
-                                size={qrSize}
-                                level="H"
-                                includeMargin={false}
-                                imageSettings={{
-                                    src: BAKONG_CENTER_LOGO,
-                                    height: logoSize,
-                                    width: logoSize,
-                                    excavate: true,
-                                }}
-                            />
+                        <div style={{ position: 'relative', lineHeight: 0, width: qrSize, height: qrSize }}>
+                            {khqrString && (
+                                <QRCodeSVG
+                                    value={khqrString}
+                                    size={qrSize}
+                                    level="H"
+                                    includeMargin={false}
+                                    imageSettings={{
+                                        src: '/bakong-logo.png',
+                                        height: logoSize,
+                                        width: logoSize,
+                                        excavate: true,
+                                    }}
+                                />
+                            )}
                         </div>
 
                         {/* Success Overlay */}
