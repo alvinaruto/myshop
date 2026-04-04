@@ -8,12 +8,11 @@ interface KHQRProps {
     currency: 'USD' | 'KHR';
     billNumber?: string;
     onPaymentSuccess?: (data: any) => void;
-    width?: number; // Allows POS to scale it down, defaults to 240
+    width?: number;
 }
 
 // Helper to get the current proxy URL from localStorage or env
 const getProxyUrl = () => {
-    // Priority: 1. LocalStorage (for manual testing) 2. NextPublic Env (for easier config) 3. Ngrok/Local Fallback
     if (typeof window === 'undefined') return 'https://risible-marcos-entertainedly.ngrok-free.dev';
 
     return localStorage.getItem('bakong_proxy_url')
@@ -21,7 +20,11 @@ const getProxyUrl = () => {
         || 'https://risible-marcos-entertainedly.ngrok-free.dev';
 };
 
-export const KHQR = ({ amount, currency, billNumber, onPaymentSuccess, width = 250 }: KHQRProps) => {
+// Inline SVG data URI for the Bakong logo center mark (red circle with white lotus symbol)
+// This avoids CORS issues with external URLs
+const BAKONG_CENTER_LOGO = '/images/bakong-logo.png';
+
+export const KHQR = ({ amount, currency, billNumber, onPaymentSuccess, width = 280 }: KHQRProps) => {
     const [status, setStatus] = useState<'pending' | 'success'>('pending');
     const pollTimerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -36,6 +39,14 @@ export const KHQR = ({ amount, currency, billNumber, onPaymentSuccess, width = 2
     });
 
     const md5 = generateMd5(khqrString);
+
+    // Derived sizes based on width (20:29 ratio)
+    const cardHeight = width * (29 / 20);
+    const headerHeight = cardHeight * 0.12;
+    const qrSize = width * 0.72;
+    const logoSize = qrSize * 0.18;
+    const cornerRadius = width * 0.06;
+    const cutSize = headerHeight * 0.55;
 
     // Polling effect
     useEffect(() => {
@@ -76,89 +87,211 @@ export const KHQR = ({ amount, currency, billNumber, onPaymentSuccess, width = 2
         };
     }, [md5, billNumber, status, onPaymentSuccess]);
 
+    const formattedAmount = (() => {
+        if (amount === 0) return '0';
+        if (currency === 'KHR') return amount.toLocaleString();
+        return amount % 1 !== 0 ? amount.toFixed(2) : String(amount);
+    })();
+
     return (
         <div className="flex flex-col items-center max-w-full">
             {/* Import Nunito Sans for official branding */}
             <style jsx global>{`
-                @import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700;900&display=swap');
+                @import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700;800;900&display=swap');
                 .khqr-card {
                     font-family: 'Nunito Sans', sans-serif;
                 }
             `}</style>
 
-            {/* Official KHQR Card Style (20:29 Ratio) */}
+            {/* Official KHQR Card (20:29 Ratio) */}
             <div
-                className="khqr-card bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col relative border border-stone-200 aspect-[20/29] max-w-full"
-                style={{ width: `${width}px` }}
+                className="khqr-card relative overflow-hidden flex flex-col max-w-full"
+                style={{
+                    width: `${width}px`,
+                    height: `${cardHeight}px`,
+                    borderRadius: `${cornerRadius}px`,
+                    boxShadow: '0 4px 24px rgba(0,0,0,0.12), 0 1px 4px rgba(0,0,0,0.08)',
+                    background: '#ffffff',
+                }}
             >
-                {/* Official RED Header: #E1232E */}
-                <div className="bg-[#E1232E] w-full h-[18%] flex items-center justify-center relative shrink-0">
-                    <span className="text-white font-black text-2xl tracking-tighter">KHQR</span>
-                    
-                    {/* The signature diagonal cut on the bottom right of the red header block */}
-                    <div className="absolute bottom-0 right-0 w-0 h-0 border-b-[24px] border-b-white border-l-[24px] border-l-transparent"></div>
+                {/* ═══════════ RED HEADER ═══════════ */}
+                <div
+                    style={{
+                        position: 'relative',
+                        width: '100%',
+                        height: `${headerHeight}px`,
+                        background: '#E1232E',
+                        borderRadius: `${cornerRadius}px ${cornerRadius}px 0 0`,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                        overflow: 'hidden',
+                    }}
+                >
+                    {/* KHQR Text */}
+                    <span
+                        style={{
+                            color: '#fff',
+                            fontWeight: 900,
+                            fontSize: `${headerHeight * 0.48}px`,
+                            letterSpacing: '-0.02em',
+                            lineHeight: 1,
+                            zIndex: 2,
+                        }}
+                    >
+                        KHQR
+                    </span>
+
+                    {/* Diagonal cut on bottom-right corner */}
+                    <div
+                        style={{
+                            position: 'absolute',
+                            bottom: 0,
+                            right: 0,
+                            width: 0,
+                            height: 0,
+                            borderBottom: `${cutSize}px solid #ffffff`,
+                            borderLeft: `${cutSize}px solid transparent`,
+                        }}
+                    />
                 </div>
 
-                {/* White Body */}
-                <div className="flex-1 px-5 pt-3 pb-4 flex flex-col relative w-full bg-white">
-                    {/* Merchant Info */}
-                    <div className="w-full text-left">
-                        <p className="font-bold text-stone-500 uppercase tracking-widest text-[9px] leading-relaxed truncate">
-                            {DEFAULT_KHQR_CONFIG.merchantName}
-                        </p>
-                        <p className="font-black text-stone-900 leading-none" style={{ fontSize: `${width * 0.12}px` }}>
-                            {currency === 'USD' ? '$' : '៛'}{amount > 0 && amount % 1 !== 0 ? amount.toFixed(2) : amount}
-                        </p>
-                    </div>
+                {/* ═══════════ WHITE BODY ═══════════ */}
+                <div
+                    style={{
+                        flex: 1,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        padding: `${width * 0.05}px ${width * 0.06}px ${width * 0.04}px`,
+                        position: 'relative',
+                    }}
+                >
+                    {/* Merchant Name */}
+                    <p
+                        style={{
+                            fontWeight: 700,
+                            fontSize: `${cardHeight * 0.03}px`,
+                            color: '#1a1a1a',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.05em',
+                            margin: 0,
+                            lineHeight: 1.4,
+                        }}
+                    >
+                        {DEFAULT_KHQR_CONFIG.merchantName}
+                    </p>
 
-                    {/* Dashed Separator */}
-                    <div className="w-full border-t-2 border-dashed border-stone-200 mt-4 mb-3 relative"></div>
+                    {/* Amount */}
+                    <p
+                        style={{
+                            fontWeight: 900,
+                            fontSize: `${cardHeight * 0.065}px`,
+                            color: '#1a1a1a',
+                            margin: `${width * 0.01}px 0 0 0`,
+                            lineHeight: 1.1,
+                        }}
+                    >
+                        {currency === 'USD' ? '$' : '៛'}{formattedAmount}
+                    </p>
+
+                    {/* Dashed Separator — official style thin gray dashes */}
+                    <div
+                        style={{
+                            width: '100%',
+                            borderTop: '1.5px dashed #d1d5db',
+                            margin: `${width * 0.035}px 0`,
+                        }}
+                    />
 
                     {/* QR Code Section */}
-                    <div className="flex-1 flex flex-col items-center justify-center relative min-h-0 w-full">
-                        <QRCodeSVG
-                            value={khqrString}
-                            size={width * 0.68} /* Size relative to card width */
-                            level="H"
-                            includeMargin={false}
-                            imageSettings={{
-                                src: "https://bakong.nbc.gov.kh/images/bakong_logo.png",
-                                height: width * 0.15,
-                                width: width * 0.15,
-                                excavate: false,
-                            }}
-                        />
+                    <div
+                        style={{
+                            flex: 1,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            position: 'relative',
+                            minHeight: 0,
+                        }}
+                    >
+                        <div style={{ position: 'relative', lineHeight: 0 }}>
+                            <QRCodeSVG
+                                value={khqrString}
+                                size={qrSize}
+                                level="H"
+                                includeMargin={false}
+                                imageSettings={{
+                                    src: BAKONG_CENTER_LOGO,
+                                    height: logoSize,
+                                    width: logoSize,
+                                    excavate: true,
+                                }}
+                            />
+                        </div>
 
-                        {/* Status Overlay */}
+                        {/* Success Overlay */}
                         {status === 'success' && (
-                            <div className="absolute inset-0 flex items-center justify-center bg-white/95 z-20">
+                            <div
+                                style={{
+                                    position: 'absolute',
+                                    inset: 0,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    background: 'rgba(255,255,255,0.95)',
+                                    zIndex: 20,
+                                }}
+                            >
                                 <div className="flex flex-col items-center animate-in zoom-in duration-300">
-                                    <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center shadow-lg shadow-green-200 mb-2">
-                                        <span className="text-white text-2xl">✓</span>
+                                    <div
+                                        style={{
+                                            width: 48,
+                                            height: 48,
+                                            background: '#22c55e',
+                                            borderRadius: '50%',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            boxShadow: '0 4px 12px rgba(34,197,94,0.3)',
+                                            marginBottom: 8,
+                                        }}
+                                    >
+                                        <span style={{ color: '#fff', fontSize: 24 }}>✓</span>
                                     </div>
-                                    <span className="text-green-600 font-black uppercase text-sm tracking-widest">Paid</span>
+                                    <span
+                                        style={{
+                                            color: '#16a34a',
+                                            fontWeight: 900,
+                                            textTransform: 'uppercase',
+                                            fontSize: 14,
+                                            letterSpacing: '0.1em',
+                                        }}
+                                    >
+                                        Paid
+                                    </span>
                                 </div>
                             </div>
                         )}
                     </div>
                 </div>
-
-                {/* Floating Bakong Pulse for Waiting state */}
-                {status === 'pending' && (
-                    <div className="absolute top-[58%] right-4 pointer-events-none">
-                        <div className="relative flex h-3 w-3">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#E1232E] opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-3 w-3 bg-[#E1232E]"></span>
-                        </div>
-                    </div>
-                )}
             </div>
 
             {/* Verification Status Feedback (External to card) */}
             <div className="mt-4 text-center px-4 w-full">
                 {status === 'pending' ? (
                     <div className="flex flex-col items-center gap-1">
-                        <p className="text-[10px] text-stone-400 font-bold uppercase tracking-wider">
+                        <p
+                            style={{
+                                fontSize: 10,
+                                color: '#9ca3af',
+                                fontWeight: 700,
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.12em',
+                                fontFamily: "'Nunito Sans', sans-serif",
+                            }}
+                        >
                             Scan to pay
                         </p>
                         <div className="flex items-center gap-2 text-amber-500 font-medium pt-1">
