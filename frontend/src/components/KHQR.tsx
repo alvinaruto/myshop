@@ -46,7 +46,6 @@ export const KHQR = ({ amount, currency, billNumber, onPaymentSuccess, width = 2
     const qrSize = width * 0.72;
     const logoSize = qrSize * 0.18;
     const cornerRadius = width * 0.06;
-    const cutSize = headerHeight * 0.55;
 
     // Polling effect
     useEffect(() => {
@@ -115,18 +114,17 @@ export const KHQR = ({ amount, currency, billNumber, onPaymentSuccess, width = 2
                 }}
             >
                 {/* ═══════════ RED HEADER ═══════════ */}
+                {/* No borderRadius here — the parent card's overflow:hidden + borderRadius clips the top corners */}
                 <div
                     style={{
                         position: 'relative',
                         width: '100%',
                         height: `${headerHeight}px`,
                         background: '#E1232E',
-                        borderRadius: `${cornerRadius}px ${cornerRadius}px 0 0`,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         flexShrink: 0,
-                        overflow: 'hidden',
                     }}
                 >
                     {/* KHQR Text */}
@@ -137,13 +135,12 @@ export const KHQR = ({ amount, currency, billNumber, onPaymentSuccess, width = 2
                             fontSize: `${headerHeight * 0.48}px`,
                             letterSpacing: '-0.02em',
                             lineHeight: 1,
-                            zIndex: 2,
                         }}
                     >
                         KHQR
                     </span>
 
-                    {/* Diagonal cut on bottom-right corner */}
+                    {/* Diagonal cut on bottom-right corner — small notch matching official spec */}
                     <div
                         style={{
                             position: 'absolute',
@@ -151,8 +148,8 @@ export const KHQR = ({ amount, currency, billNumber, onPaymentSuccess, width = 2
                             right: 0,
                             width: 0,
                             height: 0,
-                            borderBottom: `${cutSize}px solid #ffffff`,
-                            borderLeft: `${cutSize}px solid transparent`,
+                            borderBottom: `${headerHeight * 0.45}px solid #ffffff`,
+                            borderLeft: `${headerHeight * 0.45}px solid transparent`,
                         }}
                     />
                 </div>
