@@ -8,7 +8,7 @@ const http = require('http');
 const https = require('https');
 
 // SET YOUR BAKONG TOKEN HERE
-const BAKONG_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoiMDZmZTRiNDgyMzRhNDYxNCJ9LCJpYXQiOjE3NzA5MTQyNzAsImV4cCI6MTc3ODY5MDI3MH0.HFtmrs8c9x9F-4GDeQK1us5Lqhhc95MT1Rup2kka9IA';
+const BAKONG_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoiMDZmZTRiNDgyMzRhNDYxNCJ9LCJpYXQiOjE3ODEwMTI0ODIsImV4cCI6MTc4ODc4ODQ4Mn0.UjIuKMYcWIFo-rxK6gWQMulwA3oEZxOPx4X0ekn2EbY';
 const PORT = 5005;
 
 const server = http.createServer((req, res) => {
